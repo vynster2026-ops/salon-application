@@ -318,7 +318,6 @@ app.put('/api/bookings/:id', async (req, res) => {
     res.status(404).json({ error: 'Booking not found' });
 });
 
-const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/medika';
 const DB_FILE = 'db.json';
 

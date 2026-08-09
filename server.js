@@ -2359,23 +2359,37 @@ function initWhatsAppClient() {
     if (activeProvider !== 'local') return;
 
     let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    const systemPaths = [
+        '/usr/bin/google-chrome',
+        '/usr/bin/chromium-browser',
+        '/usr/bin/chromium'
+    ];
+    for (const sp of systemPaths) {
+        if (!executablePath && fs.existsSync(sp)) executablePath = sp;
+    }
+
     const candidatePaths = [
         path.join(__dirname, '.cache', 'puppeteer', 'chrome'),
+        '/opt/render/project/src/.cache/puppeteer/chrome',
         '/opt/render/.cache/puppeteer/chrome'
     ];
     for (const baseDir of candidatePaths) {
         try {
             if (!executablePath && fs.existsSync(baseDir)) {
                 const dirs = fs.readdirSync(baseDir);
-                if (dirs.length > 0) {
-                    const buildDir = fs.readdirSync(path.join(baseDir, dirs[0]));
-                    if (buildDir.length > 0) {
-                        const candidate = path.join(baseDir, dirs[0], buildDir[0], 'chrome');
-                        if (fs.existsSync(candidate)) {
-                            executablePath = candidate;
-                            break;
+                for (const d of dirs) {
+                    const subDir = path.join(baseDir, d);
+                    if (fs.statSync(subDir).isDirectory()) {
+                        const buildDirs = fs.readdirSync(subDir);
+                        for (const bd of buildDirs) {
+                            const candidate = path.join(subDir, bd, 'chrome');
+                            if (fs.existsSync(candidate)) {
+                                executablePath = candidate;
+                                break;
+                            }
                         }
                     }
+                    if (executablePath) break;
                 }
             }
         } catch(e) {

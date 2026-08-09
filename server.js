@@ -2356,18 +2356,46 @@ const activeProvider = process.env.WHATSAPP_PROVIDER || 'local';
 function initWhatsAppClient() {
     if (activeProvider !== 'local') return;
 
-    whatsappClient = new WAClient({
-        authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
-        puppeteer: {
-            headless: true,
-            args: [
-                '--no-sandbox', 
-                '--disable-setuid-sandbox',
-                '--disable-blink-features=AutomationControlled',
-                '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-            ]
+    let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+    try {
+        if (!executablePath && fs.existsSync('/opt/render/.cache/puppeteer/chrome')) {
+            const dirs = fs.readdirSync('/opt/render/.cache/puppeteer/chrome');
+            if (dirs.length > 0) {
+                const buildDir = fs.readdirSync(`/opt/render/.cache/puppeteer/chrome/${dirs[0]}`);
+                if (buildDir.length > 0) {
+                    const candidate = `/opt/render/.cache/puppeteer/chrome/${dirs[0]}/${buildDir[0]}/chrome`;
+                    if (fs.existsSync(candidate)) executablePath = candidate;
+                }
+            }
         }
-    });
+    } catch(e) {
+        console.log('[WHATSAPP] Chrome search warning:', e.message);
+    }
+
+    const puppeteerOpts = {
+        headless: true,
+        args: [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-blink-features=AutomationControlled',
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+        ]
+    };
+    if (executablePath) {
+        console.log('[WHATSAPP] Using Chrome executable path:', executablePath);
+        puppeteerOpts.executablePath = executablePath;
+    }
+
+    try {
+        whatsappClient = new WAClient({
+            authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
+            puppeteer: puppeteerOpts
+        });
+    } catch(err) {
+        console.error('[WHATSAPP] Failed to construct client:', err.message);
+        return;
+    }
 
     whatsappClient.on('qr', (qr) => {
         latestQr = qr; // Save QR code

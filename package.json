@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "build": "npx puppeteer browsers install chrome && npm install",
+    "build": "PUPPETEER_CACHE_DIR=./.cache/puppeteer npx puppeteer browsers install chrome && npm install",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -21,6 +21,7 @@
     "mongoose": "^9.6.1",
     "node-cron": "^4.6.0",
     "nodemailer": "^9.0.1",
+    "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
     "razorpay": "^2.9.6",
     "socket.io": "^4.8.3",

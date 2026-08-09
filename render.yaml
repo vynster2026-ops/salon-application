@@ -2,10 +2,12 @@ services:
   - type: web
     name: vynster-salon-application
     runtime: node
-    buildCommand: npx puppeteer browsers install chrome && npm install
+    buildCommand: PUPPETEER_CACHE_DIR=./.cache/puppeteer npx puppeteer browsers install chrome && npm install
     startCommand: node server.js
     plan: free
     envVars:
+      - key: PUPPETEER_CACHE_DIR
+        value: ./.cache/puppeteer
       - key: MONGODB_URI
         sync: false
       - key: RAZORPAY_KEY_ID

@@ -2353,23 +2353,34 @@ let latestQr = null; // Store the latest QR code string globally
 // Initialize native automation client if provider is 'local' or default
 const activeProvider = process.env.WHATSAPP_PROVIDER || 'local';
 
+let qrCodeDataUrl = null;
+
 function initWhatsAppClient() {
     if (activeProvider !== 'local') return;
 
     let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
-    try {
-        if (!executablePath && fs.existsSync('/opt/render/.cache/puppeteer/chrome')) {
-            const dirs = fs.readdirSync('/opt/render/.cache/puppeteer/chrome');
-            if (dirs.length > 0) {
-                const buildDir = fs.readdirSync(`/opt/render/.cache/puppeteer/chrome/${dirs[0]}`);
-                if (buildDir.length > 0) {
-                    const candidate = `/opt/render/.cache/puppeteer/chrome/${dirs[0]}/${buildDir[0]}/chrome`;
-                    if (fs.existsSync(candidate)) executablePath = candidate;
+    const candidatePaths = [
+        path.join(__dirname, '.cache', 'puppeteer', 'chrome'),
+        '/opt/render/.cache/puppeteer/chrome'
+    ];
+    for (const baseDir of candidatePaths) {
+        try {
+            if (!executablePath && fs.existsSync(baseDir)) {
+                const dirs = fs.readdirSync(baseDir);
+                if (dirs.length > 0) {
+                    const buildDir = fs.readdirSync(path.join(baseDir, dirs[0]));
+                    if (buildDir.length > 0) {
+                        const candidate = path.join(baseDir, dirs[0], buildDir[0], 'chrome');
+                        if (fs.existsSync(candidate)) {
+                            executablePath = candidate;
+                            break;
+                        }
+                    }
                 }
             }
+        } catch(e) {
+            console.log('[WHATSAPP] Chrome search warning:', e.message);
         }
-    } catch(e) {
-        console.log('[WHATSAPP] Chrome search warning:', e.message);
     }
 
     const puppeteerOpts = {
@@ -2397,8 +2408,14 @@ function initWhatsAppClient() {
         return;
     }
 
-    whatsappClient.on('qr', (qr) => {
-        latestQr = qr; // Save QR code
+    whatsappClient.on('qr', async (qr) => {
+        latestQr = qr; // Save raw QR code
+        try {
+            const QRCode = require('qrcode');
+            qrCodeDataUrl = await QRCode.toDataURL(qr);
+        } catch(e) {
+            qrCodeDataUrl = null;
+        }
         console.log('========================================================================');
         console.log('📱 SCAN THIS QR CODE IN YOUR WHATSAPP TO ENABLE BACKGROUND AUTOMATION:');
         console.log('========================================================================');

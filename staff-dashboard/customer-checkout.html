@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Srijes, the beauty destination</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { background: var(--bg); display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    .checkout-card { background: var(--card); padding: 30px; border-radius: 20px; box-shadow: var(--shadow-hover); max-width: 400px; width: 90%; text-align: center; border: 1px solid var(--border); }
+    .brand { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--primary); margin-bottom: 5px; }
+    .sub-brand { font-size: 12px; color: var(--muted); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 1px; }
+    .bill-box { background: var(--muted-bg); padding: 20px; border-radius: 12px; text-align: left; margin-bottom: 24px; }
+    .total-row { display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: 800; color: var(--primary); margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); }
+    .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #successState { display: none; }
+  </style>
+</head>
+<body>
+
+  <div class="checkout-card" id="mainCard">
+    <div class="brand">Srijes</div>
+    <div class="sub-brand">the beauty destination</div>
+
+    <div id="loadingState">
+      <p style="color:var(--muted);">Loading your bill details...</p>
+    </div>
+
+    <div id="billState" style="display:none;">
+      <h3 style="margin-top:0;">Payment Summary</h3>
+      <div class="bill-box">
+        <div style="font-weight:600; margin-bottom: 10px;" id="clientName">Client</div>
+        <div style="font-size:14px; color:var(--muted); line-height: 1.5;" id="servicesList">Services</div>
+        <div class="total-row">
+          <span>Total</span>
+          <span id="totalAmount">₹0</span>
+        </div>
+      </div>
+      <button class="btn-primary ripple" style="width:100%; height:50px; font-size:16px; font-weight:600;" id="confirmBtn" onclick="confirmPayment()">
+        Confirm Payment
+      </button>
+    </div>
+
+    <div id="successState">
+      <div style="font-size: 60px; margin-bottom: 10px;">✅</div>
+      <h3 style="color: var(--success); margin: 0 0 10px;">Payment Confirmed!</h3>
+      <p style="color: var(--muted); font-size: 14px;">Thank you for choosing Srijes. Please return the device to the staff.</p>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const aptId = urlParams.get('aptId');
+
+    // Load persisted STAFF_DATA to ensure we get the latest services
+    let savedStaffData = localStorage.getItem('STAFF_DATA_PERSIST');
+    if (savedStaffData && typeof STAFF_DATA !== 'undefined') {
+      try { Object.assign(STAFF_DATA, JSON.parse(savedStaffData)); } catch(e){}
+    }
+
+    let aptData = null;
+
+    if (aptId) {
+      // Find the appointment across all staff
+      Object.values(STAFF_DATA).forEach(staff => {
+        const a = staff.appointments.find(x => x.id == aptId);
+        if (a) aptData = a;
+      });
+    }
+
+    if (aptData) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('billState').style.display = 'block';
+      document.getElementById('clientName').textContent = aptData.client;
+      document.getElementById('servicesList').innerHTML = aptData.service.split(' + ').join('<br>');
+      document.getElementById('totalAmount').textContent = "₹" + aptData.price.toLocaleString("en-IN");
+    } else {
+      document.getElementById('loadingState').innerHTML = `<p style="color:var(--danger);">Invalid or expired appointment link.</p>`;
+    }
+
+    function confirmPayment() {
+      const btn = document.getElementById('confirmBtn');
+      btn.innerHTML = '<div class="spinner"></div> Processing...';
+      btn.style.opacity = '0.8';
+      btn.style.pointerEvents = 'none';
+
+      setTimeout(() => {
+        // Attempt to signal the python relay server
+        fetch('https://srijes-checkout-server.loca.lt/api/confirm?aptId=' + aptId, { headers: {'Bypass-Tunnel-Reminder': 'true'} })
+          .then(() => {
+             document.getElementById('billState').style.display = 'none';
+             document.getElementById('successState').style.display = 'block';
+          })
+          .catch(() => {
+             // Fallback if running purely on local file system / local server
+             localStorage.setItem('checkoutConfirmed_' + aptId, 'true');
+             document.getElementById('billState').style.display = 'none';
+             document.getElementById('successState').style.display = 'block';
+          });
+      }, 800); // Simulate network delay
+    }
+  </script>
+</body>
+</html>

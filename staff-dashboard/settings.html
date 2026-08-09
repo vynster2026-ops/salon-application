@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Srijes, the beauty destination</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-body">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon" style="font-size: 24px; color: var(--primary); margin-right: 12px;">✦</div>
+      <div>
+        <div class="brand-name" style="line-height: 1.1;">Srijes<br><span style="font-size: 11px; font-weight: normal; color: var(--muted);">the beauty destination</span></div>
+      </div>
+      <button class="close-btn" id="closeSidebar" onclick="closeSidebar()">
+        ✕
+      </button>
+    </div>
+
+    <div class="staff-badge">
+      <div class="staff-avatar-sm" id="sidebarAvatar">PS</div>
+      <div class="staff-badge-info">
+        <div class="staff-badge-name" id="sidebarName">Priya Sharma</div>
+        <div class="staff-badge-role" id="sidebarRole">
+          Senior Stylist · 9AM–6PM
+        </div>
+      </div>
+      <div class="status-dot active" id="sidebarDot"></div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item ripple" onclick="window.location.href='index.html'">
+        <span class="nav-icon">⊞</span> My Dashboard
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='schedule.html'">
+        <span class="nav-icon">📅</span> My Schedule
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='attendance.html'">
+        <span class="nav-icon">🕐</span> Attendance
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='clients.html'">
+        <span class="nav-icon">👥</span> Client Records
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='services.html'">
+        <span class="nav-icon">✂️</span> Services
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='analytics.html'">
+        <span class="nav-icon">📊</span> Analytics
+      </button>
+      <button class="nav-item ripple" onclick="openInventoryModal()">
+        <span class="nav-icon">📦</span> Request Supplies
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='staff-summary.html'">
+        <span class="nav-icon">📝</span> Staff Summary
+      </button>
+      <button class="nav-item ripple active" onclick="window.location.href='settings.html'">
+        <span class="nav-icon">⚙️</span> Settings
+        <span class="nav-dot"></span>
+      </button>
+    </nav>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="menu-btn" onclick="openSidebar()">☰</button>
+      <div class="topbar-info">
+        <div class="topbar-title">Account Settings</div>
+      </div>
+      <div class="header-profile">
+        <div class="staff-avatar-sm" id="headerAvatar">PS</div>
+        <div class="header-profile-info" >
+          <div class="hp-name" id="headerName">Priya Sharma</div>
+          <div class="hp-role">Senior Stylist · <span style="color: #e74c3c; font-weight: 600">Logout 🚪</span></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="page-heading">
+        <h1 class="greeting">Profile Settings</h1>
+        <p class="shift-line">Manage your professional profile and account security</p>
+      </div>
+
+      <div class="card" style="max-width: 800px; margin: 0 auto; padding: 40px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 35px;">
+          <div style="display: flex; align-items: center; gap: 20px;">
+            <div class="avatar-wrapper" style="position: relative; cursor: pointer; width: 80px; height: 80px;"
+              onclick="if(isEditMode) document.getElementById('avatarUpload').click()">
+              <div class="staff-avatar-lg" id="settingsAvatar"
+                style="width: 100%; height: 100%; font-size: 28px; border-radius: 20px; background: linear-gradient(135deg, #1a6b8a, #4a90e2); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 4px 15px rgba(26,107,138,0.2);">
+                PS</div>
+              <div class="avatar-overlay edit-only hidden"
+                style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); border-radius: 20px; color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600;">
+                📷 Change</div>
+              <input type="file" id="avatarUpload" class="hidden" accept="image/*" onchange="previewAvatar(this)" />
+            </div>
+            <div>
+              <h2 style="font-family: 'Playfair Display', serif; margin: 0; font-size: 24px; color: var(--fg);"
+                id="settingsDisplayName">Priya Sharma</h2>
+              <p style="color: var(--muted); margin-top: 4px; font-size: 14px;" id="settingsDisplayRole">Senior Stylist
+              </p>
+            </div>
+          </div>
+          <button type="button" id="editToggleBtn" class="btn-outline ripple" onclick="toggleEditMode()"
+            style="padding: 8px 20px; font-size: 13px;">✏️ Edit Profile</button>
+        </div>
+
+        <!-- Stats row matching Dashboard profile card -->
+        <div style="display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap;">
+          <div
+            style="flex:1; min-width:100px; background: var(--bg); border-radius:12px; padding:14px; text-align:center;">
+            <div
+              style="font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">
+              Rating</div>
+            <div style="font-size:20px; font-weight:700; color:var(--primary);" id="setRating">—</div>
+          </div>
+          <div
+            style="flex:1; min-width:100px; background: var(--bg); border-radius:12px; padding:14px; text-align:center;">
+            <div
+              style="font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">
+              Attendance</div>
+            <div style="font-size:20px; font-weight:700; color:var(--success);" id="setAttendance">—</div>
+          </div>
+          <div
+            style="flex:1; min-width:100px; background: var(--bg); border-radius:12px; padding:14px; text-align:center;">
+            <div
+              style="font-size:11px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">
+              Return Rate</div>
+            <div style="font-size:20px; font-weight:700; color:var(--warning);" id="setReturnRate">—</div>
+          </div>
+        </div>
+
+        <form id="settingsForm" onsubmit="event.preventDefault(); saveSettings();">
+
+        <div class="settings-container">
+          <div class="settings-sidebar">
+            <button type="button" class="settings-tab active" onclick="switchSettingsTab('tab-general', this)">👤 General Profile</button>
+            <button type="button" class="settings-tab" onclick="switchSettingsTab('tab-portfolio', this)">🎨 Portfolio & Social</button>
+            <button type="button" class="settings-tab" onclick="switchSettingsTab('tab-preferences', this)">⚙️ Preferences</button>
+            <button type="button" class="settings-tab" onclick="switchSettingsTab('tab-appearance', this)">🌙 Appearance</button>
+            <button type="button" class="settings-tab" onclick="switchSettingsTab('tab-security', this)">🔐 Security & Legal</button>
+          </div>
+          
+          <div class="settings-content-area">
+
+
+          <div id="tab-general" class="settings-tab-pane active">
+          <!-- 1. PERSONAL INFO -->
+          <div class="settings-section">
+            <h3 class="section-title">Personal Information</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="setName" class="form-input readonly-style" value="Priya Sharma" readonly
+                  required />
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" id="setPhone" class="form-input readonly-style" value="98765 43210" readonly
+                  required />
+              </div>
+              <div class="form-group full-width">
+                <label>Email Address</label>
+                <input type="email" id="setEmail" class="form-input readonly-style" value="priya@medhika.in" readonly
+                  required />
+              </div>
+              <div class="form-group">
+                <label>Join Date</label>
+                <input type="text" id="setJoinDate" class="form-input readonly-style" value="Mar 2022" readonly />
+              </div>
+              <div class="form-group">
+                <label>Shift Hours</label>
+                <input type="text" id="setShift" class="form-input readonly-style" value="9:00 AM – 6:00 PM" readonly />
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. PROFESSIONAL PROFILE -->
+          <div class="settings-section">
+            <h3 class="section-title">Professional Profile</h3>
+            <div class="form-grid">
+              <div class="form-group full-width">
+                <label>Professional Role</label>
+                <input type="text" id="setRoleText" class="form-input readonly-style" value="Senior Stylist" readonly />
+                <select id="setRole" class="form-input hidden">
+                  <option value="Senior Stylist">Senior Stylist</option>
+                  <option value="Junior Stylist">Junior Stylist</option>
+                  <option value="Makeup Artist">Makeup Artist</option>
+                  <option value="Nail Technician">Nail Technician</option>
+                  <option value="Salon Manager">Salon Manager</option>
+                </select>
+              </div>
+              <div class="form-group full-width">
+                <label>Professional Bio</label>
+                <textarea id="setBio" class="form-input readonly-style" rows="3"
+                  readonly>Senior stylist with over 8 years of experience in bridal makeup and advanced hair coloring techniques. Passionate about creating unique looks for every client.</textarea>
+              </div>
+              <div class="form-group full-width">
+                <label>My Specialties <span class="edit-only hidden"
+                    style="font-size:12px; color:var(--primary); cursor:pointer; float:right; font-weight:600;"
+                    onclick="addSpecialty()">+ Add Custom</span></label>
+                <div class="specialty-grid" id="specialtyContainer">
+                  <label class="checkbox-item"><input type="checkbox" checked disabled /> Haircut</label>
+                  <label class="checkbox-item"><input type="checkbox" checked disabled /> Hair Color</label>
+                  <label class="checkbox-item"><input type="checkbox" checked disabled /> Bridal Makeup</label>
+                  <label class="checkbox-item"><input type="checkbox" disabled /> Nail Art</label>
+                  <label class="checkbox-item"><input type="checkbox" disabled /> Skin Treatments</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          </div>
+
+          <div id="tab-preferences" class="settings-tab-pane">
+          <!-- 3. BOOKING & CALENDAR PREFERENCES -->
+          <div class="settings-section">
+            <h3 class="section-title">Booking & Calendar Preferences</h3>
+            <div class="form-grid">
+              <div class="form-group full-width" style="display: flex; align-items: center; justify-content: space-between; background: var(--muted-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
+                <div>
+                  <strong style="color: var(--fg); font-size: 15px;">Accept Online Bookings</strong>
+                  <p style="color: var(--muted); font-size: 13px; margin-top: 4px; max-width: 450px;">Allow clients to book you directly from the online booking portal.</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setOnlineBooking" checked disabled class="pro-toggle" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label>Calendar Sync</label>
+                <div style="display: flex; gap: 10px;">
+                  <button type="button" class="btn-outline ripple pro-btn" style="flex: 1;" disabled id="btnSyncGoogle" onclick="showToast('Google Calendar Synced!', 'success', '📅')">Sync Google</button>
+                  <button type="button" class="btn-outline ripple pro-btn" style="flex: 1;" disabled id="btnSyncApple" onclick="showToast('Apple Calendar Synced!', 'success', '📅')">Sync Apple</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Service Buffer Time</label>
+                <select id="setBufferTime" class="form-input readonly-style pro-select" disabled>
+                  <option value="0">None</option>
+                  <option value="5">5 minutes</option>
+                  <option value="10" selected>10 minutes</option>
+                  <option value="15">15 minutes</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- WORKING HOURS EDITOR -->
+          <div class="settings-section">
+            <h3 class="section-title">🕐 Working Hours</h3>
+            <p style="color:var(--muted); font-size:13px; margin-bottom:16px;">Set your availability for each day of the week.</p>
+            <div id="workingHoursEditor" style="display:flex; flex-direction:column; gap:10px;"></div>
+          </div>
+
+          <!-- 4. NOTIFICATION PREFERENCES -->
+          <div class="settings-section">
+            <h3 class="section-title">Notification Preferences</h3>
+            <div class="form-grid">
+              <div class="form-group full-width" style="background: var(--muted-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                  <div style="font-weight: 600; font-size: 14px;">New Appointment Booked</div>
+                  <div style="display: flex; gap: 16px; font-size: 13px;">
+                    <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="notifApptEmail" checked disabled class="pro-toggle"> Email</label>
+                    <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="notifApptSms" checked disabled class="pro-toggle"> SMS</label>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--border);">
+                  <div style="font-weight: 600; font-size: 14px;">Appointment Changes / Cancellations</div>
+                  <div style="display: flex; gap: 16px; font-size: 13px;">
+                    <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="notifChangeEmail" checked disabled class="pro-toggle"> Email</label>
+                    <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="notifChangeSms" checked disabled class="pro-toggle"> SMS</label>
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                  <div style="font-weight: 600; font-size: 14px;">Daily Schedule Summary</div>
+                  <div style="display: flex; gap: 16px; font-size: 13px;">
+                    <label style="display: flex; align-items: center; gap: 6px;"><input type="checkbox" id="notifDailyEmail" checked disabled class="pro-toggle"> Email</label>
+                    <label style="display: flex; align-items: center; gap: 6px; visibility: hidden;"><input type="checkbox" disabled> SMS</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          </div>
+
+          <div id="tab-portfolio" class="settings-tab-pane">
+          <!-- 5. PORTFOLIO & SOCIAL MEDIA -->
+          <div class="settings-section">
+            <h3 class="section-title">Portfolio & Social Media</h3>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Instagram Handle</label>
+                <div style="display: flex; align-items: center;">
+                  <span style="padding: 10px 12px; background: var(--border); border-radius: 8px 0 0 8px; color: var(--muted); border: 1px solid var(--border); border-right: none;">@</span>
+                  <input type="text" id="setInstagram" class="form-input readonly-style pro-input" style="border-radius: 0 8px 8px 0;" placeholder="Not provided" value="priya.styles" readonly />
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Portfolio Website</label>
+                <input type="url" id="setPortfolioUrl" class="form-input readonly-style pro-input" placeholder="Not provided" value="" readonly />
+              </div>
+              <div class="form-group full-width" style="display: flex; align-items: center; justify-content: space-between; background: var(--muted-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border); margin-top: 8px;">
+                <div>
+                  <strong style="color: var(--fg); font-size: 15px;">Show Public Reviews</strong>
+                  <p style="color: var(--muted); font-size: 13px; margin-top: 4px; max-width: 450px;">Display client ratings and reviews on your online booking profile.</p>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setShowReviews" checked disabled class="pro-toggle" />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          </div>
+
+          <!-- APPEARANCE TAB -->
+          <div id="tab-appearance" class="settings-tab-pane">
+            <div class="settings-section" style="border-top: none; padding-top: 0; margin-top: 0;">
+              <h3 class="section-title">🌙 Theme</h3>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; background:var(--muted-bg); padding:18px 20px; border-radius:12px; border:1px solid var(--border);">
+                  <div>
+                    <strong style="color:var(--fg); font-size:15px;">Dark Mode</strong>
+                    <p style="color:var(--muted); font-size:13px; margin-top:4px;">Switch between light and dark themes across all pages.</p>
+                  </div>
+                  <label class="toggle-switch" style="cursor:pointer;">
+                    <input type="checkbox" id="darkModeToggle" onchange="applyDarkMode(this.checked)" />
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h3 class="section-title">🎨 Accent Color</h3>
+              <p style="color:var(--muted); font-size:13px; margin-bottom:16px;">Choose a primary accent color for the dashboard.</p>
+              <div id="accentColorPicker" style="display:flex; flex-wrap:wrap; gap:12px;">
+                <button type="button" class="accent-swatch" data-color="#1a6b8a" style="background:#1a6b8a;" title="Ocean Blue" onclick="applyAccent('#1a6b8a', this)"></button>
+                <button type="button" class="accent-swatch" data-color="#7c3aed" style="background:#7c3aed;" title="Royal Purple" onclick="applyAccent('#7c3aed', this)"></button>
+                <button type="button" class="accent-swatch" data-color="#db2777" style="background:#db2777;" title="Rose Pink" onclick="applyAccent('#db2777', this)"></button>
+                <button type="button" class="accent-swatch" data-color="#059669" style="background:#059669;" title="Emerald Green" onclick="applyAccent('#059669', this)"></button>
+                <button type="button" class="accent-swatch" data-color="#d97706" style="background:#d97706;" title="Amber" onclick="applyAccent('#d97706', this)"></button>
+                <button type="button" class="accent-swatch" data-color="#dc2626" style="background:#dc2626;" title="Ruby Red" onclick="applyAccent('#dc2626', this)"></button>
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <h3 class="section-title">🔤 Text Size</h3>
+              <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                <button type="button" id="fontSm" class="font-size-btn" onclick="applyFontSize(14, this)" style="padding:10px 24px; border-radius:8px; border:1px solid var(--border); background:var(--muted-bg); color:var(--fg); font-size:13px; cursor:pointer;">Small</button>
+                <button type="button" id="fontMd" class="font-size-btn active-font" onclick="applyFontSize(16, this)" style="padding:10px 24px; border-radius:8px; border:2px solid var(--primary); background:var(--primary-light); color:var(--primary); font-size:14px; cursor:pointer; font-weight:600;">Medium</button>
+                <button type="button" id="fontLg" class="font-size-btn" onclick="applyFontSize(18, this)" style="padding:10px 24px; border-radius:8px; border:1px solid var(--border); background:var(--muted-bg); color:var(--fg); font-size:16px; cursor:pointer;">Large</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="tab-security" class="settings-tab-pane">
+          <!-- 6. COMPLIANCE & FINANCIALS -->
+          <div class="settings-section">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 15px;">
+              <h3 class="section-title" style="margin-bottom: 0;">Compliance & Financials</h3>
+              <span
+                style="font-size: 11px; color: var(--warning); font-weight: 600; padding: 4px 8px; background: var(--warning-bg); border-radius: 8px;">🔒
+                Locked once saved</span>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Aadhar Number</label>
+                <input type="text" id="setAadhar" class="form-input readonly-style" placeholder="Not provided" value=""
+                  readonly />
+              </div>
+              <div class="form-group">
+                <label>PAN Number</label>
+                <input type="text" id="setPan" class="form-input readonly-style" placeholder="Not provided" value=""
+                  readonly style="text-transform: uppercase" />
+              </div>
+              <div class="form-group">
+                <label>Bank Account Number</label>
+                <input type="text" id="setBankAcc" class="form-input readonly-style" placeholder="Not provided" value=""
+                  readonly />
+              </div>
+              <div class="form-group">
+                <label>Bank IFSC Code</label>
+                <input type="text" id="setBankIfsc" class="form-input readonly-style" placeholder="Not provided"
+                  value="" readonly style="text-transform: uppercase" />
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. SECURITY -->
+          <div class="settings-section">
+            <h3 class="section-title">Security</h3>
+            <div
+              style="background: var(--muted-bg); padding: 24px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 24px;">
+              <div style="margin-bottom: 20px;">
+                <strong style="color: var(--fg); font-size: 16px; font-family: 'Playfair Display', serif;">Change
+                  Password</strong>
+                <p style="color: var(--muted); font-size: 13px; margin-top: 4px;">Leave these fields blank if you do not
+                  wish to change your current password.</p>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>New Password</label>
+                  <input type="password" id="setPass" class="form-input readonly-style" placeholder="********" readonly
+                    style="background: var(--bg) !important;" />
+                </div>
+                <div class="form-group">
+                  <label>Confirm Password</label>
+                  <input type="password" id="setConfirm" class="form-input readonly-style" placeholder="********"
+                    readonly style="background: var(--bg) !important;" />
+                </div>
+              </div>
+            </div>
+
+            <div
+              style="background: var(--muted-bg); padding: 24px; border-radius: 12px; border: 1px solid var(--border);">
+              <div
+                style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 15px; border-bottom: 1px solid var(--border); margin-bottom: 15px;">
+                <div>
+                  <strong style="color: var(--fg); font-size: 15px;">Two-Factor Authentication (2FA)</strong>
+                  <p style="color: var(--muted); font-size: 13px; margin-top: 4px; max-width: 450px;">Add an extra layer
+                    of security to your account by requiring a verification code when logging in.</p>
+                </div>
+                <label class="toggle-switch" style="opacity: 0.8;">
+                  <input type="checkbox" id="twoFactorToggle" disabled />
+                  <span class="slider"></span>
+                </label>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                  <strong style="color: var(--fg); font-size: 15px;">Login Alerts</strong>
+                  <p style="color: var(--muted); font-size: 13px; margin-top: 4px; max-width: 450px;">Receive an email
+                    notification whenever your account is accessed from a new device or location.</p>
+                </div>
+                <label class="toggle-switch" style="opacity: 0.8;">
+                  <input type="checkbox" id="loginAlertsToggle" checked disabled />
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          </div>
+
+          <div id="formActions" class="hidden"
+            style="margin-top: 40px; display: flex; gap: 16px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid var(--border);">
+            <button type="button" class="btn-outline ripple" onclick="toggleEditMode()"
+              style="padding: 12px 30px;">Cancel</button>
+            <button type="submit" class="btn-primary ripple" style="padding: 12px 40px; font-weight: 700;">Save
+              Changes</button>
+          </div>
+                  </div>
+        </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  
+  <style>
+    .settings-container {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    
+    .settings-sidebar {
+      display: flex;
+      flex-direction: row;
+      overflow-x: auto;
+      gap: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .settings-tab {
+      background: none;
+      border: none;
+      color: var(--muted);
+      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    
+    .settings-tab:hover {
+      background: var(--muted-bg);
+      color: var(--fg);
+    }
+    
+    .settings-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .settings-content-area {
+      flex: 1;
+    }
+    
+    .settings-tab-pane {
+      display: none;
+      animation: fadeIn 0.3s ease-out;
+    }
+    
+    .settings-tab-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (min-width: 768px) {
+      .settings-container {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+      .settings-sidebar {
+        flex-direction: column;
+        width: 240px;
+        flex-shrink: 0;
+        border-bottom: none;
+        border-right: 1px solid var(--border);
+        padding-right: 24px;
+        padding-bottom: 0;
+      }
+      .settings-tab {
+        text-align: left;
+      }
+    }
+
+    /* Accent swatches */
+    .accent-swatch {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .accent-swatch:hover { transform: scale(1.15); }
+    .accent-swatch.selected { border-color: #fff; box-shadow: 0 0 0 3px var(--primary), 0 2px 8px rgba(0,0,0,0.2); transform: scale(1.12); }
+
+    /* Working hours row */
+    .wh-row { display: flex; align-items: center; gap: 12px; background: var(--muted-bg); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); transition: background 0.2s; }
+    .wh-day { font-weight: 700; font-size: 13px; color: var(--fg); width: 36px; }
+    .wh-row.day-off { opacity: 0.5; }
+    .wh-times { display: flex; gap: 8px; align-items: center; flex: 1; margin-left: 12px; }
+    .wh-times select { border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--fg); padding: 5px 8px; font-size: 12px; cursor: pointer; }
+    .wh-times select:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    
+    .readonly-style {
+      background: transparent !important;
+      border-color: transparent !important;
+      padding-left: 0 !important;
+      font-weight: 600;
+      color: var(--primary) !important;
+      cursor: default;
+    }
+
+    .readonly-style::placeholder {
+      color: transparent;
+    }
+
+    #setAadhar.readonly-style::placeholder,
+    #setPan.readonly-style::placeholder,
+    #setBankAcc.readonly-style::placeholder,
+    #setBankIfsc.readonly-style::placeholder {
+      color: var(--muted) !important;
+      font-weight: normal;
+      font-style: italic;
+    }
+
+    .settings-section {
+      margin-top: 35px;
+      padding-top: 25px;
+      border-top: 1px solid var(--border);
+    }
+
+    .settings-section:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 20px;
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    input:checked+.slider {
+      background-color: var(--primary);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(20px);
+    }
+
+    .avatar-wrapper:hover .edit-only:not(.hidden) {
+      opacity: 1 !important;
+    }
+
+    .avatar-overlay {
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- INVENTORY MODAL -->
+  <div class="modal-overlay hidden" id="inventoryModalOverlay" onclick="closeInventoryModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 400px">
+      <div class="modal-head">
+        <h3>Request Supplies</h3>
+        <button class="close-btn" style="display: block" onclick="closeInventoryModal()">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Select Item</label>
+            <select id="invItem" class="form-input" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                ">
+              <option value="Olaplex">Olaplex</option>
+              <option value="Shampoo">Shampoo</option>
+              <option value="Gloves">Gloves</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Quantity Needed</label>
+            <input type="number" id="invQty" class="form-input" value="1" min="1" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Station / Room</label>
+            <input type="text" id="invStation" class="form-input" placeholder="e.g., Station 4" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <button class="btn-primary ripple" style="width: 100%; margin-top: 8px; padding: 10px"
+            onclick="submitInventoryRequest()">
+            Send Request
+          </button>
+        </div>
+      </div>
+      </div>
+
+  <!-- SERVICE MENU CHEAT SHEET MODAL -->
+  <div class="modal-overlay hidden" id="cheatSheetModalOverlay" onclick="closeCheatSheetModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 600px; width:90%;">
+      <div class="modal-head">
+        <h3>Service & Price Menu</h3>
+        <button class="close-btn" style="display: block" onclick="closeCheatSheetModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <input type="text" id="cheatSheetSearch" class="form-input" placeholder="Search services..."
+          onkeyup="filterCheatSheet()"
+          style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); margin-bottom: 16px;" />
+
+        <div id="cheatSheetBody"
+          style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 4px;">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF CHAT FAB & WINDOW -->
+  <button class="chat-fab ripple" onclick="toggleStaffChat()">💬</button>
+  <div class="chat-window hidden" id="staffChatWindow">
+    <div class="chat-header">
+      <div style="font-weight: 600">Reception Desk</div>
+      <button class="close-btn" style="display: block" onclick="toggleStaffChat()">
+        ✕
+      </button>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="chat-msg received">
+        Hi! Let us know if you need anything.
+      </div>
+    </div>
+    <div class="chat-quick-replies">
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Running 10 mins late')">
+        10 mins late
+      </button>
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Client arrived?')">
+        Client arrived?
+      </button>
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Need help at station')">
+        Need help
+      </button>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Type message..."
+        onkeypress="if (event.key === 'Enter') sendChatMessage(this.value);" />
+      <button class="btn-primary ripple" onclick="sendChatMessage(document.getElementById('chatInput').value)">
+      color: var(--muted) !important;
+      font-weight: normal;
+      font-style: italic;
+    }
+
+    .settings-section {
+      margin-top: 35px;
+      padding-top: 25px;
+      border-top: 1px solid var(--border);
+    }
+
+    .settings-section:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 20px;
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    input:checked+.slider {
+      background-color: var(--primary);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(20px);
+    }
+
+    .avatar-wrapper:hover .edit-only:not(.hidden) {
+      opacity: 1 !important;
+    }
+
+    .avatar-overlay {
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- INVENTORY MODAL -->
+  <div class="modal-overlay hidden" id="inventoryModalOverlay" onclick="closeInventoryModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 400px">
+      <div class="modal-head">
+        <h3>Request Supplies</h3>
+        <button class="close-btn" style="display: block" onclick="closeInventoryModal()">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Select Item</label>
+            <select id="invItem" class="form-input" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                ">
+              <option value="Olaplex">Olaplex</option>
+              <option value="Shampoo">Shampoo</option>
+              <option value="Gloves">Gloves</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Quantity Needed</label>
+            <input type="number" id="invQty" class="form-input" value="1" min="1" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Station / Room</label>
+            <input type="text" id="invStation" class="form-input" placeholder="e.g., Station 4" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <button class="btn-primary ripple" style="width: 100%; margin-top: 8px; padding: 10px"
+            onclick="submitInventoryRequest()">
+            Send Request
+          </button>
+        </div>
+      </div>
+      </div>
+
+  <!-- SERVICE MENU CHEAT SHEET MODAL -->
+  <div class="modal-overlay hidden" id="cheatSheetModalOverlay" onclick="closeCheatSheetModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 600px; width:90%;">
+      <div class="modal-head">
+        <h3>Service & Price Menu</h3>
+        <button class="close-btn" style="display: block" onclick="closeCheatSheetModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <input type="text" id="cheatSheetSearch" class="form-input" placeholder="Search services..."
+          onkeyup="filterCheatSheet()"
+          style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); margin-bottom: 16px;" />
+
+        <div id="cheatSheetBody"
+          style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 4px;">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF CHAT FAB & WINDOW -->
+  <button class="chat-fab ripple" onclick="toggleStaffChat()">💬</button>
+  <div class="chat-window hidden" id="staffChatWindow">
+    <div class="chat-header">
+      <div style="font-weight: 600">Reception Desk</div>
+      <button class="close-btn" style="display: block" onclick="toggleStaffChat()">
+        ✕
+      </button>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="chat-msg received">
+        Hi! Let us know if you need anything.
+      </div>
+    </div>
+    <div class="chat-quick-replies">
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Running 10 mins late')">
+        10 mins late
+      </button>
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Client arrived?')">
+        Client arrived?
+      </button>
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Need help at station')">
+        Need help
+      </button>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Type message..."
+        onkeypress="if (event.key === 'Enter') sendChatMessage(this.value);" />
+      <button class="btn-primary ripple" onclick="sendChatMessage(document.getElementById('chatInput').value)">
+        ➤
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    let isEditMode = false;
+
+    // ══════════════════════════════════════
+    // APPEARANCE FEATURES (Live, no edit-mode required)
+    // ══════════════════════════════════════
+
+    function applyDarkMode(enabled) {
+      document.body.classList.toggle('dark', enabled);
+      localStorage.setItem('darkMode', enabled);
+      // Also propagate to all open tabs by broadcasting a storage event
+    }
+
+    function applyAccent(color, btn) {
+      document.documentElement.style.setProperty('--primary', color);
+      // Derive a light variant
+      document.documentElement.style.setProperty('--primary-light', color + '22');
+      localStorage.setItem('accentColor', color);
+      document.querySelectorAll('.accent-swatch').forEach(s => s.classList.remove('selected'));
+      btn.classList.add('selected');
+      showToast('Accent color applied!', 'success', '🎨');
+    }
+
+    function applyFontSize(size, btn) {
+      document.documentElement.style.fontSize = size + 'px';
+      localStorage.setItem('fontSize', size);
+      document.querySelectorAll('.font-size-btn').forEach(b => {
+        b.style.border = '1px solid var(--border)';
+        b.style.background = 'var(--muted-bg)';
+        b.style.color = 'var(--fg)';
+        b.style.fontWeight = 'normal';
+      });
+      btn.style.border = '2px solid var(--primary)';
+      btn.style.background = 'var(--primary-light)';
+      btn.style.color = 'var(--primary)';
+      btn.style.fontWeight = '700';
+      showToast('Text size updated!', 'success', '🔤');
+    }
+
+    // ══════════════════════════════════════
+    // WORKING HOURS EDITOR
+    // ══════════════════════════════════════
+    const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const TIMES = [];
+    for (let h = 6; h <= 22; h++) {
+      ['00', '30'].forEach(m => {
+        const suffix = h < 12 ? 'AM' : 'PM';
+        const displayH = h > 12 ? h - 12 : h === 0 ? 12 : h;
+        TIMES.push(`${displayH}:${m} ${suffix}`);
+      });
+    }
+
+    function buildWorkingHoursEditor() {
+      const saved = JSON.parse(localStorage.getItem('workingHours') || 'null');
+      const defaults = {
+        Mon: { on: true, start: '9:00 AM', end: '6:00 PM' },
+        Tue: { on: true, start: '9:00 AM', end: '6:00 PM' },
+        Wed: { on: true, start: '9:00 AM', end: '6:00 PM' },
+        Thu: { on: true, start: '9:00 AM', end: '6:00 PM' },
+        Fri: { on: true, start: '9:00 AM', end: '6:00 PM' },
+        Sat: { on: true, start: '10:00 AM', end: '4:00 PM' },
+        Sun: { on: false, start: '10:00 AM', end: '2:00 PM' },
+      };
+      const schedule = saved || defaults;
+      const editor = document.getElementById('workingHoursEditor');
+      if (!editor) return;
+      editor.innerHTML = '';
+      DAYS.forEach(day => {
+        const d = schedule[day] || { on: true, start: '9:00 AM', end: '6:00 PM' };
+        const timeOpts = TIMES.map(t => `<option value="${t}" ${t === d.start ? 'selected' : ''}>${t}</option>`).join('');
+        const timeOpts2 = TIMES.map(t => `<option value="${t}" ${t === d.end ? 'selected' : ''}>${t}</option>`).join('');
+        const row = document.createElement('div');
+        row.className = 'wh-row' + (d.on ? '' : ' day-off');
+        row.id = 'wh-row-' + day;
+        row.innerHTML = `
+          <span class="wh-day">${day}</span>
+          <label class="toggle-switch" style="cursor:pointer; flex-shrink:0;">
+            <input type="checkbox" class="wh-toggle-check" data-day="${day}" ${d.on ? 'checked' : ''} onchange="toggleWhDay('${day}', this)" />
+            <span class="slider"></span>
+          </label>
+          <div class="wh-times" id="wh-times-${day}">
+            <select id="wh-start-${day}" onchange="saveWorkingHours()" ${d.on ? '' : 'disabled'}>${timeOpts}</select>
+            <span style="color:var(--muted); font-size:12px;">to</span>
+            <select id="wh-end-${day}" onchange="saveWorkingHours()" ${d.on ? '' : 'disabled'}>${timeOpts2}</select>
+          </div>
+          <span style="font-size:11px; font-weight:600; color:${d.on ? 'var(--success)' : 'var(--muted)'};" id="wh-label-${day}">${d.on ? 'Working' : 'Day Off'}</span>
+        `;
+        editor.appendChild(row);
+      });
+    }
+
+    function toggleWhDay(day, checkbox) {
+      const row = document.getElementById('wh-row-' + day);
+      const label = document.getElementById('wh-label-' + day);
+      const startSel = document.getElementById('wh-start-' + day);
+      const endSel = document.getElementById('wh-end-' + day);
+      const isOn = checkbox.checked;
+      row.classList.toggle('day-off', !isOn);
+      label.textContent = isOn ? 'Working' : 'Day Off';
+      label.style.color = isOn ? 'var(--success)' : 'var(--muted)';
+      startSel.disabled = !isOn;
+      endSel.disabled = !isOn;
+      saveWorkingHours();
+    }
+
+    function saveWorkingHours() {
+      const schedule = {};
+      DAYS.forEach(day => {
+        const cb = document.querySelector(`.wh-toggle-check[data-day="${day}"]`);
+        if (!cb) return;
+        schedule[day] = {
+          on: cb.checked,
+          start: document.getElementById('wh-start-' + day)?.value || '9:00 AM',
+          end: document.getElementById('wh-end-' + day)?.value || '6:00 PM',
+        };
+      });
+      localStorage.setItem('workingHours', JSON.stringify(schedule));
+      // Update the "Shift Hours" field in General Profile tab
+      const mon = schedule['Mon'];
+      if (mon && mon.on) {
+        const el = document.getElementById('setShift');
+        if (el) el.value = `${mon.start} – ${mon.end}`;
+      }
+    }
+
+    // ══════════════════════════════════════
+    // REVENUE GOAL TRACKER
+    // ══════════════════════════════════════
+    function updateGoalProgress() {
+      const goal = parseFloat(document.getElementById('setRevenueGoal')?.value || 0);
+      const progressBar = document.getElementById('goalProgressBar');
+      const progressText = document.getElementById('goalProgressText');
+      if (!progressBar || !progressText) return;
+
+      // Compute earned revenue from aptStates (done appointments)
+      let earned = 0;
+      const apts = window.allAppointments || [];
+      const states = typeof aptStates !== 'undefined' ? aptStates : {};
+      apts.forEach(a => {
+        if (states[a.id] === 'done' || a.status === 'done') earned += (a.price || 0);
+      });
+
+      if (goal > 0) {
+        const pct = Math.min(100, Math.round((earned / goal) * 100));
+        progressBar.style.width = pct + '%';
+        progressText.textContent = `₹${earned.toLocaleString('en-IN')} / ₹${goal.toLocaleString('en-IN')} (${pct}%)`;
+        progressBar.style.background = pct >= 100 ? 'linear-gradient(90deg, var(--success), #06d6a0)' : 'linear-gradient(90deg, var(--primary), var(--success))';
+      } else {
+        progressBar.style.width = '0%';
+        progressText.textContent = '₹' + earned.toLocaleString('en-IN') + ' / Set a goal above';
+      }
+    }
+
+    // ══════════════════════════════════════
+    // INIT
+    // ══════════════════════════════════════
+    document.addEventListener('DOMContentLoaded', () => {
+      // Restore previous settings from localStorage
+      if (localStorage.getItem('loggedInInstagram')) document.getElementById('setInstagram').value = localStorage.getItem('loggedInInstagram');
+      if (localStorage.getItem('loggedInPortfolio')) document.getElementById('setPortfolioUrl').value = localStorage.getItem('loggedInPortfolio');
+      if (localStorage.getItem('loggedInBuffer')) document.getElementById('setBufferTime').value = localStorage.getItem('loggedInBuffer');
+      if (localStorage.getItem('loggedInOnlineBookings') !== null) document.getElementById('setOnlineBooking').checked = localStorage.getItem('loggedInOnlineBookings') === 'true';
+      if (localStorage.getItem('loggedInShowReviews') !== null) document.getElementById('setShowReviews').checked = localStorage.getItem('loggedInShowReviews') === 'true';
+      if (localStorage.getItem('loggedInRevenueGoal')) document.getElementById('setRevenueGoal').value = localStorage.getItem('loggedInRevenueGoal');
+
+      // Dark Mode
+      const isDark = localStorage.getItem('darkMode') === 'true';
+      document.body.classList.toggle('dark', isDark);
+      const dmToggle = document.getElementById('darkModeToggle');
+      if (dmToggle) dmToggle.checked = isDark;
+
+      // Accent Color
+      const savedAccent = localStorage.getItem('accentColor');
+      if (savedAccent) {
+        document.documentElement.style.setProperty('--primary', savedAccent);
+        document.documentElement.style.setProperty('--primary-light', savedAccent + '22');
+        const matchedSwatch = document.querySelector(`.accent-swatch[data-color="${savedAccent}"]`);
+        if (matchedSwatch) matchedSwatch.classList.add('selected');
+      } else {
+        const defaultSwatch = document.querySelector('.accent-swatch[data-color="#1a6b8a"]');
+        if (defaultSwatch) defaultSwatch.classList.add('selected');
+      }
+
+      // Font Size
+      const savedFont = localStorage.getItem('fontSize');
+      if (savedFont) {
+        document.documentElement.style.fontSize = savedFont + 'px';
+        const size = parseInt(savedFont);
+        const btnId = size <= 14 ? 'fontSm' : size >= 18 ? 'fontLg' : 'fontMd';
+        const activeBtn = document.getElementById(btnId);
+        if (activeBtn) {
+          document.querySelectorAll('.font-size-btn').forEach(b => {
+            b.style.border = '1px solid var(--border)';
+            b.style.background = 'var(--muted-bg)';
+            b.style.color = 'var(--fg)';
+            b.style.fontWeight = 'normal';
+          });
+          activeBtn.style.border = '2px solid var(--primary)';
+          activeBtn.style.background = 'var(--primary-light)';
+          activeBtn.style.color = 'var(--primary)';
+          activeBtn.style.fontWeight = '700';
+        }
+      }
+
+      // Working Hours
+      buildWorkingHoursEditor();
+
+      // Revenue Goal
+      updateGoalProgress();
+      document.getElementById('setRevenueGoal')?.addEventListener('input', updateGoalProgress);
+    });
+
+    function switchSettingsTab(tabId, btnElement) {
+      // Hide all panes
+      document.querySelectorAll('.settings-tab-pane').forEach(pane => pane.classList.remove('active'));
+      // Remove active class from all buttons
+      document.querySelectorAll('.settings-tab').forEach(btn => btn.classList.remove('active'));
+      
+      // Show selected pane
+      document.getElementById(tabId).classList.add('active');
+      // Highlight button
+      btnElement.classList.add('active');
+    }
+
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      const inputs = document.querySelectorAll('.form-input');
+      const checkboxes = document.querySelectorAll('#specialtyContainer input');
+      const toggleBtn = document.getElementById('editToggleBtn');
+      const actions = document.getElementById('formActions');
+      const roleText = document.getElementById('setRoleText');
+      const roleSelect = document.getElementById('setRole');
+
+      const editOnlyEls = document.querySelectorAll('.edit-only');
+
+      inputs.forEach(input => {
+        if (input.id === 'setRole' || input.id === 'setRoleText') return;
+
+        if (['setAadhar', 'setPan', 'setBankAcc', 'setBankIfsc'].includes(input.id) && input.dataset.saved === "true") {
+          input.readOnly = true;
+          input.classList.add('readonly-style');
+          return;
+        }
+
+        input.readOnly = !isEditMode;
+        input.classList.toggle('readonly-style', !isEditMode);
+      });
+
+      checkboxes.forEach(cb => cb.disabled = !isEditMode);
+      editOnlyEls.forEach(el => el.classList.toggle('hidden', !isEditMode));
+
+      document.getElementById('twoFactorToggle').disabled = !isEditMode;
+      document.getElementById('loginAlertsToggle').disabled = !isEditMode;
+      document.querySelectorAll('.pro-toggle').forEach(cb => cb.disabled = !isEditMode);
+      document.querySelectorAll('.pro-btn').forEach(btn => btn.disabled = !isEditMode);
+      document.querySelectorAll('.pro-select').forEach(sel => {
+        sel.disabled = !isEditMode;
+        sel.classList.toggle('readonly-style', !isEditMode);
+      });
+      document.querySelectorAll('.pro-input').forEach(input => {
+        input.readOnly = !isEditMode;
+        input.classList.toggle('readonly-style', !isEditMode);
+      });
+
+
+      roleText.classList.toggle('hidden', isEditMode);
+      roleSelect.classList.toggle('hidden', !isEditMode);
+
+      toggleBtn.classList.toggle('hidden', isEditMode);
+      actions.classList.toggle('hidden', !isEditMode);
+
+      if (isEditMode) {
+        document.getElementById('setPass').placeholder = "Leave blank to keep current";
+        document.getElementById('setConfirm').placeholder = "Confirm new password";
+      } else {
+        document.getElementById('setPass').placeholder = "********";
+        document.getElementById('setConfirm').placeholder = "********";
+      }
+    }
+
+    function saveSettings() {
+      const pass = document.getElementById('setPass').value;
+      const confirm = document.getElementById('setConfirm').value;
+      const aadhar = document.getElementById('setAadhar');
+      const pan = document.getElementById('setPan');
+      const bankAcc = document.getElementById('setBankAcc');
+      const bankIfsc = document.getElementById('setBankIfsc');
+
+      if (pass && pass !== confirm) {
+        showToast("Passwords do not match!", "warning", "⚠️");
+        return;
+      }
+
+      if (aadhar.value && !/^\d{12}$/.test(aadhar.value.replace(/\s/g, ''))) {
+        showToast("Please enter a valid 12-digit Aadhar number.", "warning", "⚠️");
+        return;
+      }
+
+      if (pan.value && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(pan.value.replace(/\s/g, ''))) {
+        showToast("Please enter a valid PAN number.", "warning", "⚠️");
+        return;
+      }
+
+      if (bankIfsc.value && !/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(bankIfsc.value.replace(/\s/g, ''))) {
+        showToast("Please enter a valid IFSC code.", "warning", "⚠️");
+        return;
+      }
+
+      if (aadhar.value.trim() !== '') aadhar.dataset.saved = "true";
+      if (pan.value.trim() !== '') {
+        pan.value = pan.value.toUpperCase();
+        pan.dataset.saved = "true";
+      }
+      if (bankAcc.value.trim() !== '') bankAcc.dataset.saved = "true";
+      if (bankIfsc.value.trim() !== '') {
+        bankIfsc.value = bankIfsc.value.toUpperCase();
+        bankIfsc.dataset.saved = "true";
+      }
+
+      // Update the display role
+      document.getElementById('setRoleText').value = document.getElementById('setRole').value;
+
+      // Update data across UI and persist it
+      const newName = document.getElementById('setName').value;
+      const newPhone = document.getElementById('setPhone').value;
+      const newEmail = document.getElementById('setEmail').value;
+      const newRole = document.getElementById('setRole').value;
+
+      const checkedSpecs = Array.from(document.querySelectorAll('#specialtyContainer input:checked'))
+        .map(input => input.parentElement.textContent.trim());
+
+      localStorage.setItem('loggedInUser', newName);
+      localStorage.setItem('loggedInPhone', newPhone);
+      localStorage.setItem('loggedInEmail', newEmail);
+      localStorage.setItem('loggedInRole', newRole);
+      localStorage.setItem('loggedInSpecialties', JSON.stringify(checkedSpecs));
+      localStorage.setItem('loggedInInstagram', document.getElementById('setInstagram').value);
+      localStorage.setItem('loggedInPortfolio', document.getElementById('setPortfolioUrl').value);
+      localStorage.setItem('loggedInBuffer', document.getElementById('setBufferTime').value);
+      localStorage.setItem('loggedInOnlineBookings', document.getElementById('setOnlineBooking').checked);
+      localStorage.setItem('loggedInShowReviews', document.getElementById('setShowReviews').checked);
+      const revenueGoal = document.getElementById('setRevenueGoal')?.value;
+      if (revenueGoal) localStorage.setItem('loggedInRevenueGoal', revenueGoal);
+
+
+      // Update DOM instantly across all elements
+      const initials = newName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+      ['headerName', 'sidebarName', 'settingsDisplayName'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = newName;
+      });
+      ['headerRole', 'settingsDisplayRole', 'sidebarRole'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = id === 'sidebarRole' ? newRole + ' · 9:00 AM' : newRole;
+      });
+      ['headerAvatar', 'sidebarAvatar', 'settingsAvatar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = initials;
+      });
+
+      showToast("Settings saved successfully!", "success", "✨");
+      toggleEditMode(); // Switch back to view mode
+    }
+
+    function addSpecialty() {
+      const spec = prompt("Enter a new specialty:");
+      if (spec && spec.trim()) {
+        const container = document.getElementById('specialtyContainer');
+        const label = document.createElement('label');
+        label.className = 'checkbox-item';
+        label.innerHTML = `<input type="checkbox" checked /> ${spec}`;
+        container.appendChild(label);
+      }
+    }
+
+    function previewAvatar(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const av = document.getElementById('settingsAvatar');
+          av.style.backgroundImage = `url(${e.target.result})`;
+          av.style.backgroundSize = 'cover';
+          av.style.backgroundPosition = 'center';
+          av.textContent = ''; // hide initials
+
+          // Also update header avatar if needed
+          const headerAv = document.getElementById('headerAvatar');
+          headerAv.style.backgroundImage = `url(${e.target.result})`;
+          headerAv.style.backgroundSize = 'cover';
+          headerAv.style.backgroundPosition = 'center';
+          headerAv.textContent = '';
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+  </script>
+</body>
+
+</html>

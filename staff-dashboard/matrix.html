@@ -1,0 +1,3510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Admin Portal | MedhikaArts</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Three.js for 3D Visuals & Chart.js for Analytics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-dark: #ebedee;
+            --bg-panel: rgba(255, 255, 255, 0.4);
+            --border-glow: rgba(26, 107, 138, 0.3);
+            --accent-primary: #1A6B8A;
+            --accent-secondary: #2196B8;
+            --text-main: #1a202c;
+            --text-muted: #718096;
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --shadow-neon: 0 10px 30px -10px rgba(26, 107, 138, 0.2);
+            --body-gradient: radial-gradient(at 0% 0%, hsla(197, 68%, 32%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(160, 68%, 37%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(20, 68%, 50%, 0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(197, 68%, 32%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(160, 68%, 37%, 0.1) 0px, transparent 50%);
+        }
+
+        body.dark-theme {
+            --bg-dark: #0f172a;
+            --bg-panel: rgba(15, 23, 42, 0.6);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-bg: rgba(30, 41, 59, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --shadow-neon: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            --body-gradient: radial-gradient(at 0% 0%, hsla(197, 68%, 32%, 0.3) 0px, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(160, 68%, 37%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(20, 68%, 50%, 0.2) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(197, 68%, 32%, 0.3) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, hsla(160, 68%, 37%, 0.2) 0px, transparent 50%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: var(--body-gradient);
+            color: var(--text-main);
+            overflow-x: hidden;
+            display: flex;
+            height: 100vh;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            border-right: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand i {
+            font-size: 1.8rem;
+            -webkit-text-fill-color: var(--accent-secondary);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 0.5rem;
+        }
+
+        .nav-menu::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .nav-menu::-webkit-scrollbar-thumb {
+            background: rgba(138, 43, 226, 0.3);
+            border-radius: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(138, 43, 226, 0.15);
+            color: var(--text-main);
+            box-shadow: inset 0 0 0 1px var(--border-glow);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            width: 24px;
+        }
+
+        /* Dark Mode Nav Item Neon Glow */
+        body.dark-theme .nav-item {
+            color: #7dd3fc;
+            text-shadow: 0 0 8px rgba(125, 211, 252, 0.5);
+            font-weight: 600;
+        }
+
+        body.dark-theme .nav-item:hover,
+        body.dark-theme .nav-item.active {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.9), 0 0 20px rgba(56, 189, 248, 0.6);
+            background: rgba(56, 189, 248, 0.15);
+            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.5), 0 0 20px rgba(56, 189, 248, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            padding-bottom: 4rem;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .greeting h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.2rem;
+        }
+
+        .greeting p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .sync-btn {
+            background: var(--glass-bg);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .sync-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            color: var(--accent-primary);
+        }
+
+        .sync-btn i.spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .ai-assistant-btn {
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-neon);
+        }
+
+        .ai-assistant-btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 15px 25px -5px rgba(26, 107, 138, 0.4);
+        }
+
+        .ai-assistant-btn i {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Stats Cards */
+        .stat-card {
+            grid-column: span 3;
+            padding: 1.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 210, 255, 0.4);
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-card:nth-child(1) .stat-icon {
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .stat-card:nth-child(2) .stat-icon {
+            color: #00d2ff;
+            background: rgba(0, 210, 255, 0.1);
+        }
+
+        .stat-card:nth-child(3) .stat-icon {
+            color: #ff007a;
+            background: rgba(255, 0, 122, 0.1);
+        }
+
+        .stat-card:nth-child(4) .stat-icon {
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .stat-trend {
+            position: absolute;
+            top: 1.8rem;
+            right: 1.8rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .trend-up {
+            color: #00ff88;
+        }
+
+        .trend-down {
+            color: #ff007a;
+        }
+
+        /* Complex Sections */
+        .revenue-chart-section {
+            grid-column: span 8;
+            padding: 2rem;
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-title i {
+            color: var(--accent-primary);
+        }
+
+        .chart-bars {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            height: 250px;
+            padding-top: 1rem;
+            flex-grow: 1;
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            height: 100%;
+            justify-content: flex-end;
+            gap: 0.8rem;
+        }
+
+        .bar {
+            width: 32px;
+            background: linear-gradient(to top, var(--accent-primary), var(--accent-secondary));
+            border-radius: 6px 6px 0 0;
+            transition: all 0.5s ease;
+            box-shadow: 0 4px 15px rgba(33, 150, 184, 0.2);
+            cursor: pointer;
+        }
+
+        .bar:hover {
+            transform: scaleY(1.05);
+            filter: brightness(1.2);
+        }
+
+        .bar-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* AI Insights Section */
+        .ai-insights-section {
+            grid-column: span 4;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .insight-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1.2rem;
+            border-radius: 12px;
+            display: flex;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .insight-card:hover {
+            background: rgba(138, 43, 226, 0.05);
+            border-color: var(--border-glow);
+        }
+
+        .insight-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+        }
+
+        .insight-content h4 {
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .insight-content p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Vendor List */
+        .vendor-list-section {
+            grid-column: span 12;
+            padding: 2rem;
+        }
+
+        .vendor-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .vendor-table th {
+            text-align: left;
+            padding: 1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .vendor-table td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            vertical-align: middle;
+        }
+
+        .vendor-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .vendor-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .vendor-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-panel);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--accent-secondary);
+        }
+
+        .vendor-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .vendor-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Suspend & Action Buttons */
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-suspend {
+            background: rgba(255, 0, 122, 0.1);
+            color: #ff007a;
+            border: 1px solid rgba(255, 0, 122, 0.3);
+        }
+
+        .btn-suspend:hover {
+            background: rgba(255, 0, 122, 0.2);
+            box-shadow: 0 0 15px rgba(255, 0, 122, 0.4);
+        }
+
+        .btn-reactivate {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-reactivate:hover {
+            background: rgba(0, 255, 136, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.4);
+        }
+
+        .status-suspended {
+            background: rgba(255, 0, 122, 0.1);
+            color: #ff007a;
+            border: 1px solid rgba(255, 0, 122, 0.2);
+        }
+
+        .status-active {
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+
+        .status-pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        /* Modal and Toast Utilities */
+        #toast-container {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border-left: 4px solid var(--accent-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease forwards;
+            opacity: 0;
+            transform: translateX(100%);
+        }
+
+        .toast.error {
+            border-left-color: #ff007a;
+        }
+
+        .toast.success {
+            border-left-color: #00ff88;
+        }
+
+        @keyframes slideIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .toast-hide {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        @keyframes slideOut {
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-content {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-glow);
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 400px;
+            text-align: center;
+            box-shadow: var(--shadow-neon);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .modal-content p {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .modal-actions button {
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-cancel {
+            background: var(--bg-panel);
+            color: var(--text-main);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-cancel:hover {
+            background: var(--glass-bg);
+        }
+
+        .btn-confirm-suspend {
+            background: #ff007a;
+            color: white;
+        }
+
+        .btn-confirm-suspend:hover {
+            box-shadow: 0 0 15px rgba(255, 0, 122, 0.4);
+        }
+
+        /* Sign Out Button */
+        .btn-signout {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+            /* perfectly bottom center */
+            box-shadow: 0 4px 15px rgba(229, 62, 62, 0.4);
+        }
+
+        .btn-signout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -5px rgba(229, 62, 62, 0.4);
+            background: #c53030;
+        }
+
+        .btn-approve {
+            background: rgba(0, 255, 136, 0.1);
+            color: #166534;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-approve:hover {
+            background: rgba(0, 255, 136, 0.2);
+        }
+
+        /* Theme Switch */
+        .theme-switch-wrapper {
+            display: flex;
+            align-items: center;
+        }
+
+        .theme-switch {
+            display: inline-block;
+            height: 34px;
+            position: relative;
+            width: 60px;
+        }
+
+        .theme-switch input {
+            display: none;
+        }
+
+        .slider {
+            background-color: #cbd5e1;
+            bottom: 0;
+            cursor: pointer;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: 0;
+            transition: .4s;
+            border-radius: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .slider:before {
+            background-color: #fff;
+            bottom: 4px;
+            content: "";
+            height: 26px;
+            left: 4px;
+            position: absolute;
+            transition: .4s;
+            width: 26px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 2;
+        }
+
+        input:checked+.slider {
+            background-color: #1e293b;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+            background-color: #2196B8;
+        }
+
+        .slider .fa-sun {
+            color: #f59e0b;
+            font-size: 12px;
+            z-index: 1;
+        }
+
+        .slider .fa-moon {
+            color: #cbd5e1;
+            font-size: 12px;
+            z-index: 1;
+        }
+
+        /* Mobile Menu Overlay */
+        #mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 99;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #mobile-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 1.25rem;
+            cursor: pointer;
+            margin-right: 1rem;
+            width: 44px;
+            height: 44px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s ease;
+        }
+
+        body.dark-theme .mobile-menu-btn {
+            background: rgba(15, 23, 42, 0.6);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+        }
+
+        .mobile-menu-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Responsive Media Queries */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+
+            .stat-card {
+                grid-column: span 3;
+            }
+
+            .chart-card {
+                grid-column: span 6;
+            }
+
+            /* Make inputs full width on tablets */
+            form[onsubmit*="submitSalonApplication"]>div {
+                grid-column: span 2 !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+                height: auto;
+                min-height: 100vh;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -300px;
+                /* Hide completely */
+                top: 0;
+                height: 100vh;
+                z-index: 101;
+                transition: transform 0.3s ease;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            }
+
+            .sidebar.open {
+                transform: translateX(300px);
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.5rem;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+
+            .dashboard-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1.5rem;
+            }
+
+            .stat-card,
+            .chart-card {
+                width: 100% !important;
+            }
+
+            /* Table responsiveness */
+            div[style*="overflow-x"],
+            .glass-panel>table,
+            .table-container {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            table {
+                min-width: 600px;
+            }
+
+            .main-content {
+                padding: 1rem;
+                width: 100%;
+            }
+
+            /* Typography resizing */
+            .greeting h1 {
+                font-size: 1.8rem;
+            }
+
+            .greeting p {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay"></div>
+
+    <!-- 3D Background Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar glass-panel">
+        <div class="brand">
+            <i class="fa-solid fa-crown"></i>
+            <span>MedhikaArts</span>
+        </div>
+
+        <div class="nav-menu" style="margin-top: 2rem;">
+            <a href="#" class="nav-item active" data-target="overview">
+                <i class="fa-solid fa-border-all"></i>
+                Overview
+            </a>
+            <a href="#" class="nav-item" data-target="marketing">
+                <i class="fa-solid fa-bullhorn"></i>
+                Onboarding
+            </a>
+            <a href="#" class="nav-item" data-target="verification">
+                <i class="fa-solid fa-id-card-clip"></i>
+                Verification & KYC
+            </a>
+            <a href="#" class="nav-item" data-target="salons">
+                <i class="fa-solid fa-store"></i>
+                Salons & Vendors
+            </a>
+            <a href="#" class="nav-item" data-target="transactions">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                Transactions
+            </a>
+            <a href="#" class="nav-item" data-target="revenue">
+                <i class="fa-solid fa-wallet"></i>
+                Revenue
+            </a>
+            <a href="#" class="nav-item" data-target="manual-record">
+                <i class="fa-solid fa-pen-to-square"></i>
+                Manual Record
+            </a>
+            <a href="#" class="nav-item" data-target="users">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                Annual Report
+            </a>
+            <a href="#" class="nav-item" data-target="business-analysis">
+                <i class="fa-solid fa-chart-pie"></i>
+                Business Analysis
+            </a>
+            <a href="#" class="nav-item" data-target="ad-manager">
+                <i class="fa-solid fa-bullhorn"></i>
+                Ad Management
+            </a>
+            <a href="#" class="nav-item" data-target="settings">
+                <i class="fa-solid fa-gear"></i>
+                System Settings
+            </a>
+        </div>
+
+        <div class="server-status-block"
+            style="padding: 1.5rem; background: rgba(138,43,226,0.1); border-radius: 15px; border: 1px solid rgba(138,43,226,0.2); margin-top: auto; margin-bottom: 1.5rem;">
+            <h4 style="margin-bottom: 0.5rem; font-size: 0.9rem;">Server Status</h4>
+            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #00ff88;">
+                <div
+                    style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88;">
+                </div>
+                All Systems Operational
+            </div>
+        </div>
+
+        <button type="button" class="btn-signout" onclick="signOut()" title="Sign Out">
+            <i class="fa-solid fa-power-off"></i>
+        </button>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <div style="display: flex; align-items: flex-start;">
+                <button class="mobile-menu-btn" id="mobile-menu-btn">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="greeting">
+                    <h1 id="page-title">Super Admin Headquarters</h1>
+                    <p id="page-subtitle">Welcome back, Chief. Here is the global overview of MedhikaArts.</p>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button type="button" class="sync-btn" id="sync-btn">
+                    <i class="fa-solid fa-rotate"></i> Sync Data
+                </button>
+                <div class="theme-switch-wrapper">
+                    <label class="theme-switch" for="checkbox">
+                        <input type="checkbox" id="checkbox" onchange="toggleTheme(this)" />
+                        <div class="slider">
+                            <i class="fa-solid fa-moon"></i>
+                            <i class="fa-solid fa-sun"></i>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <div id="section-overview" class="content-section" style="display: block;">
+            <div class="dashboard-grid">
+                <!-- Stats -->
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                    <div>
+                        <div class="stat-value">₹4.2M</div>
+                        <div class="stat-label">Total Platform Revenue</div>
+                    </div>
+                    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +12.5%</div>
+                </div>
+
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon"><i class="fa-solid fa-store"></i></div>
+                    <div>
+                        <div class="stat-value">342</div>
+                        <div class="stat-label">Active Salons/Vendors</div>
+                    </div>
+                    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +8</div>
+                </div>
+
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                    <div>
+                        <div class="stat-value">128.5k</div>
+                        <div class="stat-label">Total Users Base</div>
+                    </div>
+                    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +5.2%</div>
+                </div>
+
+                <div class="stat-card glass-panel">
+                    <div class="stat-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div>
+                        <div class="stat-value">99.9%</div>
+                        <div class="stat-label">System Uptime</div>
+                    </div>
+                    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> Optimal</div>
+                </div>
+
+                <!-- Revenue Chart Area -->
+                <div class="revenue-chart-section glass-panel">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            Revenue Growth (Projected)
+                        </div>
+                        <select
+                            style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: white; padding: 0.5rem 1rem; border-radius: 8px; outline: none;">
+                            <option>Last 6 Months</option>
+                            <option>This Year</option>
+                            <option>All Time</option>
+                        </select>
+                    </div>
+
+                    <div class="chart-bars">
+                        <div class="bar-group">
+                            <div class="bar" style="height: 40%"></div><span class="bar-label">Jan</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar" style="height: 55%"></div><span class="bar-label">Feb</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar" style="height: 45%"></div><span class="bar-label">Mar</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar" style="height: 70%"></div><span class="bar-label">Apr</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar" style="height: 65%"></div><span class="bar-label">May</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar" style="height: 85%"></div><span class="bar-label">Jun</span>
+                        </div>
+                        <div class="bar-group">
+                            <div class="bar"
+                                style="height: 95%; background: linear-gradient(to top, #ff007a, #ffd700); box-shadow: 0 0 20px rgba(255, 215, 0, 0.4);">
+                            </div><span class="bar-label" style="color: #ffd700;">Jul (Est)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Platform Insights -->
+                <div class="ai-insights-section glass-panel">
+                    <div class="section-header" style="margin-bottom: 0;">
+                        <div class="section-title">
+                            <i class="fa-solid fa-microchip"></i>
+                            Platform Insights
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+                        <div class="insight-content">
+                            <h4>Trending Services Alert</h4>
+                            <p>Keratin treatments are up 45% this week across premium salons. Suggesting targeted ad
+                                boost to vendors.</p>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="insight-content">
+                            <h4>Vendor Attrition Risk</h4>
+                            <p>'Elite Looks Salon' shows decreasing engagement. System recommends initiating automated
+                                retention sequence.</p>
+                        </div>
+                    </div>
+
+                    <div class="insight-card">
+                        <div class="insight-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                        <div class="insight-content">
+                            <h4>Expansion Opportunity</h4>
+                            <p>High search volume detected in South Zone with low vendor density. Potential for 20%
+                                growth.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vendor List -->
+                <div class="vendor-list-section glass-panel">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fa-solid fa-store"></i>
+                            Recent Vendor Onboarding
+                        </div>
+                        <button type="button"
+                            style="background: transparent; border: 1px solid var(--accent-secondary); color: var(--accent-secondary); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer;">View
+                            All</button>
+                    </div>
+
+                    <table class="vendor-table">
+                        <thead>
+                            <tr>
+                                <th>Salon Name</th>
+                                <th>Shop Type</th>
+                                <th>Location</th>
+                                <th>Subscription Plan</th>
+                                <th>Revenue Generated</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="vendor-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-salons" class="content-section" style="display: none;">
+            <div class="glass-panel" style="padding: 2rem;">
+                <h2>Salons & Vendors Management</h2>
+                <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Full list of all registered
+                    salons across the platform. Manage approvals, suspensions, and view detailed vendor analytics.</p>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <div>
+                        <h3 style="color: var(--accent-primary);">Vendor Directory</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Total Active: <strong
+                                style="color: var(--text-main);">342</strong></p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="margin-bottom: 1rem;">Active Vendor Network</h3>
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <input type="text" placeholder="Search by salon name or ID..."
+                            style="flex: 1; padding: 0.8rem 1rem; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none;">
+                        <button type="button" class="sync-btn"><i class="fa-solid fa-filter"></i> Filter</button>
+                    </div>
+                    <table class="vendor-table">
+                        <thead>
+                            <tr>
+                                <th>Salon Name</th>
+                                <th>Shop Type</th>
+                                <th>Location</th>
+                                <th>Subscription Plan</th>
+                                <th>Status</th>
+                                <th>Manage</th>
+                            </tr>
+                        </thead>
+                        <tbody id="full-vendor-table-body">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-verification" class="content-section" style="display: none;">
+            <div class="glass-panel" style="padding: 2rem;">
+                <h2>Salon Verification & KYC</h2>
+                <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Review newly registered
+                    salons, verify their owner identity (Aadhaar, PAN), and approve their listing on MedhikaArts.</p>
+
+                <h3 style="margin-bottom: 1rem; color: var(--accent-primary);">Pending Salon Approvals</h3>
+                <div id="verification-queue"
+                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem;">
+                    <!-- Populated by JS -->
+                </div>
+
+
+            </div>
+        </div>
+
+        <div id="section-marketing" class="content-section" style="display: none;">
+            <div class="glass-panel" style="padding: 2rem;">
+                <h2>Onboarding</h2>
+                <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Register newly acquired
+                    salons. Applications will be sent directly to the Verification & KYC queue for document validation
+                    and approval.</p>
+
+                <div
+                    style="background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 12px; border: 1px solid var(--glass-border); max-width: 800px;">
+                    <h3 style="margin-bottom: 1.5rem;">New Salon Onboarding Application</h3>
+                    <form onsubmit="event.preventDefault(); submitSalonApplication();"
+                        style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <label
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Salon
+                                / Brand Name *</label>
+                            <input type="text" id="marketing-salon-name" placeholder="e.g. Glamour Lounge" required
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Owner
+                                Name *</label>
+                            <input type="text" id="marketing-owner-name" placeholder="e.g. Rahul Sharma" required
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Contact
+                                Phone *</label>
+                            <input type="tel" id="marketing-phone" placeholder="e.g. 9876543210" required
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Location
+                                / City *</label>
+                            <input type="text" id="marketing-location" placeholder="e.g. Jubilee Hills, Hyderabad"
+                                required
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <label
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Subscription
+                                Type *</label>
+                            <select id="marketing-subscription" required
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                                <option value="Basic">Basic</option>
+                                <option value="Premium">Premium</option>
+                                <option value="Deluxe">Deluxe</option>
+                            </select>
+                        </div>
+
+                        <div style="grid-column: span 2;">
+                            <h4 style="margin-top: 1rem; margin-bottom: 1rem; color: var(--accent-primary);">Document
+                                Proofs (KYC)</h4>
+                        </div>
+
+                        <div>
+                            <label
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Owner
+                                Aadhaar Card</label>
+                            <input type="file" id="marketing-doc-aadhaar" accept=".pdf,image/*"
+                                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px dashed var(--accent-secondary); background: rgba(0,0,0,0.2); color: var(--text-main);">
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Owner
+                                PAN Card</label>
+                            <input type="file" id="marketing-doc-pan" accept=".pdf,image/*"
+                                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px dashed var(--accent-secondary); background: rgba(0,0,0,0.2); color: var(--text-main);">
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <label
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Salon
+                                License / Electricity Bill</label>
+                            <input type="file" id="marketing-doc-license" accept=".pdf,image/*"
+                                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px dashed var(--accent-secondary); background: rgba(0,0,0,0.2); color: var(--text-main);">
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <label
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Clients
+                                List (CSV: Name, Phone, Email) - Optional</label>
+                            <input type="file" id="marketing-doc-clients" accept=".csv"
+                                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px dashed var(--accent-secondary); background: rgba(0,0,0,0.2); color: var(--text-main);">
+                        </div>
+
+                        <div style="grid-column: span 2; margin-top: 1.5rem;">
+                            <button type="submit" class="ai-assistant-btn"
+                                style="width: 100%; justify-content: center;">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Submit Application to KYC Queue
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-users" class="content-section" style="display: none;">
+            <div class="glass-panel" style="padding: 2rem;">
+                <h2>Annual Report Analytics</h2>
+                <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Annual financial performance,
+                    growth trajectories, and yearly metrics.</p>
+
+                <div class="dashboard-grid">
+                    <div class="stat-card glass-panel" style="grid-column: span 6;">
+                        <div class="stat-icon"><i class="fa-solid fa-user-plus"></i></div>
+                        <div>
+                            <div class="stat-value">12,450</div>
+                            <div class="stat-label">New Users This Month</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-panel" style="grid-column: span 6;">
+                        <div class="stat-icon"><i class="fa-solid fa-mobile-screen"></i></div>
+                        <div>
+                            <div class="stat-value">84%</div>
+                            <div class="stat-label">Mobile App Adoption</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-revenue" class="content-section" style="display: none;">
+            <div class="glass-panel" style="padding: 2rem;">
+                <h2>Revenue & Payouts</h2>
+                <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Track total gross
+                    merchandise value (GMV), platform fees, and pending salon payouts.</p>
+                <div style="display: flex; gap: 2rem; align-items: flex-start;">
+                    <!-- Left Column -->
+                    <div style="flex: 1; display: flex; flex-direction: column; gap: 2rem;">
+                        <div
+                            style="padding: 2rem; background: rgba(0, 255, 136, 0.1); border-radius: 15px; border: 1px solid rgba(0,255,136,0.3);">
+                            <h3 style="color: #166534; margin-bottom: 1rem;">Platform Fees Collected</h3>
+                            <h1 style="font-size: 3rem; color: #00ff88;">₹8,45,200</h1>
+                            <p style="color: var(--text-muted); margin-top: 1rem; line-height: 1.5;">Total gross
+                                platform fees accumulated from all successful procedures and bookings across MedhikaArts
+                                vendor network.</p>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Payouts & Ledger -->
+                    <div style="flex: 2; display: flex; flex-direction: column; gap: 2rem;">
+                        <div
+                            style="padding: 2rem; background: rgba(245, 158, 11, 0.1); border-radius: 15px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                            <h3 style="color: #b45309; margin-bottom: 1rem;">Pending Payouts</h3>
+                            <h1 style="font-size: 3rem; color: #f59e0b;">₹12,50,000</h1>
+                            <button type="button" class="sync-btn"
+                                style="margin-top: 1rem; background: #f59e0b; color: white; border: none;">Process
+                                Payouts</button>
+                        </div>
+
+                        <div>
+                            <h3 style="margin-bottom: 1rem;">Salon Ledger & Payment History</h3>
+                            <div
+                                style="background: rgba(255,255,255,0.6); border-radius: 12px; border: 1px solid var(--glass-border); overflow-x: auto;">
+                                <table class="vendor-table" style="margin-top: 0;">
+                                    <thead>
+                                        <tr>
+                                            <th>Txn ID</th>
+                                            <th>Salon Name</th>
+                                            <th>Procedure</th>
+                                            <th>Amount</th>
+                                            <th>Date & Time</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="payment-history-body">
+                                        <!-- JS Populated -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-transactions" class="content-section" style="display: none;">
+            <div class="glass-panel" style="padding: 2rem;">
+                <h2>Transactions & Payment Records</h2>
+                <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Complete ledger of all
+                    financial transactions across the platform. Use filters to generate custom payment reports.</p>
+
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                    <input type="text" placeholder="Search by Txn ID, Salon, or Service..."
+                        style="flex: 1; padding: 0.8rem 1rem; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none;">
+                    <input type="date"
+                        style="padding: 0.8rem; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none;">
+                    <button type="button" class="sync-btn"><i class="fa-solid fa-filter"></i> Filter</button>
+                    <button type="button" class="ai-assistant-btn"><i class="fa-solid fa-download"></i> Export
+                        CSV</button>
+                </div>
+
+                <div
+                    style="background: rgba(255,255,255,0.6); border-radius: 12px; border: 1px solid var(--glass-border); overflow-x: auto;">
+                    <table class="vendor-table" style="margin-top: 0;">
+                        <thead>
+                            <tr>
+                                <th>Txn ID</th>
+                                <th>Salon Name</th>
+                                <th>Procedure</th>
+                                <th>Amount</th>
+                                <th>Platform Fee (15%)</th>
+                                <th>Date & Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="full-transactions-body">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div id="section-manual-record" class="content-section" style="display: none;">
+            <div class="glass-panel" style="padding: 2rem;">
+                <h2>Manual Record of Business Transaction</h2>
+                <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Log offline payments, direct
+                    business expenditures, or custom adjustments.</p>
+
+                <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+                    <div
+                        style="flex: 1; min-width: 300px; background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <h3 style="margin-bottom: 1.5rem;">New Transaction Entry</h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div>
+                                <label
+                                    style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Transaction
+                                    Type</label>
+                                <select id="manual-txn-type"
+                                    style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                                    <option value="Offline Payment (Credit)">Offline Payment (Credit)</option>
+                                    <option value="Vendor Adjustment (Debit)">Vendor Adjustment (Debit)</option>
+                                    <option value="Platform Expense (Debit)">Platform Expense (Debit)</option>
+                                    <option value="Custom Income (Credit)">Custom Income (Credit)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Amount
+                                    (₹)</label>
+                                <input type="number" id="manual-txn-amount" placeholder="e.g. 5000"
+                                    style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Related
+                                    Vendor/Entity (Optional)</label>
+                                <input type="text" id="manual-txn-entity" placeholder="e.g. Style Studio"
+                                    style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Description
+                                    / Remarks</label>
+                                <textarea id="manual-txn-desc" rows="3" placeholder="Details about this transaction..."
+                                    style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main); resize: vertical;"></textarea>
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Date
+                                    of Transaction</label>
+                                <input type="date" id="manual-txn-date"
+                                    style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                            </div>
+                            <button type="button" class="ai-assistant-btn"
+                                style="width: 100%; justify-content: center; margin-top: 1rem;"
+                                onclick="submitManualRecord()">
+                                <i class="fa-solid fa-plus"></i> Add Record
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="flex: 2; min-width: 400px;">
+                        <h3 style="margin-bottom: 1.5rem;">Recent Manual Records</h3>
+                        <div
+                            style="background: rgba(255,255,255,0.6); border-radius: 12px; border: 1px solid var(--glass-border); overflow-x: auto;">
+                            <table class="vendor-table" style="margin-top: 0;">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Entity</th>
+                                        <th>Amount</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="manual-records-body">
+                                    <tr>
+                                        <td>04 Jun 2026</td>
+                                        <td><span class="status-badge"
+                                                style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);">Credit</span>
+                                        </td>
+                                        <td><strong>Glamour Lounge</strong></td>
+                                        <td style="font-weight: 700; color: #00ff88;">+ ₹15,000</td>
+                                        <td style="color: var(--text-muted); font-size: 0.85rem;">Offline settlement for
+                                            May</td>
+                                    </tr>
+                                    <tr>
+                                        <td>02 Jun 2026</td>
+                                        <td><span class="status-badge"
+                                                style="background: rgba(255, 0, 122, 0.1); color: #ff007a; border: 1px solid rgba(255, 0, 122, 0.3);">Debit</span>
+                                        </td>
+                                        <td><strong>Marketing Agency</strong></td>
+                                        <td style="font-weight: 700; color: #ff007a;">- ₹8,500</td>
+                                        <td style="color: var(--text-muted); font-size: 0.85rem;">Ad campaign adjustment
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-business-analysis" class="content-section" style="display: none;">
+            <!-- Header & Controls -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2><i class="fa-solid fa-chart-pie" style="color: #00d2ff;"></i> Business Development Analytics & Export Engine</h2>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">Real-time diagnostics, performance charts, and AI-driven growth recommendations.</p>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <select id="ba-branch-select"
+                        style="background: var(--glass-bg); color: var(--text-main); border: 1px solid var(--glass-border); padding: 0.8rem 1.2rem; border-radius: 12px; font-weight: 600; outline: none;"
+                        onchange="renderBusinessAnalysis()">
+                        <option value="all">Global Performance (All Branches)</option>
+                    </select>
+                    <button type="button" class="ai-assistant-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white;" onclick="exportBusinessAnalysisReport('pdf')">
+                        <i class="fa-solid fa-file-pdf"></i> Export PDF Report
+                    </button>
+                    <button type="button" class="sync-btn" onclick="exportBusinessAnalysisReport('csv')">
+                        <i class="fa-solid fa-file-csv"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <!-- Top Financial Stat Cards -->
+            <div class="dashboard-grid" style="margin-bottom: 2rem;">
+                <div class="stat-card glass-panel"
+                    style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05)); border-color: rgba(0,255,136,0.3);">
+                    <div class="stat-icon" style="color: #00ff88; background: rgba(0, 255, 136, 0.2);"><i
+                            class="fa-solid fa-arrow-trend-up"></i></div>
+                    <div class="stat-value" id="ba-total-revenue">₹0</div>
+                    <div class="stat-label">Total Generated Revenue</div>
+                </div>
+                <div class="stat-card glass-panel"
+                    style="background: linear-gradient(135deg, rgba(255, 0, 122, 0.1), rgba(255, 0, 122, 0.05)); border-color: rgba(255,0,122,0.3);">
+                    <div class="stat-icon" style="color: #ff007a; background: rgba(255, 0, 122, 0.2);"><i
+                            class="fa-solid fa-arrow-trend-down"></i></div>
+                    <div class="stat-value" id="ba-total-expenses">₹0</div>
+                    <div class="stat-label">Total Operating Expenses</div>
+                </div>
+                <div class="stat-card glass-panel"
+                    style="background: linear-gradient(135deg, rgba(0, 210, 255, 0.1), rgba(0, 210, 255, 0.05)); border-color: rgba(0,210,255,0.3);">
+                    <div class="stat-icon" style="color: #00d2ff; background: rgba(0, 210, 255, 0.2);"><i
+                            class="fa-solid fa-money-bill-wave"></i></div>
+                    <div class="stat-value" id="ba-net-profit">₹0</div>
+                    <div class="stat-label">Net Profit (EBITDA)</div>
+                </div>
+                <div class="stat-card glass-panel"
+                    style="background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05)); border-color: rgba(255,215,0,0.3);">
+                    <div class="stat-icon" style="color: #ffd700; background: rgba(255, 215, 0, 0.2);"><i
+                            class="fa-solid fa-percent"></i></div>
+                    <div class="stat-value" id="ba-profit-margin">0%</div>
+                    <div class="stat-label">Calculated Profit Margin</div>
+                </div>
+            </div>
+
+            <!-- Animated Charts Grid (Revenue vs Marketing Spend & Lead Acquisition Channels) -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-chart-line" style="color: #00d2ff;"></i> Revenue Generated vs Marketing Spend
+                    </h3>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="superadminRevenueVsSpendChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-chart-pie" style="color: #8a2be2;"></i> Lead Acquisition Channels
+                    </h3>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="superadminLeadChannelsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Salon Network BD Branch Performance Matrix -->
+            <div class="glass-panel" style="padding: 1.5rem; margin-bottom: 2rem;">
+                <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-store" style="color: #f59e0b;"></i> Salon Network BD Branch Performance Matrix
+                </h3>
+                <div style="background: rgba(255,255,255,0.6); border-radius: 12px; border: 1px solid var(--glass-border); overflow-x: auto;">
+                    <table class="vendor-table" style="margin-top: 0;">
+                        <thead>
+                            <tr>
+                                <th>Branch Name</th>
+                                <th>Total Leads</th>
+                                <th>Conversion Rate</th>
+                                <th>New Revenue</th>
+                                <th>Marketing Spend</th>
+                                <th>Net ROI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="superadmin-branch-matrix-body">
+                            <!-- JS Populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- AI Growth Recommendations Plan -->
+            <div class="glass-panel" style="padding: 2rem; margin-bottom: 2rem; position: relative; overflow: hidden;">
+                <div
+                    style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(138,43,226,0.3) 0%, transparent 70%); border-radius: 50%;">
+                </div>
+
+                <h3 style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1.5rem; font-size: 1.4rem;">
+                    <i class="fa-solid fa-wand-magic-sparkles" style="color: #8a2be2;"></i> Automated Growth Plan
+                </h3>
+
+                <div id="ba-ai-report" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- Generated via JS -->
+                </div>
+            </div>
+        </div>
+
+        <div id="section-ad-manager" class="content-section" style="display: none;">
+            <div class="dashboard-grid">
+                <!-- Create Ad Form -->
+                <div class="glass-panel" style="grid-column: span 5; padding: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem;">
+                        <i class="fa-solid fa-plus-circle" style="color: var(--accent-primary);"></i> Create New
+                        Campaign
+                    </h3>
+
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <label
+                                style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; display: block;">Emoji
+                                / Icon</label>
+                            <input type="text" id="ad-emoji" placeholder="e.g. 🎁"
+                                style="width: 100%; background: var(--bg-panel); border: 1px solid var(--glass-border); color: var(--text-main); padding: 0.8rem; border-radius: 8px; outline: none; font-size: 1.2rem;">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; display: block;">Headline</label>
+                            <input type="text" id="ad-title" placeholder="e.g. Summer Special 50% Off!"
+                                style="width: 100%; background: var(--bg-panel); border: 1px solid var(--glass-border); color: var(--text-main); padding: 0.8rem; border-radius: 8px; outline: none;">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; display: block;">Description
+                                / Body</label>
+                            <textarea id="ad-desc" rows="3" placeholder="Explain the offer..."
+                                style="width: 100%; background: var(--bg-panel); border: 1px solid var(--glass-border); color: var(--text-main); padding: 0.8rem; border-radius: 8px; outline: none; resize: none;"></textarea>
+                        </div>
+                        <div>
+                            <label
+                                style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; display: block;">Button
+                                Text</label>
+                            <input type="text" id="ad-btn-text" placeholder="e.g. Claim Now"
+                                style="width: 100%; background: var(--bg-panel); border: 1px solid var(--glass-border); color: var(--text-main); padding: 0.8rem; border-radius: 8px; outline: none;">
+                        </div>
+                        <div>
+                            <label
+                                style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; display: block;">Target
+                                Audience (Branches)</label>
+                            <select id="ad-targets" multiple
+                                style="width: 100%; background: var(--bg-panel); border: 1px solid var(--glass-border); color: var(--text-main); padding: 0.8rem; border-radius: 8px; outline: none; height: 100px;">
+                                <option value="Global" selected>Global (All Connected Salons)</option>
+                                <!-- Populated dynamically -->
+                            </select>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">Hold Ctrl/Cmd
+                                to select multiple. Leave 'Global' selected to push everywhere.</p>
+                        </div>
+                        <button onclick="publishAd()" class="ai-assistant-btn"
+                            style="margin-top: 1rem; justify-content: center; width: 100%;">
+                            <i class="fa-solid fa-paper-plane"></i> Push Ad to Network
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Ads List -->
+                <div class="glass-panel" style="grid-column: span 7; padding: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem;">
+                        <i class="fa-solid fa-list" style="color: var(--accent-secondary);"></i> Active Global Ads
+                    </h3>
+                    <div style="overflow-x: auto;">
+                        <table class="vendor-table">
+                            <thead>
+                                <tr>
+                                    <th>Ad Creative</th>
+                                    <th>Button</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ads-table-body">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Bill & Invoice Advertisement Manager -->
+                <div class="glass-panel" style="grid-column: span 12; padding: 2rem; margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem;">
+                        <i class="fa-solid fa-receipt" style="color: var(--accent-primary);"></i> Bill & Invoice
+                        Advertisement Manager
+                    </h3>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Target Salon</label>
+                            <select id="setting-bill-ad-target" onchange="populateBillAdForm(this.value)"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                                <option value="global">All Salons (Global Override)</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Ad Type</label>
+                            <select id="setting-bill-ad-type"
+                                onchange="document.getElementById('bill-ad-text-container').style.display = this.value === 'text' ? 'block' : 'none'; document.getElementById('bill-ad-media-container').style.display = this.value === 'media' ? 'block' : 'none';"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                                <option value="text">Text Message</option>
+                                <option value="media">Image / Poster</option>
+                            </select>
+                        </div>
+
+                        <div id="bill-ad-text-container" style="margin-bottom: 1rem;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Ad Text</label>
+                            <input type="text" id="setting-bill-ad"
+                                placeholder="e.g. Thanks for visiting! Get 10% off next time."
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                        </div>
+
+                        <div id="bill-ad-media-container" style="margin-bottom: 1rem; display: none;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Upload Ad
+                                Image</label>
+                            <input type="file" id="setting-bill-ad-media" accept="image/*, application/pdf"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                        </div>
+                    </div>
+
+                    <button type="button" class="ai-assistant-btn" id="btn-save-bill-ad"
+                        style="width: fit-content; margin-top: 1rem;" onclick="saveSystemSettings()">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Bill Ad Settings
+                    </button>
+                </div>
+
+                <!-- Booking Confirmation Advertisement Manager -->
+                <div class="glass-panel" style="grid-column: span 12; padding: 2rem; margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.8rem;">
+                        <i class="fa-solid fa-calendar-check" style="color: #10b981;"></i> Booking Confirmation
+                        Advertisement Manager
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">
+                        Configure promotional ad banners, discount codes, and offer images attached to salon booking
+                        confirmation forms and WhatsApp notifications sent to clients.
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Enable Booking
+                                Confirmation Ad</label>
+                            <select id="booking-ad-enabled"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                                <option value="true">Enabled (Active on Confirmation)</option>
+                                <option value="false">Disabled</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Target Salon /
+                                Branch</label>
+                            <select id="booking-ad-target"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                                <option value="global">All Salons (Global Override)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Ad Title / Offer
+                                Name</label>
+                            <input type="text" id="booking-ad-title" placeholder="e.g. 15% OFF Your Next Visit!"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Discount Code /
+                                Tag</label>
+                            <input type="text" id="booking-ad-discount" placeholder="e.g. WELCOME15"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                        </div>
+
+                        <div style="grid-column: span 2;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Offer Description /
+                                Promo Message</label>
+                            <textarea id="booking-ad-desc" rows="2"
+                                placeholder="e.g. Show this confirmation message at your appointment to claim a free conditioning treatment!"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); resize: vertical;"></textarea>
+                        </div>
+
+                        <div style="grid-column: span 2;">
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Upload Confirmation
+                                Ad Banner Image</label>
+                            <input type="file" id="booking-ad-image-file" accept="image/*"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);"
+                                onchange="handleBookingAdImageUpload(event)">
+                            <input type="hidden" id="booking-ad-image-url">
+                            <div id="booking-ad-img-preview-container" style="margin-top: 10px; display: none;">
+                                <img id="booking-ad-img-preview" src=""
+                                    style="max-height: 140px; border-radius: 8px; border: 1px solid var(--glass-border);"
+                                    alt="Preview" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="ai-assistant-btn" id="btn-save-booking-ad"
+                        style="width: fit-content; margin-top: 1.5rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%);"
+                        onclick="saveBookingAdSettings()">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Booking Confirmation Ad Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-settings" class="content-section" style="display: none;">
+            <div class="glass-panel" style="padding: 2rem;">
+                <h2>System Settings</h2>
+                <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Configure core platform
+                    parameters and API integrations.</p>
+
+                <div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 600px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Platform Fee
+                                Percentage (%)</label>
+                            <input type="number" id="setting-fee" value="15"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Tax Rate (GST
+                                %)</label>
+                            <input type="number" id="setting-tax" value="18"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Maintenance
+                                Mode</label>
+                            <select id="setting-maintenance"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                                <option value="off">Off (System Live)</option>
+                                <option value="on">On (Maintenance Page)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Razorpay
+                                Environment</label>
+                            <select id="setting-razorpay"
+                                style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                                <option value="test">Test Mode (Sandbox)</option>
+                                <option value="live">Live Mode (Production)</option>
+                            </select>
+                        </div>
+                        <div style="grid-column: span 2;">
+                            <label
+                                style="display: flex; align-items: center; gap: 0.8rem; font-weight: 600; cursor: pointer;">
+                                <input type="checkbox" id="setting-auto-approve" style="width: 20px; height: 20px;">
+                                Auto-Approve New Vendor Registrations (Bypass KYC)
+                            </label>
+                        </div>
+                        <!-- Bill Ad Manager moved to Ad Manager Tab -->
+                    </div>
+                    <button type="button" class="ai-assistant-btn" id="btn-save-settings"
+                        style="width: fit-content; margin-top: 1rem;" onclick="saveSystemSettings()">
+                        <i class="fa-solid fa-floppy-disk"></i> Save Configuration
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- UI Elements Container -->
+    <div id="toast-container" style="bottom: 6rem;"></div>
+
+    <div class="modal-overlay" id="suspend-modal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-triangle-exclamation" style="color:#ff007a; margin-right:10px;"></i>Suspend
+                License?</h3>
+            <p>Are you sure you want to suspend the license for <strong id="modal-salon-name"></strong>? They will
+                immediately lose access to the MedhikaArts platform.</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button type="button" class="btn-confirm-suspend" onclick="confirmSuspend()">Yes, Suspend</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KYC Document Viewer Modal -->
+    <div class="modal-overlay" id="kyc-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 id="kyc-modal-title"><i class="fa-regular fa-id-card"
+                        style="color:var(--accent-primary); margin-right:10px;"></i> Document Viewer</h3>
+                <button type="button" onclick="closeKycModal()"
+                    style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-muted);">&times;</button>
+            </div>
+
+            <div
+                style="background: rgba(26,107,138,0.05); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px dashed var(--accent-secondary);">
+                <div
+                    style="display: flex; align-items: center; justify-content: center; height: 150px; background: rgba(255,255,255,0.5); border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--glass-border);">
+                    <i class="fa-solid fa-file-image"
+                        style="font-size: 3rem; color: var(--text-muted); margin-bottom: 10px;"></i>
+                    <span
+                        style="display: block; width: 100%; text-align: center; color: var(--text-muted); font-size: 0.8rem; position: absolute; margin-top: 60px;">Secure
+                        Document Preview</span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.2rem;">Document Type</p>
+                        <p style="font-weight: 600;" id="kyc-doc-type">Aadhaar Card</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.2rem;">Document Number
+                        </p>
+                        <p style="font-weight: 600; font-family: monospace;" id="kyc-doc-number">XXXX-XXXX-1234</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.2rem;">Verified Entity
+                        </p>
+                        <p style="font-weight: 600;" id="kyc-owner-name">Rahul Sharma</p>
+                    </div>
+                    <div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.2rem;">Verification
+                            Status</p>
+                        <p style="font-weight: 600; color: #b45309;"><i class="fa-solid fa-circle-notch fa-spin"></i>
+                            Pending Manual Review</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="justify-content: flex-end;">
+                <button type="button" class="btn-cancel" onclick="closeKycModal()">Close Viewer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Three.js Setup for Background 3D Particles/Visual -->
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Create particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 700;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for (let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 15;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        // Create material
+        const material = new THREE.PointsMaterial({
+            size: 0.04,
+            color: 0x1A6B8A,
+            transparent: true,
+            opacity: 0.6
+        });
+
+        // Mesh
+        const particlesMesh = new THREE.Points(particlesGeometry, material);
+        scene.add(particlesMesh);
+
+        // Add a floating geometric shape representing "AI Core"
+        const geometry = new THREE.IcosahedronGeometry(1.5, 1);
+        const wireframeMaterial = new THREE.MeshBasicMaterial({
+            color: 0x2196B8,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.4
+        });
+        const sphere = new THREE.Mesh(geometry, wireframeMaterial);
+
+        // Position it nicely behind the UI
+        sphere.position.x = 3;
+        sphere.position.y = 0;
+        sphere.position.z = -2;
+        scene.add(sphere);
+
+        camera.position.z = 4;
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = event.clientX / window.innerWidth - 0.5;
+            mouseY = event.clientY / window.innerHeight - 0.5;
+        });
+
+        // Animation Loop
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Rotate particles slowly
+            particlesMesh.rotation.y = elapsedTime * 0.05;
+            particlesMesh.rotation.x = elapsedTime * 0.02;
+
+            // Rotate and bob the AI Core sphere
+            sphere.rotation.y += 0.005;
+            sphere.rotation.x += 0.002;
+            sphere.position.y = Math.sin(elapsedTime * 0.5) * 0.2;
+
+            // Subtle mouse parallax
+            camera.position.x += (mouseX * 0.5 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 0.5 - camera.position.y) * 0.05;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- Application Logic --- //
+
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            window.location.href = 'superadmin_login.html';
+        }
+
+        let vendors = [
+            { id: 1, name: 'Glamour Lounge', joined: '2 days ago', initials: 'GL', location: 'Mumbai, West', plan: 'Premium (Yearly)', revenue: '₹45,000', status: 'Active', type: 'Premium Unisex Salon' },
+            { id: 2, name: 'Style Studio', joined: '5 days ago', initials: 'SS', location: 'Delhi, South', plan: 'Basic (Monthly)', revenue: '₹12,500', status: 'Active', type: 'Hair Studio' },
+            { id: 3, name: 'Urban X Spa', joined: 'Today', initials: 'UX', location: 'Bangalore, CBD', plan: 'Premium (Yearly)', revenue: '-', status: 'Pending Review', type: 'Spa & Wellness Center' }
+        ];
+
+        let salonToSuspend = null;
+        let globalBookings = [];
+        let globalExpenses = [];
+
+        function renderVendorTable() {
+            const tbody = document.getElementById('vendor-table-body');
+            tbody.innerHTML = '';
+
+            vendors.forEach(vendor => {
+                let statusClass = 'status-active';
+                if (vendor.status === 'Pending Review') statusClass = 'status-pending';
+                if (vendor.status === 'Suspended') statusClass = 'status-suspended';
+
+                let actionButton = '';
+                if (vendor.status === 'Suspended') {
+                    actionButton = `<button type="button" type="button" class="action-btn btn-reactivate" onclick="reactivateLicense('${vendor.id}')"><i class="fa-solid fa-play"></i> Reactivate</button>`;
+                } else {
+                    actionButton = `<button type="button" type="button" class="action-btn btn-suspend" onclick="requestSuspend('${vendor.id}')"><i class="fa-solid fa-ban"></i> Suspend</button>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <div class="vendor-profile">
+                                <div class="vendor-avatar">${vendor.initials}</div>
+                                <div class="vendor-info">
+                                    <h4>${vendor.name}</h4>
+                                    <p>Joined ${vendor.joined}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span style="font-size: 0.85rem; color: var(--accent-secondary); border: 1px solid var(--accent-secondary); padding: 0.2rem 0.5rem; border-radius: 6px;">${vendor.type}</span></td>
+                        <td>${vendor.location}</td>
+                        <td>
+                            <select onchange="updateVendorPlan('${vendor.id}', this.value)" style="padding: 0.4rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                                <option value="Basic" ${vendor.plan.includes('Basic') ? 'selected' : ''}>Basic</option>
+                                <option value="Premium" ${vendor.plan.includes('Premium') ? 'selected' : ''}>Premium</option>
+                                <option value="Deluxe" ${vendor.plan.includes('Deluxe') ? 'selected' : ''}>Deluxe</option>
+                            </select>
+                        </td>
+                        <td>${vendor.revenue}</td>
+                        <td><span class="status-badge ${statusClass}">${vendor.status}</span></td>
+                        <td style="display: flex; gap: 0.5rem;">
+                            ${actionButton}
+                            <button type="button" class="action-btn" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid rgba(229, 62, 62, 0.3);" onclick="deleteVendor('${vendor.id}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Toast Notifications
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+
+            const icon = type === 'success' ? '<i class="fa-solid fa-check-circle" style="color: #00ff88;"></i>' : '<i class="fa-solid fa-triangle-exclamation" style="color: #ff007a;"></i>';
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('toast-hide');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Suspend Logic
+        function requestSuspend(id) {
+            salonToSuspend = vendors.find(v => String(v.id) === String(id));
+            document.getElementById('modal-salon-name').innerText = salonToSuspend.name;
+            document.getElementById('suspend-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('suspend-modal').classList.remove('active');
+            salonToSuspend = null;
+        }
+
+        async function confirmSuspend() {
+            if (salonToSuspend) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/branches/${salonToSuspend.id}/status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ status: 'Suspended' })
+                    });
+                    if (response.ok) {
+                        showToast(`${salonToSuspend.name}'s license has been suspended.`, 'error');
+                        fetchRealTimeData();
+                        closeModal();
+                        return;
+                    }
+                } catch (e) { }
+
+                salonToSuspend.status = 'Suspended';
+                renderVendorTable();
+                showToast(`${salonToSuspend.name}'s license has been suspended (locally).`, 'error');
+                closeModal();
+            }
+        }
+
+        async function updateVendorPlan(id, newPlan) {
+            const vendor = vendors.find(v => String(v.id) === String(id));
+            if (vendor) {
+                vendor.plan = newPlan;
+
+                const price = newPlan === 'Premium' ? '₹4,999/mo' : (newPlan === 'Deluxe' ? '₹9,999/mo' : '₹1,999/mo');
+                const subscription = {
+                    plan: newPlan,
+                    price: price,
+                    expiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    status: 'Active'
+                };
+
+                try {
+                    const response = await fetch(`http://localhost:5000/api/branches/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ subscription })
+                    });
+
+                    if (response.ok) {
+                        showToast(`${vendor.name}'s subscription updated to ${newPlan} in real-time.`, 'success');
+                        return;
+                    }
+                } catch (e) {
+                    console.log("Backend offline, updating plan locally only.");
+                }
+                showToast(`${vendor.name}'s subscription updated to ${newPlan}.`, 'success');
+            }
+        }
+
+        async function reactivateLicense(id) {
+            const vendor = vendors.find(v => String(v.id) === String(id));
+            if (vendor) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/branches/${id}/status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ status: 'Active' })
+                    });
+                    if (response.ok) {
+                        showToast(`${vendor.name}'s license successfully reactivated.`);
+                        fetchRealTimeData();
+                        return;
+                    }
+                } catch (e) { }
+
+                vendor.status = 'Active';
+                renderVendorTable();
+                showToast(`${vendor.name}'s license successfully reactivated (locally).`);
+            }
+        }
+
+        async function generateAndSetCredentials(id) {
+            const vendor = vendors.find(v => String(v.id) === String(id));
+            if (!vendor) return;
+
+            const accessKey = 'BR-' + vendor.name.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '') + '-' + Math.floor(1000 + Math.random() * 9000);
+            const passcode = Math.floor(100000 + Math.random() * 900000).toString();
+
+            // Local real-time sync for Staff Portal
+            vendor.email = accessKey;
+            vendor.password = passcode;
+            let creds = JSON.parse(localStorage.getItem('STAFF_CREDENTIALS') || '{}');
+            creds[accessKey] = {
+                password: passcode,
+                name: vendor.name,
+                role: vendor.owner || 'Branch Admin',
+                phone: '1234567890'
+            };
+            localStorage.setItem('STAFF_CREDENTIALS', JSON.stringify(creds));
+
+            try {
+                const response = await fetch(`http://localhost:5000/api/branches/${vendor.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: accessKey, password: passcode })
+                });
+
+                if (response.ok) {
+                    showToast(`Credentials generated for ${vendor.name}! Access Key: ${accessKey}, Passcode: ${passcode}`, 'success');
+
+                    // Alert the user so they can copy it!
+                    setTimeout(() => {
+                        alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key: ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
+                    }, 500);
+
+                    fetchRealTimeData();
+                } else {
+                    showToast('Failed to save credentials to backend.', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast(`Credentials generated for ${vendor.name} (Local Sync Active)`, 'success');
+                setTimeout(() => {
+                    alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key: ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
+                }, 500);
+            }
+        }
+
+        async function viewCredentials(id) {
+            // First try to fetch from backend to get real up-to-date credentials
+            try {
+                const response = await fetch('http://localhost:5000/api/branches', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const branch = data.find(b => String(b.id) === String(id));
+                    if (branch && branch.email) {
+                        alert(`Active Credentials for ${branch.name}:\n\nAccess Key (Email): ${branch.email}\nPasscode: ${branch.password}`);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.log("Backend offline, trying local state");
+            }
+
+            // Fallback to local state if backend fetch fails
+            const vendor = vendors.find(v => String(v.id) === String(id));
+            if (!vendor) return;
+            if (vendor.email) {
+                alert(`Active Credentials for ${vendor.name}:\n\nAccess Key (Email): ${vendor.email}\nPasscode: ${vendor.password}`);
+            } else {
+                alert(`No credentials generated yet for ${vendor.name}. Please click 'Generate Credentials' first.`);
+            }
+        }
+
+        function submitManualRecord() {
+            const type = document.getElementById('manual-txn-type').value;
+            const amount = document.getElementById('manual-txn-amount').value;
+            const entity = document.getElementById('manual-txn-entity').value || 'N/A';
+            const desc = document.getElementById('manual-txn-desc').value || 'No remarks';
+            let date = document.getElementById('manual-txn-date').value;
+
+            if (!amount || amount <= 0) {
+                showToast('Please enter a valid amount', 'error');
+                return;
+            }
+            if (!date) {
+                const today = new Date();
+                date = today.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            } else {
+                const d = new Date(date);
+                date = d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            }
+
+            const isCredit = type.includes('(Credit)');
+            const badge = isCredit ?
+                '<span class="status-badge" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);">Credit</span>' :
+                '<span class="status-badge" style="background: rgba(255, 0, 122, 0.1); color: #ff007a; border: 1px solid rgba(255, 0, 122, 0.3);">Debit</span>';
+            const amountFormatted = isCredit ? `+ ₹${amount}` : `- ₹${amount}`;
+            const amountColor = isCredit ? '#00ff88' : '#ff007a';
+
+            const tbody = document.getElementById('manual-records-body');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${date}</td>
+                <td>${badge}</td>
+                <td><strong>${entity}</strong></td>
+                <td style="font-weight: 700; color: ${amountColor};">${amountFormatted}</td>
+                <td style="color: var(--text-muted); font-size: 0.85rem;">${desc}</td>
+            `;
+            tbody.prepend(row);
+
+            // Clear fields
+            document.getElementById('manual-txn-amount').value = '';
+            document.getElementById('manual-txn-entity').value = '';
+            document.getElementById('manual-txn-desc').value = '';
+
+            showToast('Manual record added successfully', 'success');
+        }
+
+        // AI Button interaction
+        document.querySelector('.ai-assistant-btn').addEventListener('click', () => {
+            showToast('Cortex AI is analyzing recent salon data...', 'success');
+        });
+
+        // Sync Data logic
+        document.getElementById('sync-btn').addEventListener('click', (e) => {
+            const btn = e.currentTarget;
+            const icon = btn.querySelector('i');
+
+            icon.classList.add('spin');
+            btn.disabled = true;
+            showToast('Syncing platform data...', 'success');
+
+            setTimeout(() => {
+                icon.classList.remove('spin');
+                btn.disabled = false;
+                showToast('Data sync completed successfully!', 'success');
+                renderVendorTable();
+            }, 2000);
+        });
+
+        // Tab Navigation Logic
+        const navItems = document.querySelectorAll('.nav-item');
+        const contentSections = document.querySelectorAll('.content-section');
+        const pageTitle = document.getElementById('page-title');
+        const pageSubtitle = document.getElementById('page-subtitle');
+
+        const sectionTitles = {
+            'overview': { title: 'Super Admin Headquarters', subtitle: 'Welcome back, Chief. Here is the global overview of MedhikaArts.' },
+            'salons': { title: 'Salons & Vendors', subtitle: 'Manage active platform vendors and their subscriptions.' },
+            'verification': { title: 'Verification & KYC', subtitle: 'Review and approve new salon applications and documents.' },
+            'users': { title: 'Annual Report', subtitle: 'Analyze annual financial performance, growth trajectories, and yearly metrics.' },
+            'marketing': { title: 'Onboarding', subtitle: 'Raise and track requests for onboarding new services.' },
+            'revenue': { title: 'Revenue & Finances', subtitle: 'Track GMV, platform fees, and pending payouts.' },
+            'transactions': { title: 'Transaction Ledger', subtitle: 'Detailed records of all payments, payouts, and platform fees.' },
+            'manual-record': { title: 'Manual Business Records', subtitle: 'Log offline payments, direct expenditures, and adjustments.' },
+            'business-analysis': { title: 'Business Analysis Engine', subtitle: 'Real-time diagnostics and AI-driven growth recommendations.' },
+            'ad-manager': { title: 'Network Ad Management', subtitle: 'Push promotional banners and announcements to all connected salons globally.' },
+            'settings': { title: 'System Configuration', subtitle: 'Manage core platform settings and integrations.' }
+        };
+
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = item.getAttribute('data-target');
+                if (!target) return;
+
+                // Update Active Tab
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+
+                // Update Content Sections
+                contentSections.forEach(section => {
+                    section.style.display = 'none';
+                });
+                document.getElementById(`section-${target}`).style.display = 'block';
+
+                // Update Header
+                if (sectionTitles[target]) {
+                    pageTitle.innerText = sectionTitles[target].title;
+                    pageSubtitle.innerText = sectionTitles[target].subtitle;
+                }
+            });
+        });
+
+        // Salon Verification & Extended Rendering
+        let pendingSalons = [
+            { id: 101, name: 'Luxe Beauty Bar', location: 'Pune, Central', applied: '2 hours ago', docs: 'Verified ✓', type: 'Beauty Clinic' },
+            { id: 102, name: 'Glow Up Studio', location: 'Chennai, East', applied: '1 day ago', docs: 'Pending...', type: 'Barber Shop' }
+        ];
+
+        let payments = [
+            { txId: 'TXN-98213', salon: 'Glamour Lounge', procedure: 'Bridal Makeup Pkg', amount: '₹12,500', date: 'Today, 10:30 AM', status: 'Completed' },
+            { txId: 'TXN-98212', salon: 'Style Studio', procedure: 'Keratin Treatment', amount: '₹4,200', date: 'Today, 09:15 AM', status: 'Completed' },
+            { txId: 'TXN-98210', salon: 'Glamour Lounge', procedure: 'Premium Haircut', amount: '₹1,500', date: 'Yesterday, 04:20 PM', status: 'Completed' },
+            { txId: 'TXN-98205', salon: 'Style Studio', procedure: 'Spa & Massage', amount: '₹3,000', date: 'Yesterday, 02:00 PM', status: 'Processing' }
+        ];
+
+        function renderExtendedTables() {
+            // Render Pending Verification Cards
+            const verifyQueue = document.getElementById('verification-queue');
+            verifyQueue.innerHTML = '';
+            pendingSalons.forEach(salon => {
+                verifyQueue.innerHTML += `
+                    <div style="background: rgba(255,255,255,0.6); border: 1px solid var(--glass-border); border-radius: 15px; padding: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div>
+                                <h3 style="margin-bottom: 0.2rem;">${salon.name}</h3>
+                                <p style="color: var(--text-muted); font-size: 0.85rem;"><i class="fa-solid fa-location-dot"></i> ${salon.location}</p>
+                            </div>
+                            <span style="background: rgba(245, 158, 11, 0.1); color: #b45309; padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600;">Pending</span>
+                        </div>
+                        
+                        <div style="margin-bottom: 1.5rem;">
+                            <p style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">KYC Documents</p>
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('Aadhaar Card', '8429-XXXX-4912', 'Owner of ${salon.name}')"><i class="fa-regular fa-id-card"></i> Owner Aadhaar</button>
+                                <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('PAN Card', 'BWXPMXXXX1', 'Owner of ${salon.name}')"><i class="fa-solid fa-file-invoice"></i> Owner PAN</button>
+                                <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('Business Registration', 'LIC-2026-9921', '${salon.name}')"><i class="fa-solid fa-certificate"></i> Salon License</button>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1rem;">
+                            <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Assign Shop Type & Provision Services:</label>
+                            <select id="shop-type-${salon.id}" style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-dark); color: var(--text-main); outline: none;">
+                                <option value="Unisex Salon" ${salon.type === 'Unisex Salon' ? 'selected' : ''}>Unisex Salon</option>
+                                <option value="Feminine Salon" ${salon.type === 'Feminine Salon' ? 'selected' : ''}>Feminine Salon</option>
+                                <option value="Mens Salon" ${salon.type === 'Mens Salon' ? 'selected' : ''}>Men's Salon</option>
+                                <option value="Premium Unisex Salon" ${salon.type === 'Premium Unisex Salon' ? 'selected' : ''}>Premium Unisex Salon</option>
+                                <option value="Barber Shop" ${salon.type === 'Barber Shop' ? 'selected' : ''}>Barber Shop</option>
+                                <option value="Spa & Wellness Center" ${salon.type === 'Spa & Wellness Center' ? 'selected' : ''}>Spa & Wellness Center</option>
+                                <option value="Beauty Clinic" ${salon.type === 'Beauty Clinic' ? 'selected' : ''}>Beauty Clinic</option>
+                                <option value="Hair Studio" ${salon.type === 'Hair Studio' ? 'selected' : ''}>Hair Studio</option>
+                                <option value="Franchise Outlet" ${salon.type === 'Franchise Outlet' ? 'selected' : ''}>Franchise Outlet</option>
+                                <option value="Home Service Salon" ${salon.type === 'Home Service Salon' ? 'selected' : ''}>Home Service Salon</option>
+                            </select>
+                        </div>
+
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="button" class="btn-approve" style="flex: 1; padding: 0.8rem;" onclick="approveSalon('${salon.id}')"><i class="fa-solid fa-check"></i> Approve & Provision</button>
+                            <button type="button" class="action-btn btn-suspend" style="flex: 1;" onclick="rejectSalon('${salon.id}')">Reject</button>
+                        </div>
+                    </div>
+                `;
+            });
+            if (pendingSalons.length === 0) verifyQueue.innerHTML = `<p style="color:var(--text-muted);">No pending verifications at this time.</p>`;
+
+            // Render Full Active Vendor Table
+            const fullTbody = document.getElementById('full-vendor-table-body');
+            fullTbody.innerHTML = '';
+            vendors.forEach(vendor => {
+                if (vendor.status === 'Pending Review') return; // Hide pending in active list
+                let actionBtn = vendor.status === 'Suspended' ?
+                    `<button type="button" type="button" class="action-btn btn-reactivate" onclick="reactivateLicense('${vendor.id}')">Reactivate</button>` :
+                    `<button type="button" type="button" class="action-btn btn-suspend" onclick="requestSuspend('${vendor.id}')">Suspend</button>`;
+
+                fullTbody.innerHTML += `
+                    <tr>
+                        <td><strong>${vendor.name}</strong></td>
+                        <td><span style="font-size: 0.85rem; color: var(--accent-secondary); border: 1px solid var(--accent-secondary); padding: 0.2rem 0.5rem; border-radius: 6px;">${vendor.type}</span></td>
+                        <td>${vendor.location}</td>
+                        <td>
+                            <select onchange="updateVendorPlan('${vendor.id}', this.value)" style="padding: 0.4rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                                <option value="Basic" ${vendor.plan.includes('Basic') ? 'selected' : ''}>Basic</option>
+                                <option value="Premium" ${vendor.plan.includes('Premium') ? 'selected' : ''}>Premium</option>
+                                <option value="Deluxe" ${vendor.plan.includes('Deluxe') ? 'selected' : ''}>Deluxe</option>
+                            </select>
+                        </td>
+                        <td><span class="status-badge ${vendor.status === 'Suspended' ? 'status-suspended' : 'status-active'}">${vendor.status}</span></td>
+                        <td style="display: flex; gap: 0.5rem;">
+                            ${actionBtn}
+                            <button type="button" class="action-btn" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);" onclick="viewCredentials('${vendor.id}')" title="View Branch Credentials"><i class="fa-solid fa-eye"></i> View Credentials</button>
+                            <button type="button" class="action-btn" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);" onclick="generateAndSetCredentials('${vendor.id}')" title="Generate New Branch Credentials"><i class="fa-solid fa-key"></i> Generate Credentials</button>
+                            <button type="button" class="action-btn" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid rgba(229, 62, 62, 0.3);" onclick="deleteVendor('${vendor.id}')"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Render Payment History
+            const paymentTbody = document.getElementById('payment-history-body');
+            paymentTbody.innerHTML = '';
+            payments.forEach(pay => {
+                let statusBadge = pay.status === 'Completed' ?
+                    `<span class="status-badge status-active">Completed</span>` :
+                    `<span class="status-badge status-pending">Processing</span>`;
+                paymentTbody.innerHTML += `
+                    <tr>
+                        <td style="font-family: monospace;">${pay.txId}</td>
+                        <td><strong>${pay.salon}</strong></td>
+                        <td>${pay.procedure}</td>
+                        <td style="font-weight: 700; color: var(--accent-primary);">${pay.amount}</td>
+                        <td style="color: var(--text-muted); font-size: 0.9rem;">${pay.date}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+            });
+
+            // Render Full Transactions Table
+            const fullTxTbody = document.getElementById('full-transactions-body');
+            if (fullTxTbody) {
+                fullTxTbody.innerHTML = '';
+                let extendedPayments = [...payments,
+                { txId: 'TXN-98202', salon: 'Luxe Beauty Bar', procedure: 'Party Makeup', amount: '₹5,500', date: '01 Jun 2026, 11:00 AM', status: 'Completed' },
+                { txId: 'TXN-98199', salon: 'Glow Up Studio', procedure: 'Hair Coloring', amount: '₹8,200', date: '30 May 2026, 03:45 PM', status: 'Completed' },
+                { txId: 'TXN-98150', salon: 'Elite Looks Salon', procedure: 'Manicure & Pedicure', amount: '₹2,500', date: '28 May 2026, 01:15 PM', status: 'Completed' }
+                ];
+                extendedPayments.forEach(pay => {
+                    let statusBadge = pay.status === 'Completed' ?
+                        `<span class="status-badge status-active">Completed</span>` :
+                        `<span class="status-badge status-pending">Processing</span>`;
+
+                    let amountNum = parseInt(pay.amount.replace(/[^0-9]/g, ''));
+                    let fee = amountNum * 0.15;
+
+                    fullTxTbody.innerHTML += `
+                        <tr>
+                            <td style="font-family: monospace;">${pay.txId}</td>
+                            <td><strong>${pay.salon}</strong></td>
+                            <td>${pay.procedure}</td>
+                            <td style="font-weight: 700; color: var(--accent-primary);">${pay.amount}</td>
+                            <td style="color: #166534; font-weight: 600;">₹${fee.toFixed(2)}</td>
+                            <td style="color: var(--text-muted); font-size: 0.9rem;">${pay.date}</td>
+                            <td>${statusBadge}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        async function fetchRealTimeData() {
+            try {
+                const response = await fetch('http://localhost:5000/api/branches', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+
+                    vendors = [];
+                    pendingSalons = [];
+
+                    const targetSelect = document.getElementById('setting-bill-ad-target');
+                    let currentTargetVal = 'global';
+                    if (targetSelect) {
+                        currentTargetVal = targetSelect.value;
+                        targetSelect.innerHTML = '<option value="global">All Salons (Global Override)</option>';
+                    }
+
+                    data.forEach(branch => {
+                        if (branch.verificationStatus === 'Approved') {
+                            vendors.push({
+                                id: branch.id, name: branch.name, joined: 'Recently', initials: branch.name.substring(0, 2).toUpperCase(),
+                                location: branch.location || 'N/A',
+                                plan: (branch.subscription && branch.subscription.plan) ? branch.subscription.plan : 'Basic',
+                                revenue: '₹' + (branch.grossRevenue || 0),
+                                status: branch.status,
+                                type: branch.type || 'Unisex Salon',
+                                email: branch.email || '',
+                                password: branch.password || ''
+                            });
+
+                            if (targetSelect) {
+                                targetSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+                            }
+                        } else if (branch.verificationStatus === 'Pending') {
+                            pendingSalons.push({
+                                id: branch.id, name: branch.name, location: branch.location || 'N/A', applied: 'Recently', docs: 'Pending...', type: branch.type || 'Unisex Salon',
+                                subscription: branch.subscription || null
+                            });
+                        }
+                    });
+
+                    if (targetSelect) {
+                        if (Array.from(targetSelect.options).some(o => o.value === currentTargetVal)) {
+                            targetSelect.value = currentTargetVal;
+                        }
+                    }
+
+                    renderVendorTable();
+                    renderExtendedTables();
+                } else {
+                    renderVendorTable();
+                    renderExtendedTables();
+                }
+            } catch (error) {
+                console.log("Using local mock data (backend not available).");
+                renderVendorTable();
+                renderExtendedTables();
+            }
+
+            try {
+                const mkRes = await fetch('http://localhost:5000/api/marketing');
+                if (mkRes.ok) {
+                    marketingRequests = await mkRes.json();
+                }
+            } catch (e) { }
+
+            try {
+                const bkRes = await fetch('http://localhost:5000/api/bookings');
+                if (bkRes.ok) globalBookings = await bkRes.json();
+            } catch (e) { }
+
+            try {
+                const setRes = await fetch('http://localhost:5000/api/settings');
+                if (setRes.ok) {
+                    const settings = await setRes.json();
+                    if (settings.fee) document.getElementById('setting-fee').value = settings.fee;
+                    if (settings.tax) document.getElementById('setting-tax').value = settings.tax;
+                    if (settings.maint) document.getElementById('setting-maintenance').value = settings.maint;
+                    if (settings.razorpay) document.getElementById('setting-razorpay').value = settings.razorpay;
+                    if (settings.autoApprove !== undefined) document.getElementById('setting-auto-approve').checked = settings.autoApprove;
+                    if (settings.billAds) {
+                        globalBillAds = settings.billAds;
+                    } else if (settings.billAd) {
+                        globalBillAds = { "global": { type: "text", content: settings.billAd } };
+                    }
+                    if (document.getElementById('setting-bill-ad-target')) {
+                        populateBillAdForm(document.getElementById('setting-bill-ad-target').value);
+                    }
+                }
+            } catch (e) { }
+
+            try {
+                const expRes = await fetch('http://localhost:5000/api/expenses');
+                if (expRes.ok) globalExpenses = await expRes.json();
+            } catch (e) { }
+        }
+
+        async function approveSalon(id) {
+            const typeSelect = document.getElementById(`shop-type-${id}`);
+            const selectedType = typeSelect ? typeSelect.value : 'Unisex Salon';
+
+            // Optimistic update for immediate feedback
+            const salonIndex = pendingSalons.findIndex(s => String(s.id) === String(id));
+            let salon = null;
+            if (salonIndex > -1) {
+                salon = pendingSalons[salonIndex];
+                pendingSalons.splice(salonIndex, 1);
+
+                const planName = (salon.subscription && salon.subscription.plan) ? salon.subscription.plan : 'Basic';
+                vendors.push({
+                    id: salon.id, name: salon.name, joined: 'Just now', initials: (salon.name || 'NA').substring(0, 2).toUpperCase(),
+                    location: salon.location, plan: planName, revenue: '₹0', status: 'Active', type: selectedType
+                });
+                renderVendorTable();
+                renderExtendedTables();
+            }
+
+            try {
+                const planName = (salon && salon.subscription && salon.subscription.plan) ? salon.subscription.plan : 'Basic';
+                const price = planName === 'Premium' ? '₹4,999/mo' : (planName === 'Deluxe' ? '₹9,999/mo' : '₹1,999/mo');
+                const subscription = {
+                    plan: planName,
+                    price: price,
+                    expiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    status: 'Active'
+                };
+
+                const response = await fetch(`http://localhost:5000/api/branches/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        verificationStatus: 'Approved',
+                        status: 'Active',
+                        verificationNotes: 'System Approved',
+                        type: selectedType,
+                        subscription
+                    })
+                });
+
+                if (response.ok) {
+                    showToast(`Provisioning services for ${selectedType}...`, 'success');
+                    setTimeout(() => {
+                        showToast(`Salon has been verified and onboarded!`, 'success');
+                        fetchRealTimeData();
+                    }, 1000);
+                    return;
+                }
+            } catch (e) {
+                console.log("Backend offline, falling back to mock logic.");
+            }
+
+            if (salon) {
+                showToast(`Provisioning services for ${selectedType}...`, 'success');
+                setTimeout(() => {
+                    showToast(`${salon.name} has been verified and onboarded (locally)!`, 'success');
+                }, 1000);
+            }
+        }
+
+        async function rejectSalon(id) {
+            try {
+                const response = await fetch(`http://localhost:5000/api/branches/${id}/verify`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ verificationStatus: 'Rejected' })
+                });
+
+                if (response.ok) {
+                    showToast(`Application has been rejected.`, 'error');
+                    fetchRealTimeData();
+                    return;
+                }
+            } catch (e) {
+                console.log("Backend offline, falling back to mock logic.");
+            }
+
+            const salonIndex = pendingSalons.findIndex(s => String(s.id) === String(id));
+            if (salonIndex > -1) {
+                const salon = pendingSalons[salonIndex];
+                pendingSalons.splice(salonIndex, 1);
+                showToast(`${salon.name}'s application has been rejected.`, 'error');
+                renderExtendedTables();
+            }
+        }
+
+        async function submitSalonApplication() {
+            const name = document.getElementById('marketing-salon-name').value;
+            const owner = document.getElementById('marketing-owner-name').value;
+            const phone = document.getElementById('marketing-phone').value;
+            const location = document.getElementById('marketing-location').value;
+
+            const aadhaar = document.getElementById('marketing-doc-aadhaar').files[0];
+            const pan = document.getElementById('marketing-doc-pan').files[0];
+            const license = document.getElementById('marketing-doc-license').files[0];
+            const clientsFile = document.getElementById('marketing-doc-clients').files[0];
+
+            if (!name || !owner || !phone || !location) {
+                showToast('Please fill all required fields.', 'error');
+                return;
+            }
+
+            const subscriptionPlan = document.getElementById('marketing-subscription').value;
+            const reqPayload = {
+                id: 'b' + Date.now(),
+                name: name,
+                ownerName: owner,
+                phone: phone,
+                location: location,
+                verificationStatus: 'Pending',
+                // Mock document uploads
+                aadhaarDoc: aadhaar ? aadhaar.name : 'aadhaar_mock.pdf',
+                panDoc: pan ? pan.name : 'pan_mock.pdf',
+                addressProofDoc: license ? license.name : 'license_mock.pdf',
+                date: new Date().toISOString(),
+                subscription: {
+                    plan: subscriptionPlan,
+                    price: subscriptionPlan === 'Premium' ? '₹4,999/mo' : (subscriptionPlan === 'Deluxe' ? '₹9,999/mo' : '₹1,999/mo'),
+                    expiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                    status: 'Pending'
+                }
+            };
+
+            try {
+                await fetch('http://localhost:5000/api/branches', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(reqPayload)
+                });
+
+                // Process clients CSV file if provided
+                if (clientsFile) {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        const text = e.target.result;
+                        const lines = text.split('\n');
+                        for (let i = 1; i < lines.length; i++) { // Skip header line
+                            const line = lines[i].trim();
+                            if (!line) continue;
+
+                            // Simple CSV parse handling commas inside quotes optionally
+                            const parts = line.split(',');
+                            if (parts.length >= 2) {
+                                const clientPayload = {
+                                    id: 'c' + Date.now() + i,
+                                    name: parts[0] ? parts[0].trim() : 'Unknown',
+                                    phone: parts[1] ? parts[1].trim() : '',
+                                    email: parts[2] ? parts[2].trim() : '',
+                                    pts: 0,
+                                    ltv: "₹0",
+                                    branchId: reqPayload.id
+                                };
+                                try {
+                                    await fetch('http://localhost:5000/api/clients', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify(clientPayload)
+                                    });
+                                } catch (err) {
+                                    console.error('Failed to upload client row', err);
+                                }
+                            }
+                        }
+                    };
+                    reader.readAsText(clientsFile);
+                }
+            } catch (e) {
+                console.log("Backend offline, pushing to local pending array.");
+                pendingSalons.push(reqPayload);
+            }
+
+            // Clear form
+            document.getElementById('marketing-salon-name').value = '';
+            document.getElementById('marketing-owner-name').value = '';
+            document.getElementById('marketing-phone').value = '';
+            document.getElementById('marketing-location').value = '';
+            document.getElementById('marketing-doc-aadhaar').value = '';
+            document.getElementById('marketing-doc-pan').value = '';
+            document.getElementById('marketing-doc-license').value = '';
+            document.getElementById('marketing-doc-clients').value = '';
+
+            showToast('Application submitted to KYC queue! Clients uploaded if provided.', 'success');
+
+            // Re-fetch to populate the Verification queue immediately
+            fetchRealTimeData();
+        }
+
+        function renderMarketingTables() {
+            // Placeholder logic if needed
+        }
+
+        // KYC Modal Logic
+        function openKycModal(docType, docNumber, ownerName) {
+            document.getElementById('kyc-doc-type').innerText = docType;
+            document.getElementById('kyc-doc-number').innerText = docNumber;
+            document.getElementById('kyc-owner-name').innerText = ownerName;
+
+            document.getElementById('kyc-modal').classList.add('active');
+        }
+
+        function closeKycModal() {
+            document.getElementById('kyc-modal').classList.remove('active');
+        }
+
+        let globalBillAds = {};
+
+        function populateBillAdForm(targetId) {
+            const ad = globalBillAds[targetId];
+            if (ad) {
+                document.getElementById('setting-bill-ad-type').value = ad.type;
+                if (ad.type === 'text') {
+                    document.getElementById('setting-bill-ad').value = ad.content;
+                    document.getElementById('bill-ad-text-container').style.display = 'block';
+                    document.getElementById('bill-ad-media-container').style.display = 'none';
+                } else {
+                    document.getElementById('setting-bill-ad').value = '';
+                    document.getElementById('bill-ad-text-container').style.display = 'none';
+                    document.getElementById('bill-ad-media-container').style.display = 'block';
+                }
+            } else {
+                document.getElementById('setting-bill-ad-type').value = 'text';
+                document.getElementById('setting-bill-ad').value = '';
+                document.getElementById('setting-bill-ad-media').value = '';
+                document.getElementById('bill-ad-text-container').style.display = 'block';
+                document.getElementById('bill-ad-media-container').style.display = 'none';
+            }
+        }
+
+        async function saveSystemSettings() {
+            const btn = document.getElementById('btn-save-settings');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
+            btn.disabled = true;
+
+            const fee = document.getElementById('setting-fee').value;
+            const tax = document.getElementById('setting-tax').value;
+            const maint = document.getElementById('setting-maintenance').value;
+            const razorpay = document.getElementById('setting-razorpay').value;
+            const autoApprove = document.getElementById('setting-auto-approve').checked;
+
+            const targetId = document.getElementById('setting-bill-ad-target').value;
+            const adType = document.getElementById('setting-bill-ad-type').value;
+            let adContent = '';
+
+            if (adType === 'text') {
+                adContent = document.getElementById('setting-bill-ad').value;
+                await processSettingsSave(fee, tax, maint, razorpay, autoApprove, targetId, adType, adContent);
+            } else {
+                const fileInput = document.getElementById('setting-bill-ad-media');
+                if (fileInput.files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = async function (e) {
+                        adContent = e.target.result;
+                        await processSettingsSave(fee, tax, maint, razorpay, autoApprove, targetId, adType, adContent);
+                    };
+                    reader.readAsDataURL(fileInput.files[0]);
+                } else {
+                    // Retain old media if no new file uploaded
+                    const existingAd = globalBillAds[targetId];
+                    if (existingAd && existingAd.type === 'media') {
+                        adContent = existingAd.content;
+                    }
+                    await processSettingsSave(fee, tax, maint, razorpay, autoApprove, targetId, adType, adContent);
+                }
+            }
+        }
+
+        async function processSettingsSave(fee, tax, maint, razorpay, autoApprove, targetId, adType, adContent) {
+            const btn = document.getElementById('btn-save-settings');
+            const originalHtml = '<i class="fa-solid fa-floppy-disk"></i> Save Configuration';
+
+            if (adContent) {
+                globalBillAds[targetId] = { type: adType, content: adContent };
+            } else if (adType === 'text' && !adContent) {
+                delete globalBillAds[targetId];
+            }
+
+            try {
+                const res = await fetch('http://localhost:5000/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fee, tax, maint, razorpay, autoApprove, billAds: globalBillAds })
+                });
+                if (res.ok) {
+                    showToast('System Configuration saved and applied globally!', 'success');
+                } else {
+                    showToast('Failed to save settings to server', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Network error while saving settings', 'error');
+            } finally {
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        }
+
+        // Theme Toggle Logic
+        function toggleTheme(e) {
+            if (e.checked) {
+                document.body.classList.add('dark-theme');
+                showToast('Dark Mode Enabled');
+            } else {
+                document.body.classList.remove('dark-theme');
+                showToast('Bright Mode Enabled');
+            }
+        }
+
+        // Override renderVendorTable to also update extended tables
+        const originalRender = renderVendorTable;
+        renderVendorTable = function () {
+            originalRender();
+            if (typeof renderExtendedTables === 'function') renderExtendedTables();
+        }
+
+        async function deleteVendor(id) {
+            if (confirm("Are you sure you want to completely delete this branch? This action cannot be undone.")) {
+                try {
+                    const response = await fetch(`http://localhost:5000/api/branches/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        showToast('Branch successfully deleted.', 'success');
+                        fetchRealTimeData();
+                        return;
+                    }
+                } catch (e) {
+                    console.log("Backend offline, attempting local delete");
+                }
+
+                // Fallback local delete
+                const vIndex = vendors.findIndex(v => String(v.id) === String(id));
+                if (vIndex > -1) {
+                    vendors.splice(vIndex, 1);
+                    showToast('Branch deleted locally.', 'success');
+                    renderVendorTable();
+                    renderExtendedTables();
+                }
+            }
+        }
+
+        function signOut() {
+            showToast('Signing out of MedhikaArts Super Admin...', 'success');
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            setTimeout(() => {
+                window.location.href = 'superadmin_login.html';
+            }, 1500);
+        }
+
+        function populateBABranchSelector() {
+            const selector = document.getElementById('ba-branch-select');
+            if (!selector) return;
+            const currentVal = selector.value;
+            while (selector.options.length > 1) selector.remove(1);
+
+            vendors.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.id;
+                opt.innerText = v.name;
+                selector.appendChild(opt);
+            });
+            selector.value = currentVal || 'all';
+        }
+
+        function renderBusinessAnalysis() {
+            const selector = document.getElementById('ba-branch-select');
+            if (!selector) return;
+            const branchId = selector.value;
+            let branchBookings = globalBookings;
+            if (branchId !== 'all') branchBookings = branchBookings.filter(b => String(b.branchId) === String(branchId));
+
+            let branchExpenses = globalExpenses;
+            if (branchId !== 'all') branchExpenses = branchExpenses.filter(e => String(e.branchId) === String(branchId));
+
+            const totalRev = branchBookings.reduce((sum, b) => sum + (Number(b.total) || 0), 0);
+            const totalExp = branchExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+            const netProfit = totalRev - totalExp;
+            const margin = totalRev > 0 ? ((netProfit / totalRev) * 100).toFixed(1) : 0;
+
+            document.getElementById('ba-total-revenue').innerText = '₹' + totalRev.toLocaleString();
+            document.getElementById('ba-total-expenses').innerText = '₹' + totalExp.toLocaleString();
+            document.getElementById('ba-net-profit').innerText = '₹' + netProfit.toLocaleString();
+
+            const marginEl = document.getElementById('ba-profit-margin');
+            marginEl.innerText = margin + '%';
+
+            const reportContainer = document.getElementById('ba-ai-report');
+            reportContainer.innerHTML = '';
+
+            if (totalRev === 0 && totalExp === 0) {
+                reportContainer.innerHTML = `<div class="insight-card"><div class="insight-icon"><i class="fa-solid fa-hourglass-start"></i></div><div class="insight-content"><h4>Insufficient Data</h4><p>This branch has not logged any revenue or expenses yet. Start processing bookings to generate AI insights.</p></div></div>`;
+                return;
+            }
+
+            let insightsHtml = '';
+            if (margin > 30) {
+                marginEl.style.color = '#00ff88';
+                insightsHtml += `<div class="insight-card"><div class="insight-icon" style="background: rgba(0, 255, 136, 0.2); color: #00ff88;"><i class="fa-solid fa-trophy"></i></div><div class="insight-content"><h4 style="color: #00ff88;">Excellent Profitability (Margin > 30%)</h4><p>This branch is highly profitable. <b>Recommendation:</b> Reinvest profits into premium equipment, reward top-performing staff, and consider expanding operations or running brand awareness campaigns to capture more market share.</p></div></div>`;
+            } else if (margin > 10) {
+                marginEl.style.color = '#00d2ff';
+                insightsHtml += `<div class="insight-card"><div class="insight-icon" style="background: rgba(0, 210, 255, 0.2); color: #00d2ff;"><i class="fa-solid fa-check"></i></div><div class="insight-content"><h4 style="color: #00d2ff;">Healthy Operations (10% - 30% Margin)</h4><p>The business is stable. <b>Recommendation:</b> Focus on customer retention. Implement loyalty programs and cross-sell premium services to increase average ticket size and push margins higher.</p></div></div>`;
+            } else if (margin > 0) {
+                marginEl.style.color = '#f59e0b';
+                insightsHtml += `<div class="insight-card"><div class="insight-icon" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="insight-content"><h4 style="color: #f59e0b;">Low Margins (Under 10%)</h4><p>Profit margins are dangerously thin. <b>Recommendation:</b> Analyze the highest operating expenses. Negotiate better rates with suppliers, optimize staff scheduling to avoid idle time, and consider a slight price hike on high-demand services.</p></div></div>`;
+            } else {
+                marginEl.style.color = '#ff007a';
+                insightsHtml += `<div class="insight-card"><div class="insight-icon" style="background: rgba(255, 0, 122, 0.2); color: #ff007a;"><i class="fa-solid fa-skull-crossbones"></i></div><div class="insight-content"><h4 style="color: #ff007a;">Operating at a Loss</h4><p>Expenses are exceeding revenue. <b>Immediate Action Required:</b> Conduct an aggressive cost-cutting audit. Freeze non-essential spending, run promotional discount bundles to drive immediate footfall, and evaluate underperforming staff or services.</p></div></div>`;
+            }
+
+            if (totalRev < 5000 && totalRev > 0) {
+                insightsHtml += `<div class="insight-card" style="margin-top: 10px;"><div class="insight-icon" style="background: rgba(138,43,226, 0.2); color: #8a2be2;"><i class="fa-solid fa-bullhorn"></i></div><div class="insight-content"><h4 style="color: #8a2be2;">Low Revenue Alert</h4><p>Footfall is exceptionally low. <b>Recommendation:</b> Launch localized social media ads, offer "first-time visitor" discounts, and partner with local businesses to drive new client acquisitions.</p></div></div>`;
+            }
+
+            reportContainer.innerHTML = insightsHtml;
+
+            // Render Chart.js Analytics & Branch Performance Matrix
+            renderSuperadminBusinessCharts();
+            renderSuperadminBranchMatrix();
+        }
+
+        let superadminRevenueVsSpendChartInstance = null;
+        let superadminLeadChannelsChartInstance = null;
+
+        function renderSuperadminBusinessCharts() {
+            const ctx1 = document.getElementById('superadminRevenueVsSpendChart');
+            if (ctx1 && typeof Chart !== 'undefined') {
+                if (superadminRevenueVsSpendChartInstance) superadminRevenueVsSpendChartInstance.destroy();
+                superadminRevenueVsSpendChartInstance = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6'],
+                        datasets: [
+                            {
+                                label: 'BD Revenue (₹)',
+                                data: [180000, 240000, 310000, 420000, 560000, 680000],
+                                borderColor: '#00d2ff',
+                                backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 3
+                            },
+                            {
+                                label: 'Marketing Spend (₹)',
+                                data: [25000, 32000, 40000, 48000, 55000, 62000],
+                                borderColor: '#ff007a',
+                                backgroundColor: 'rgba(255, 0, 122, 0.1)',
+                                fill: true,
+                                tension: 0.4,
+                                borderWidth: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: '#1a202c', font: { family: 'Outfit', weight: 600 } } }
+                        },
+                        scales: {
+                            x: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#718096' } },
+                            y: { grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { color: '#718096' } }
+                        }
+                    }
+                });
+            }
+
+            const ctx2 = document.getElementById('superadminLeadChannelsChart');
+            if (ctx2 && typeof Chart !== 'undefined') {
+                if (superadminLeadChannelsChartInstance) superadminLeadChannelsChartInstance.destroy();
+                superadminLeadChannelsChartInstance = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['WhatsApp Direct', 'Instagram Ads', 'Walk-in Referral', 'Corporate Deals'],
+                        datasets: [{
+                            data: [42, 28, 18, 12],
+                            backgroundColor: ['#10b981', '#ff007a', '#00d2ff', '#8a2be2'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: '#1a202c', font: { family: 'Outfit', weight: 600 } } }
+                        }
+                    }
+                });
+            }
+        }
+
+        function renderSuperadminBranchMatrix() {
+            const tbody = document.getElementById('superadmin-branch-matrix-body');
+            if (!tbody) return;
+
+            const data = [
+                { name: 'Main Branch (Park Street)', leads: '340 Leads', conv: '68.5%', rev: '₹8,40,000', spend: '₹65,000', roi: '12.9x' },
+                { name: 'South City Branch', leads: '210 Leads', conv: '61.2%', rev: '₹5,20,000', spend: '₹45,000', roi: '11.5x' },
+                { name: 'Salt Lake Branch', leads: '185 Leads', conv: '58.4%', rev: '₹4,85,000', spend: '₹38,000', roi: '12.7x' }
+            ];
+
+            tbody.innerHTML = data.map(b => `
+                <tr>
+                    <td><strong><i class="fa-solid fa-location-dot" style="color: #00d2ff;"></i> ${b.name}</strong></td>
+                    <td>${b.leads}</td>
+                    <td style="font-weight: 700; color: #8a2be2;">${b.conv}</td>
+                    <td style="font-weight: 800; color: #10b981;">${b.rev}</td>
+                    <td>${b.spend}</td>
+                    <td><span class="status-badge" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); font-weight: 700;">${b.roi}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function exportBusinessAnalysisReport(type) {
+            alert(`Exporting Business Development Analytics Report as ${type.toUpperCase()}...`);
+        }
+
+        const originalFetchRealTimeData = fetchRealTimeData;
+        fetchRealTimeData = async function () {
+            await originalFetchRealTimeData();
+            populateBABranchSelector();
+            populateAdTargets();
+            renderBusinessAnalysis();
+            fetchAndRenderAds();
+            fetchBookingAdSettings();
+        }
+
+        // --- Booking Confirmation Ad Management JS ---
+        async function fetchBookingAdSettings() {
+            try {
+                const res = await fetch('http://localhost:5000/api/marketing/booking-ad');
+                if (res.ok) {
+                    const data = await res.json();
+                    const enabledEl = document.getElementById('booking-ad-enabled');
+                    const titleEl = document.getElementById('booking-ad-title');
+                    const discountEl = document.getElementById('booking-ad-discount');
+                    const descEl = document.getElementById('booking-ad-desc');
+                    const imgUrlEl = document.getElementById('booking-ad-image-url');
+                    const imgPrevEl = document.getElementById('booking-ad-img-preview');
+                    const imgPrevContainer = document.getElementById('booking-ad-img-preview-container');
+
+                    if (enabledEl) enabledEl.value = data.enabled !== false ? 'true' : 'false';
+                    if (titleEl) titleEl.value = data.title || '';
+                    if (discountEl) discountEl.value = data.discount || '';
+                    if (descEl) descEl.value = data.description || '';
+                    if (data.imageUrl && imgUrlEl && imgPrevEl && imgPrevContainer) {
+                        imgUrlEl.value = data.imageUrl;
+                        imgPrevEl.src = data.imageUrl;
+                        imgPrevContainer.style.display = 'block';
+                    }
+                }
+            } catch (e) { console.error('Failed to fetch booking ad settings', e); }
+        }
+
+        function handleBookingAdImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const base64 = e.target.result;
+                document.getElementById('booking-ad-image-url').value = base64;
+                document.getElementById('booking-ad-img-preview').src = base64;
+                document.getElementById('booking-ad-img-preview-container').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function saveBookingAdSettings() {
+            const btn = document.getElementById('btn-save-booking-ad');
+            const originalText = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving...';
+                btn.disabled = true;
+            }
+
+            const enabled = document.getElementById('booking-ad-enabled').value === 'true';
+            const title = document.getElementById('booking-ad-title').value.trim();
+            const discount = document.getElementById('booking-ad-discount').value.trim();
+            const description = document.getElementById('booking-ad-desc').value.trim();
+            const imageUrl = document.getElementById('booking-ad-image-url').value.trim();
+
+            const payload = {
+                enabled,
+                title,
+                discount,
+                description,
+                imageUrl,
+                imageEnabled: !!imageUrl
+            };
+
+            try {
+                const res = await fetch('http://localhost:5000/api/marketing/booking-ad', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    showToast('Booking Confirmation Ad Settings saved successfully!', 'success');
+                } else {
+                    showToast('Failed to save settings to server.', 'error');
+                }
+            } catch (e) {
+                showToast('Error saving booking ad settings.', 'error');
+            } finally {
+                if (btn) {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        // --- Ad Management Logic ---
+        function populateAdTargets() {
+            const selector = document.getElementById('ad-targets');
+            if (!selector) return;
+            const currentSelected = Array.from(selector.selectedOptions).map(o => o.value);
+
+            while (selector.options.length > 1) selector.remove(1);
+
+            vendors.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.id;
+                opt.innerText = v.name;
+                selector.appendChild(opt);
+            });
+
+            for (let opt of selector.options) {
+                if (currentSelected.includes(opt.value)) opt.selected = true;
+            }
+        }
+        async function fetchAndRenderAds() {
+            try {
+                const res = await fetch('http://localhost:5000/api/ads');
+                if (!res.ok) return;
+                const ads = await res.json();
+
+                const tbody = document.getElementById('ads-table-body');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+
+                if (ads.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 2rem;">No active ads running.</td></tr>`;
+                    return;
+                }
+
+                ads.forEach(ad => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>
+                                <div style="display: flex; gap: 1rem; align-items: center;">
+                                    <div style="font-size: 2rem; background: var(--bg-panel); width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${ad.emoji || '📢'}</div>
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 1rem;">${ad.title}</div>
+                                        <div style="font-size: 0.8rem; color: var(--text-muted); max-width: 300px; white-space: normal;">${ad.description}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span style="background: rgba(0, 210, 255, 0.1); color: #00d2ff; padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">${ad.buttonText || 'Click Here'}</span></td>
+                            <td>
+                                <button onclick="deleteAd('${ad.id}')" class="action-btn btn-suspend"><i class="fa-solid fa-trash"></i> Revoke</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (e) {
+                console.error('Failed to fetch ads:', e);
+            }
+        }
+
+        async function publishAd() {
+            const emoji = document.getElementById('ad-emoji').value;
+            const title = document.getElementById('ad-title').value;
+            const description = document.getElementById('ad-desc').value;
+            const buttonText = document.getElementById('ad-btn-text').value;
+
+            const targetsElement = document.getElementById('ad-targets');
+            const targetValues = Array.from(targetsElement.selectedOptions).map(o => o.value);
+            const targets = (targetValues.includes('all') || targetValues.includes('Global')) ? ['Global'] : targetValues;
+
+            if (!title || !description) {
+                showToast('Headline and Description are required!', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch('http://localhost:5000/api/ads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emoji, title, description, buttonText, targets })
+                });
+
+                if (res.ok) {
+                    showToast('Ad successfully pushed to all salon networks!', 'success');
+                    document.getElementById('ad-title').value = '';
+                    document.getElementById('ad-desc').value = '';
+                    document.getElementById('ad-btn-text').value = '';
+                    fetchAndRenderAds();
+                }
+            } catch (e) {
+                console.error('Failed to push ad to network:', e);
+                showToast('Failed to push ad to network.', 'error');
+            }
+        }
+
+        async function deleteAd(id) {
+            if (!confirm('Are you sure you want to pull this ad from the network?')) return;
+            try {
+                const res = await fetch(`http://localhost:5000/api/ads/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showToast('Ad revoked successfully.', 'success');
+                    fetchAndRenderAds();
+                }
+            } catch (e) {
+                showToast('Failed to revoke ad.', 'error');
+            }
+        }
+
+        // Render Data
+        renderVendorTable();
+        fetchRealTimeData();
+        renderMarketingTables();
+
+        // Mobile Menu Toggle Logic
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.querySelector('.sidebar');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        if (mobileMenuBtn && sidebar && mobileOverlay) {
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.add('open');
+                mobileOverlay.classList.add('show');
+            });
+
+            mobileOverlay.addEventListener('click', () => {
+                sidebar.classList.remove('open');
+                mobileOverlay.classList.remove('show');
+            });
+
+            // Close sidebar when clicking a nav item on mobile
+            const navItemsList = document.querySelectorAll('.nav-item');
+            navItemsList.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('open');
+                        mobileOverlay.classList.remove('show');
+                    }
+                });
+            });
+        }
+    </script>
+</body>
+
+</html>

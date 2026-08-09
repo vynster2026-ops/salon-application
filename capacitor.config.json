@@ -1,0 +1,6 @@
+{
+  "appId": "com.medika.app",
+  "appName": "Medika",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}

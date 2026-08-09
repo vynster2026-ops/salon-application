@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SALONSOFTWARE | Enterprise Gateway</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- 3D and Animation Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+
+    <style>
+        :root {
+            --bg-light: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --accent-1: #3b82f6;
+            /* Blue */
+            --accent-2: #8b5cf6;
+            /* Purple */
+            --accent-3: #10b981;
+            /* Green */
+            --accent-4: #f59e0b;
+            /* Orange */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            color: var(--text-main);
+            overflow-x: hidden;
+            /* Hide horizontal scroll */
+            overflow-y: auto;
+            /* Allow vertical scrolling on smaller screens */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* 3D Background Canvas */
+        #canvas-container {
+            position: fixed;
+            /* Keep it fixed in the background when scrolling */
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            /* Let clicks pass through to the cards */
+        }
+
+        .container {
+            text-align: center;
+            max-width: 1100px;
+            padding: 2rem;
+            z-index: 10;
+            position: relative;
+        }
+
+        /* Entrance Animations */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.3));
+                transform: scale(1);
+            }
+
+            50% {
+                filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.6));
+                transform: scale(1.05);
+            }
+
+            100% {
+                filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.3));
+                transform: scale(1);
+            }
+        }
+
+        .header-content {
+            animation: fadeUp 1s ease-out forwards;
+            margin-bottom: 4rem;
+        }
+
+        .brand-icon {
+            font-size: 4.5rem;
+            color: var(--accent-1);
+            margin-bottom: 1rem;
+            animation: pulseGlow 4s infinite ease-in-out;
+        }
+
+        h1 {
+            font-size: 4rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #0f172a, #334155);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        p {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .portal-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            perspective: 1000px;
+            /* Required for 3D tilt effect */
+        }
+
+        @keyframes floatCard {
+
+            0%,
+            100% {
+                transform: translateY(0) translateZ(0);
+            }
+
+            50% {
+                transform: translateY(-10px) translateZ(10px);
+            }
+        }
+
+        /* Glassmorphism Cards (Light) */
+        .portal-card {
+            flex: 1 1 280px;
+            max-width: 320px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            border-right: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 3rem 2rem;
+            border-radius: 24px;
+            text-decoration: none;
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            opacity: 0;
+            animation: fadeUp 0.8s ease-out forwards, floatCard 4s ease-in-out infinite;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+        }
+
+        /* Staggered animation delays for cards */
+        .portal-card:nth-child(1) {
+            animation-delay: 0.2s, 1s;
+        }
+
+        .portal-card:nth-child(2) {
+            animation-delay: 0.4s, 1.2s;
+        }
+
+        .portal-card:nth-child(3) {
+            animation-delay: 0.6s, 1.4s;
+        }
+
+        /* Dynamic Glow Effects based on card type */
+        .portal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 24px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: -1;
+        }
+
+        .portal-card.superadmin::before {
+            background: radial-gradient(circle at center, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
+        }
+
+        .portal-card.branch::before {
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+        }
+
+        .portal-card.booking::before {
+            background: radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+        }
+
+        .portal-card.staff::before {
+            background: radial-gradient(circle at center, rgba(245, 158, 11, 0.1) 0%, transparent 70%);
+        }
+
+        .portal-card:hover::before {
+            opacity: 1;
+        }
+
+        .portal-card:hover {
+            border-color: rgba(255, 255, 255, 1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Inner 3D translation for elements */
+        .portal-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            transform: translateZ(40px);
+            /* Pops out during tilt */
+            transition: transform 0.3s ease;
+        }
+
+        .portal-card:hover .portal-icon {
+            transform: translateZ(60px) scale(1.1);
+        }
+
+        .portal-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            transform: translateZ(30px);
+        }
+
+        .portal-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            transform: translateZ(20px);
+        }
+
+        .version {
+            margin-top: 4rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: fadeUp 1s ease-out forwards;
+            animation-delay: 1s;
+            opacity: 0;
+        }
+
+        /* Dark Mode Overrides */
+        body.dark-mode {
+            background: #0f172a;
+            color: #f8fafc;
+        }
+
+        body.dark-mode .portal-card {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        body.dark-mode h1 {
+            background: linear-gradient(135deg, #ffffff, #94a3b8);
+            -webkit-background-clip: text;
+        }
+
+        body.dark-mode p {
+            color: #94a3b8;
+        }
+
+        body.dark-mode .portal-desc {
+            color: #cbd5e1;
+        }
+
+        body.dark-mode .version {
+            color: #475569;
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 0.75rem 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 100;
+            color: var(--text-main);
+            font-size: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        body.dark-mode .theme-toggle {
+            background: rgba(15, 23, 42, 0.5);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+
+    <!-- 3D Canvas Background -->
+    <div id="canvas-container"></div>
+
+    <div class="container">
+        <div class="header-content">
+            <i class="fa-solid fa-crown brand-icon"></i>
+            <h1>SALON SOFTWARE</h1>
+            <p>Welcome to the global platform gateway. Please select your authorized module to proceed.</p>
+        </div>
+
+        <div class="portal-grid">
+            <a href="login.html" class="portal-card branch" data-tilt data-tilt-max="15" data-tilt-speed="400"
+                data-tilt-glare data-tilt-max-glare="0.1">
+                <i class="fa-solid fa-briefcase portal-icon" style="color: var(--accent-1);"></i>
+                <div class="portal-title">SALON Portal</div>
+                <div class="portal-desc">Manage specific salon operations, staff, analytics, and business performance
+                    metrics.</div>
+            </a>
+
+            <a href="MedhikaArts_booking_module.html" class="portal-card booking" data-tilt data-tilt-max="15"
+                data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.1">
+                <i class="fa-solid fa-calendar-check portal-icon" style="color: var(--accent-3);"></i>
+                <div class="portal-title">Reception</div>
+                <div class="portal-desc">Handle customer walk-ins, daily appointments, client check-ins, and direct
+                    billing.</div>
+            </a>
+
+            <a href="staff.html" class="portal-card staff" data-tilt data-tilt-max="15" data-tilt-speed="400"
+                data-tilt-glare data-tilt-max-glare="0.1">
+                <i class="fa-solid fa-users portal-icon" style="color: var(--accent-4);"></i>
+                <div class="portal-title">Staff Portal</div>
+                <div class="portal-desc">View schedules, manage individual appointments, track earnings, and update
+                    service status.</div>
+            </a>
+        </div>
+
+        <div class="version">System sCore v2.4.1 - Authenticated Environment</div>
+    </div>
+
+    <!-- 3D Animation Script -->
+    <script>
+        // Set up Three.js Scene
+        const scene = new THREE.Scene();
+
+        // Camera setup
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 30;
+
+        // Renderer setup
+        const canvasContainer = document.getElementById('canvas-container');
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        canvasContainer.appendChild(renderer.domElement);
+
+        // Lighting for the Glass Effect
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+
+        const pinkLight = new THREE.PointLight(0xec4899, 5, 100);
+        pinkLight.position.set(15, 15, 15);
+        scene.add(pinkLight);
+
+        const blueLight = new THREE.PointLight(0x3b82f6, 5, 100);
+        blueLight.position.set(-15, -15, 15);
+        scene.add(blueLight);
+
+        const greenLight = new THREE.PointLight(0x10b981, 3, 100);
+        greenLight.position.set(0, 15, -15);
+        scene.add(greenLight);
+
+        // 3D Glass Tech Globe
+        const globeRadius = 16;
+        const geometry = new THREE.SphereGeometry(globeRadius, 48, 48);
+
+        // Make material clearly visible on light backgrounds
+        const material = new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            emissive: 0x1e293b, // Dark emissive for depth
+            specular: 0x3b82f6, // Blue shine
+            shininess: 100,
+            transparent: true,
+            opacity: 0.25 // More opaque so it's visible
+        });
+
+        const liquidBlob = new THREE.Mesh(geometry, material);
+        scene.add(liquidBlob);
+
+        // Tech wireframe overlay (Lat/Long lines for Globe look)
+        const wireGeometry = new THREE.SphereGeometry(globeRadius, 24, 24);
+        const wireMaterial = new THREE.MeshBasicMaterial({
+            color: 0x3b82f6, // Vibrant Blue
+            wireframe: true,
+            transparent: true,
+            opacity: 0.35 // Higher opacity so the grid is easily seen
+        });
+        const wireBlob = new THREE.Mesh(wireGeometry, wireMaterial);
+        wireBlob.scale.set(1.002, 1.002, 1.002);
+        liquidBlob.add(wireBlob);
+
+        // Floating ambient background particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 500;
+        const posArray = new Float32Array(particlesCount * 3);
+        for (let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 80;
+        }
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.2,
+            color: 0x8b5cf6,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.NormalBlending
+        });
+        const backgroundParticles = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(backgroundParticles);
+
+        liquidBlob.position.z = -12;
+
+        // Mouse Interactivity
+        let mouseX = 0;
+        let mouseY = 0;
+        let targetX = 0;
+        let targetY = 0;
+
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+        });
+
+        // Animation Loop
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const elapsedTime = clock.getElapsedTime();
+
+            // Smooth mouse follow
+            targetX = mouseX * 0.001;
+            targetY = mouseY * 0.001;
+
+            // Rotate Blob
+            liquidBlob.rotation.y += 0.002;
+            liquidBlob.rotation.z += 0.001;
+
+            // Parallax effect
+            liquidBlob.rotation.y += 0.05 * (targetX - liquidBlob.rotation.y);
+            liquidBlob.rotation.x += 0.05 * (targetY - liquidBlob.rotation.x);
+
+            // Background rotation
+            backgroundParticles.rotation.y -= 0.001;
+            backgroundParticles.rotation.y += 0.02 * (targetX - backgroundParticles.rotation.y);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Responsive Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Initialize Vanilla Tilt explicitly (though data-tilt attributes also work automatically)
+        VanillaTilt.init(document.querySelectorAll(".portal-card"), {
+            max: 15,
+            speed: 400,
+            glare: true,
+            "max-glare": 0.1,
+        });
+
+        // Dark Mode Logic
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // Load saved theme on load
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+        }
+    </script>
+</body>
+
+</html>

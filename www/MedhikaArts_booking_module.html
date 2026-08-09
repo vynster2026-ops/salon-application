@@ -1,0 +1,3322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vynster Salon | Online Client Booking</title>
+  <!-- Clerk Authentication SDK -->
+  <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_Y2xlcmsubWVkaGlrYWFydHMuY29tJA"
+    src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --glass: rgba(255, 255, 255, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.4);
+      --shadow-premium: 0 25px 50px -12px rgba(26, 107, 138, 0.15);
+      --font-main: 'Outfit', sans-serif;
+      --color-primary: #1A6B8A;
+      --color-primary-light: #2196B8;
+      --color-primary-bg: rgba(26, 107, 138, 0.08);
+      --color-success: #1D9E75;
+      --color-success-bg: rgba(29, 158, 117, 0.1);
+      --color-warning: #F59E0B;
+      --color-warning-bg: rgba(245, 158, 11, 0.1);
+      --color-danger: #E53E3E;
+      --color-text-primary: #1a202c;
+      --color-text-secondary: #718096;
+      --color-text-tertiary: #a0aec0;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f7fafc;
+      --color-border-primary: #e2e8f0;
+      --color-border-secondary: #edf2f7;
+      --color-border-tertiary: #f7fafc;
+      --border-radius-sm: 8px;
+      --border-radius-md: 12px;
+      --border-radius-lg: 16px;
+      --border-radius-xl: 32px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background: #ebedee;
+      background-image:
+        radial-gradient(at 0% 0%, hsla(197, 68%, 32%, 0.15) 0px, transparent 50%),
+        radial-gradient(at 50% 0%, hsla(160, 68%, 37%, 0.1) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, hsla(20, 68%, 50%, 0.1) 0px, transparent 50%);
+      font-family: var(--font-main);
+      color: var(--color-text-primary);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-y: auto;
+      /* Enable natural scrolling */
+    }
+
+    /* Layout */
+    .wrap {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 40px;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 0 30px;
+      min-height: 100vh;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .left {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      padding: 40px 0;
+    }
+
+    .right {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      padding: 40px 0;
+    }
+
+    /* Cards & Interaction */
+    .card {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--border-radius-xl);
+      padding: 32px;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 35px 60px -15px rgba(26, 107, 138, 0.2);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Step Bar - Premium Floating */
+    .step-bar {
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.6);
+
+      border: 1px solid var(--glass-border);
+      padding: 8px;
+      border-radius: 60px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      padding: 12px 16px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      letter-spacing: -0.01em;
+    }
+
+    .step.active {
+      background: var(--color-primary);
+      color: white;
+      box-shadow: 0 10px 20px -5px rgba(26, 107, 138, 0.4);
+      transform: scale(1.05);
+    }
+
+    /* Form Fields */
+    .field {
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 12px 16px;
+      font-family: var(--font-main);
+      font-size: 14px;
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .field input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px rgba(26, 107, 138, 0.1);
+    }
+
+    .error {
+      color: var(--color-danger);
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 6px;
+    }
+
+    /* Service Grid Selection */
+    .svc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .svc-card {
+      background: white;
+      border-radius: var(--border-radius-lg);
+      border: 2px solid transparent;
+      padding: 24px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .svc-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .svc-card.selected {
+      border-color: var(--color-primary);
+      background: linear-gradient(145deg, #ffffff, #f0f9ff);
+    }
+
+    /* AI Intelligence Panel */
+    .ai-panel {
+      border: 1px solid rgba(77, 192, 232, 0.4);
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border-radius: var(--border-radius-lg);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ai-panel::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(from 0deg, transparent, rgba(33, 150, 184, 0.1), transparent);
+      animation: aiRotate 12s linear infinite;
+    }
+
+    @keyframes aiRotate {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .ai-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      display: inline-block;
+      margin-right: 10px;
+      animation: aiPulse 2s infinite;
+    }
+
+    @keyframes aiPulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+      }
+    }
+
+    /* Buttons */
+    .btn-full {
+      height: 54px;
+      border-radius: 16px;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--color-primary);
+      color: white;
+      box-shadow: 0 10px 20px -5px rgba(26, 107, 138, 0.4);
+    }
+
+    .staff-card {
+      border: 1.5px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-lg);
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+      background: white;
+    }
+
+    .staff-card:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    .staff-card.selected {
+      border-color: var(--color-primary);
+      background: var(--color-primary-bg);
+    }
+
+    .staff-card.recommended {
+      border-color: var(--color-success);
+    }
+
+    .staff-card.recommended::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--color-success);
+    }
+
+    .staff-name {
+      font-weight: 700;
+      color: var(--color-text-primary);
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .staff-spec {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .staff-rating {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--color-warning);
+    }
+
+    /* Calendar & Slots */
+    .calendar-container {
+      background: white;
+      border-radius: var(--border-radius-lg);
+      padding: 15px;
+      border: 1px solid var(--color-border-secondary);
+    }
+
+    .calendar-nav-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 0 5px;
+    }
+
+    .month-label {
+      font-weight: 700;
+      color: var(--color-primary);
+      font-size: 15px;
+    }
+
+    .calendar-nav-bar button {
+      background: var(--color-background-secondary);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .calendar-nav-bar button:hover {
+      background: var(--color-primary);
+      color: white;
+    }
+
+    .calendar-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--color-text-tertiary);
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: #cbd5e1;
+      border-radius: 20px;
+      position: relative;
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch.on {
+      background: var(--color-primary);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch.on::after {
+      left: 22px;
+    }
+
+    .sl-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      transition: all 0.2s;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .cal-cell:hover:not(.disabled) {
+      background: var(--color-primary-bg);
+      color: var(--color-primary);
+    }
+
+    .cal-cell.selected {
+      background: var(--color-primary) !important;
+      color: white !important;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(26, 107, 138, 0.3);
+    }
+
+    .cal-cell.today {
+      color: var(--color-primary);
+      font-weight: 700;
+      border: 1px solid var(--color-primary-bg);
+    }
+
+    .cal-cell.disabled {
+      color: var(--color-border-primary);
+      cursor: not-allowed;
+    }
+
+    .schedule-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .time-slots-area {
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: var(--border-radius-lg);
+      padding: 20px;
+      border: 1px solid var(--glass-border);
+      height: 100%;
+    }
+
+    .time-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--color-text-secondary);
+      margin: 16px 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+      gap: 8px;
+    }
+
+    .slot {
+      padding: 10px 5px;
+      text-align: center;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      border: 1px solid var(--color-border-secondary);
+      color: var(--color-text-secondary);
+    }
+
+    .slot:hover:not(.busy) {
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+      transform: translateY(-2px);
+    }
+
+    .slot.selected {
+      background: var(--color-primary);
+      color: white !important;
+      border-color: var(--color-primary);
+      box-shadow: 0 4px 10px rgba(26, 107, 138, 0.3);
+    }
+
+    .slot.busy {
+      background: var(--color-background-secondary);
+      color: var(--color-border-primary);
+      cursor: not-allowed;
+      border-color: transparent;
+    }
+
+    .slot.ai-best {
+      border-color: var(--color-success);
+      color: var(--color-success);
+      border-style: dashed;
+    }
+
+    .slot.ai-best.selected {
+      background: var(--color-success);
+      color: white !important;
+      border-style: solid;
+    }
+
+    /* Step Transitions */
+    .step-content {
+      animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .btn-gender {
+      border: none;
+      background: transparent;
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      color: var(--color-text-secondary);
+    }
+
+    .btn-gender.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--color-border-secondary);
+      font-size: 14px;
+      color: var(--color-text-primary);
+    }
+
+    .summary-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 16px 0;
+      margin-top: 16px;
+      border-top: 2px dashed var(--color-border-primary);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .confirm-box {
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--color-border-secondary);
+    }
+
+    .confirm-icon {
+      font-size: 40px;
+      color: var(--color-success);
+      margin-bottom: 12px;
+    }
+
+    .confirm-title {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--color-text-primary);
+      margin-bottom: 8px;
+    }
+
+    .confirm-sub {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .confirm-id {
+      display: inline-block;
+      background: var(--color-background-secondary);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-weight: 600;
+      color: var(--color-text-primary);
+      letter-spacing: 1px;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(26, 107, 138, 0.2);
+      border-radius: 10px;
+    }
+
+    .payment-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .payment-card {
+      background: white;
+      width: 440px;
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .payment-tabs {
+      display: flex;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 14px;
+      margin-bottom: 24px;
+    }
+
+    .payment-tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+      color: #64748b;
+    }
+
+    .payment-tab.active {
+      background: white;
+      color: var(--color-primary);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .payment-input-group {
+      margin-bottom: 20px;
+    }
+
+    .payment-input-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .payment-input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .payment-input:focus {
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 4px rgba(26, 107, 138, 0.1);
+    }
+
+    .upi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .upi-app {
+      padding: 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .upi-app:hover {
+      border-color: var(--color-primary);
+      background: #f0f9ff;
+    }
+
+    .upi-app.active {
+      border-color: var(--color-primary);
+      background: #f0f9ff;
+    }
+
+    .upi-app span {
+      font-size: 11px;
+      font-weight: 600;
+      display: block;
+    }
+
+    .payment-total {
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Client Suggestions */
+    .client-suggestion {
+      position: relative;
+      background: white;
+      border: 1px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      z-index: 10;
+      max-height: 250px;
+      overflow-y: auto;
+      margin-top: 8px;
+      margin-bottom: 12px;
+    }
+
+    .cs-item {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      border-bottom: 1px solid var(--color-border-tertiary);
+    }
+
+    .cs-item:last-child {
+      border-bottom: none;
+    }
+
+    .cs-item:hover {
+      background: var(--color-background-secondary);
+    }
+
+    .cs-name {
+      font-weight: 700;
+      color: var(--color-text-primary);
+      font-size: 14px;
+    }
+
+    .cs-sub {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+    }
+
+    .av {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .av-t {
+      background: #1a6b8a;
+    }
+
+    .av-b {
+      background: #1d9e75;
+    }
+
+    .av-p {
+      background: #f59e0b;
+    }
+
+    .av-c {
+      background: #e53e3e;
+    }
+
+    .av-k {
+      background: #8b5cf6;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-blue {
+      background: #eff6ff;
+      color: #1e40af;
+    }
+
+    .badge-green {
+      background: #f0fdf4;
+      color: #166534;
+    }
+
+    /* Premium Category Grid */
+    .cat-scroll {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 15px;
+      padding: 20px;
+      margin-bottom: 30px;
+      background: #f8fafc;
+      border-radius: 24px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .cat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      min-width: 90px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 5px 0;
+    }
+
+    .cat-box:hover {
+      transform: translateY(-5px);
+      z-index: 4000;
+    }
+
+    .cat-box.active {
+      background: transparent;
+      border: none;
+    }
+
+    .cat-img-wrapper {
+      width: 80px;
+      height: 100px;
+      border-radius: 40px 40px 14px 14px;
+      overflow: hidden;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+      border: 2px solid transparent;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+      position: relative;
+    }
+
+    .cat-hover-tip {
+      position: absolute;
+      left: 50%;
+      top: 100%;
+      margin-top: 15px;
+      transform: translate(-50%, -10px);
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 12px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+      pointer-events: none;
+      border-radius: 16px;
+      z-index: 3000;
+      box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.3);
+      width: 160px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .cat-box:hover .cat-hover-tip {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+
+    .cat-hover-tip::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 100%;
+      top: auto;
+      transform: translateX(-50%);
+      border-width: 12px;
+      border-style: solid;
+      border-color: transparent transparent #ffffff transparent;
+    }
+
+    .cat-hover-desc {
+      font-size: 11px;
+      font-weight: 800;
+      color: #0f172a;
+      line-height: 1.4;
+      margin-bottom: 6px;
+      text-align: left;
+    }
+
+    .cat-hover-products {
+      font-size: 9px;
+      font-weight: 700;
+      color: #1a6b8a;
+      line-height: 1.3;
+      background: #f1f5f9;
+      padding: 4px 8px;
+      border-radius: 6px;
+      width: fit-content;
+      border-left: 3px solid #1a6b8a;
+    }
+
+    .cat-box:hover .cat-img-wrapper {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .cat-box.active .cat-img-wrapper {
+      border-color: var(--color-primary);
+      box-shadow: 0 8px 20px rgba(26, 107, 138, 0.25);
+      transform: scale(1.05);
+    }
+
+    .cat-box-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: 0.3s;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .cat-box:hover .cat-box-img {
+      transform: scale(1.1);
+    }
+
+    .cat-box.active .cat-box-img {
+      border: none;
+      box-shadow: none;
+    }
+
+    .cat-box-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #334155;
+      text-align: center;
+      line-height: 1.2;
+      transition: 0.3s;
+      white-space: normal;
+      max-width: 80px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .cat-box.active .cat-box-title {
+      color: var(--color-primary);
+    }
+
+    /* Mobile Responsiveness for Booking Module */
+    @media (max-width: 768px) {
+
+      html,
+      body {
+        overflow-x: hidden;
+        width: 100%;
+      }
+
+      .wrap {
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        gap: 20px;
+      }
+
+      .left,
+      .right {
+        width: 100%;
+        padding: 10px 0;
+      }
+
+      .schedule-layout {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .cat-scroll {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        padding: 10px;
+      }
+
+      .staff-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .step-bar {
+        flex-wrap: wrap;
+      }
+
+      .step {
+        flex: 1 1 45%;
+        padding: 10px;
+        font-size: 12px;
+      }
+
+      .payment-card,
+      .auth-card {
+        width: 95% !important;
+        max-width: 100% !important;
+        padding: 20px !important;
+      }
+
+      .modal-content {
+        width: 95% !important;
+        padding: 15px !important;
+      }
+
+      .upi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2 style="position:absolute;left:-9999px">Srijes live appointment booking module with AI slot intelligence and
+    real
+    form logic</h2>
+
+  <div id="root"></div>
+  <div id="payment-gateway-container"></div>
+
+
+  <script>
+    const API_URL = (window.location.protocol === 'file:' || window.location.port === '5500' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('loca.lt')) ? 'http://127.0.0.1:5000/api' : '/api';
+    let CLIENTS = [];
+    let BOOKINGS = [];
+    let SERVICES = [];
+    let STAFF = [];
+    let FEMALE_SERVICES_IDS = [];
+    let MALE_SERVICES_IDS = [];
+
+
+
+
+
+
+
+
+
+
+
+
+    async function loadFromDB() {
+      try {
+        const ts = Date.now();
+        const [cRes, bRes, sRes, svRes] = await Promise.all([
+          fetch(`${API_URL}/clients?_t=${ts}`),
+          fetch(`${API_URL}/bookings?_t=${ts}`),
+          fetch(`${API_URL}/staff?_t=${ts}`),
+          fetch(`${API_URL}/services?_t=${ts}`)
+        ]);
+        CLIENTS = await cRes.json();
+        let rawBookings = await bRes.json();
+        const now = new Date();
+        BOOKINGS = rawBookings.map(b => {
+          const stat = (b.status || '').toLowerCase();
+          if (['upcoming', 'confirmed', 'ongoing', 'pending', 'done'].includes(stat)) {
+            const dateStr = b.date && b.date.includes('T') ? b.date.split('T')[0] : b.date;
+            if (dateStr && b.time) {
+              const apptEnd = new Date(dateStr + 'T' + b.time);
+              apptEnd.setMinutes(apptEnd.getMinutes() + 60);
+              if (now > apptEnd) { b.status = 'Completed'; }
+            }
+            if (stat === 'done') b.status = 'Completed';
+          }
+          return b;
+        });
+        STAFF = await sRes.json();
+        SERVICES = await svRes.json();
+
+        FEMALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'female' || s.gender === 'unisex').map(s => s.id);
+        MALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'male' || s.gender === 'unisex').map(s => s.id);
+        updateConnectionStatus(true);
+      } catch (err) {
+        console.error('API Error:', err);
+        updateConnectionStatus(false);
+      }
+
+      // --- Pre-fill from URL ---
+      const urlParams = new URLSearchParams(window.location.search);
+      const pName = urlParams.get('clientName');
+      const pPhone = urlParams.get('clientPhone');
+      const pServices = urlParams.get('services');
+      const pEditId = urlParams.get('editId');
+
+      if (pEditId) {
+        state.editId = pEditId;
+        // Find the existing booking to pre-fill more accurately
+        const existing = BOOKINGS.find(b => String(b.id) === String(pEditId) || String(b._id) === String(pEditId));
+        if (existing) {
+          state.client = existing.clientId || null;
+          state.clientQuery = existing.clientName;
+          state.clientPhone = existing.phone || '';
+          state.selectedServices = existing.services || [];
+          state.selectedStaff = existing.staffId ? (Array.isArray(existing.staffId) ? existing.staffId : [existing.staffId]) : [];
+
+          let prefillGender = existing.gender;
+          if (!prefillGender && existing.clientId) {
+            const fc = CLIENTS.find(c => c.id === existing.clientId);
+            if (fc && fc.gender) prefillGender = fc.gender;
+          }
+          if (!prefillGender && existing.clientName) {
+            const fc = CLIENTS.find(c => c.name.toLowerCase() === existing.clientName.toLowerCase());
+            if (fc && fc.gender) prefillGender = fc.gender;
+          }
+          if (!prefillGender && state.selectedStaff.length > 0) {
+            const fst = STAFF.find(s => s.id === state.selectedStaff[0]);
+            if (fst && fst.gender) prefillGender = fst.gender;
+          }
+          state.selectedGender = prefillGender || 'female';
+          state.selectedTime = existing.time || null;
+          if (existing.date) {
+            const parsedDate = new Date(existing.date);
+            if (!isNaN(parsedDate)) {
+              state.selectedDate = parsedDate;
+              state.scheduleDate = parsedDate;
+              state.calYear = parsedDate.getFullYear();
+              state.calMonth = parsedDate.getMonth();
+            }
+          }
+          state.notes = existing.notes || '';
+          state.source = existing.source || 'walk-in';
+          state.step = 2; // Jump to Services step when rescheduling
+        }
+      }
+
+      if (pName) {
+        state.clientQuery = pName;
+        const found = CLIENTS.find(c => c.name.toLowerCase() === pName.toLowerCase());
+        if (found) {
+          state.client = found.id;
+          state.clientPhone = found.phone || pPhone || '';
+        } else {
+          state.clientPhone = pPhone || '';
+        }
+      }
+      if (pServices) {
+        const sIds = pServices.split(',').filter(x => x);
+        state.selectedServices = sIds;
+      }
+
+      render();
+    }
+
+    function updateConnectionStatus(online) {
+      const statusDot = document.getElementById('connection-status-dot');
+      const statusText = document.getElementById('connection-status-text');
+      if (statusDot && statusText) {
+        statusDot.style.background = '#16a34a';
+        statusText.textContent = 'Live';
+      }
+    }
+
+    async function saveToDB(client, booking, isExistingClient) {
+      try {
+        if (client) {
+          if (isExistingClient) {
+            await fetch(`${API_URL}/clients/${client.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(client)
+            });
+          } else {
+            await fetch(`${API_URL}/clients`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(client)
+            });
+          }
+        }
+        if (booking) {
+          if (state.editId) {
+            // Update existing
+            await fetch(`${API_URL}/bookings/${state.editId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(booking)
+            });
+          } else {
+            // Create new
+            await fetch(`${API_URL}/bookings`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(booking)
+            });
+          }
+        }
+      } catch (err) {
+        console.error('API Save Error:', err);
+      }
+    }
+
+    const TIMES = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00'];
+
+    const FALLBACK_IMAGES = [
+      'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=200&h=240',
+      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=200&h=240',
+      'https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&q=80&w=200&h=240',
+      'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&q=80&w=200&h=240',
+      'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=200&h=240',
+      'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=200&h=240'
+    ];
+
+    const CAT_INFO = {
+      'All': { desc: 'Browse all available services', products: 'All brands' },
+      'Eyebrow Design': { desc: 'Shaping, tinting & defining brows', products: 'Anastasia, Benefit brow kits' },
+      'Threading': { desc: 'Precise thread removal for face & brows', products: 'Natural cotton thread' },
+      'threading': { desc: 'Precise thread removal for face & brows', products: 'Natural cotton thread' },
+      'Waxing : Face': { desc: 'Gentle waxing for upper lip, chin & cheeks', products: 'Rica cream wax, aloe gel' },
+      'Waxing : Body': { desc: 'Full body waxing for silky smooth skin', products: 'Nads, Rica hot wax strips' },
+      'Bleach :': { desc: 'Lightens hair for a glowing complexion', products: 'Fem Gold, Oxy Glow bleach' },
+      'De Tan :': { desc: 'Removes tan & uneven tone with masks', products: 'VLCC De-Tan, vitamin C serum' },
+      'Express Facial cleanups :': { desc: 'Quick deep cleanse & glow boost', products: 'Lotus, O3+ cleanup kits' },
+      'Exotic Facials:': { desc: 'Indulgent facials with exotic serums', products: 'Biotique, Forest Essentials, 24K gold' },
+      'Advanced facials': { desc: 'Clinical-grade facials for pigmentation', products: 'Dermalogica, Environ actives' },
+      'spa manicures and pedicures': { desc: 'Luxury nail & foot spa with scrubs', products: 'OPI, CND, Himalaya foot creams' },
+      'Ear peircing :': { desc: 'Safe sterile piercing with aftercare', products: 'Surgical steel or titanium studs' },
+      'Hair care :': { desc: 'Scalp & hair treatments for healthy growth', products: 'Kerastase, Wella, Schwarzkopf' },
+      'Hair wash :': { desc: 'Professional wash with scalp massage', products: "L'Oreal, Dove Pro Oxygen" },
+      'Hair spa': { desc: 'Deep conditioning for frizz-free shine', products: 'Matrix, Wella Luxe Oil, argan serums' },
+      'Permanent Hair': { desc: 'Long-lasting straightening or curl setting', products: 'Schwarzkopf Bond, TRESemme actives' },
+      'Haircuts :': { desc: 'Trendy cuts & styling for all hair types', products: 'Wahl scissors, Tigi texture spray' },
+      'Hair colours :': { desc: 'Vibrant, natural or ombre shades', products: "L'Oreal Inoa, Matrix SoColor" },
+      'Henna colouring and conditioning:': { desc: '100% natural henna with conditioning', products: 'Organic henna, amla, shikakai' },
+      'Hairstyling': { desc: 'Blow-dry, curls & special occasion styles', products: 'GHD tools, Tresemme spray, Kenra' },
+      'Make up:': { desc: 'Day to bridal makeup, long-lasting finish', products: 'MAC, NARS, Huda Beauty' },
+      'Body massages and spa therapies': { desc: 'Relaxing full-body massages & aromatherapy', products: 'Biotique oils, Moroccanoil, lavender' },
+      'bride package:': { desc: 'Complete bridal grooming - hair, skin & makeup', products: 'MAC, Kerastase, Dermalogica, premium kits' }
+    };
+
+    const CAT_IMAGES = {
+      'All': 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=200&h=240',
+      'Eyebrow Design': 'eyebrow_design.jpg',
+      'Threading': 'threading.jpg',
+      'threading': 'threading.jpg',
+      'Waxing : Face': 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&q=80&w=200&h=240',
+      'Waxing : Body': 'https://images.unsplash.com/photo-1552693673-1bf958298935?auto=format&fit=crop&q=80&w=200&h=240',
+      'Bleach :': 'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&q=80&w=200&h=240',
+      'De Tan :': 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=200&h=240',
+      'Express Facial cleanups :': 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?auto=format&fit=crop&q=80&w=200&h=240',
+      'Exotic Facials:': 'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&q=80&w=200&h=240',
+      'Advanced facials': 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?auto=format&fit=crop&q=80&w=200&h=240',
+      'spa manicures and pedicures': 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&q=80&w=200&h=240',
+      'Ear peircing :': 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&q=80&w=200&h=240',
+      'Hair care :': 'https://images.unsplash.com/photo-1560869713-7d0a29430803?auto=format&fit=crop&q=80&w=200&h=240',
+      'Hair wash :': 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=200&h=240',
+      'Hair spa': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=200&h=240',
+      'Permanent Hair': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=200&h=240',
+      'Haircuts :': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=200&h=240',
+      'Hair colours :': 'https://images.unsplash.com/photo-1600948836101-f9ffda59d250?auto=format&fit=crop&q=80&w=200&h=240',
+      'Henna colouring and conditioning:': 'https://images.unsplash.com/photo-1600948836101-f9ffda59d250?auto=format&fit=crop&q=80&w=200&h=240',
+      'Hairstyling': 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=200&h=240',
+      'Make up:': 'https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&q=80&w=200&h=240',
+      'Body massages and spa therapies': 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&q=80&w=200&h=240',
+      'bride package:': 'https://images.unsplash.com/photo-1487412912498-0447578fcca8?auto=format&fit=crop&q=80&w=200&h=240'
+    };
+
+    function getCategoryImg(cat) {
+      if (CAT_IMAGES[cat]) return CAT_IMAGES[cat];
+      let sum = 0;
+      for (let i = 0; i < cat.length; i++) sum += cat.charCodeAt(i);
+      return FALLBACK_IMAGES[sum % FALLBACK_IMAGES.length];
+    }
+
+    let state = {
+      step: 1,
+      selectedCategoryForModal: null,
+      selectedGender: '',
+      client: null,
+      clientQuery: '',
+      clientPhone: '',
+      clientDob: '',
+      clientAnniversary: '',
+      clientMaritalStatus: '',
+      clientLocation: '',
+      serviceQuery: '',
+      showSuggestions: false,
+      selectedServices: [],
+      selectedStaff: [],
+      selectedDate: new Date(new Date().setHours(0, 0, 0, 0)),
+      selectedTime: null,
+      notes: '',
+      deposit: false,
+      notify: ['whatsapp', 'email'],
+      source: '',
+      aiInsight: '',
+      aiLoading: false,
+      servicePriceSelections: {},
+      confirmed: false,
+      bookingId: null,
+      errors: {},
+      calYear: new Date().getFullYear(),
+      calMonth: new Date().getMonth(),
+      scheduleDate: new Date(),
+      showPayment: false,
+      paymentMethod: 'upi',
+      paymentProcessing: false,
+      highlightedServiceId: null,
+      editId: null,
+      guestCount: 1,
+      showPersonalizationModal: false
+    };
+
+    // --- Sync Date from URL ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const paramDate = urlParams.get('date');
+    if (paramDate) {
+      const d = new Date(paramDate);
+      if (!isNaN(d.getTime())) {
+        d.setHours(0, 0, 0, 0);
+        state.selectedDate = d;
+        state.scheduleDate = d;
+        state.calYear = d.getFullYear();
+        state.calMonth = d.getMonth();
+      }
+    }
+
+    const now = new Date();
+    now.setHours(0, 0, 0, 0);
+
+    function fmt(d) { return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][d.getDay()] }
+    function fmtd(d) { return d.getDate() }
+    function fmtFull(d) { return d.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) }
+    function toLocalISO(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function genId() { return 'GS-' + Math.floor(10000 + Math.random() * 90000) }
+    function rupee(n) { return '₹' + n.toLocaleString('en-IN') }
+    function format12h(timeStr) {
+      if (!timeStr) return '';
+      const [h, m] = timeStr.split(':');
+      const hours = parseInt(h);
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      return `${hours % 12 || 12}:${m} ${ampm}`;
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'GS_BOOKINGS') {
+        BOOKINGS = JSON.parse(e.newValue) || [];
+        render();
+      }
+    });
+
+    function totalPrice() {
+      const baseTotal = state.selectedServices.reduce((sum, id) => {
+        const s = SERVICES.find(x => String(x.id) === String(id));
+        if (!s) return sum;
+        const idx = state.servicePriceSelections[id] || 0;
+        const price = (s.prices && s.prices[idx] !== undefined) ? s.prices[idx] : s.price;
+        return sum + (price || 0);
+      }, 0);
+      return baseTotal * (state.guestCount || 1);
+    }
+    function totalDuration() {
+      const baseDur = state.selectedServices.reduce((s, id) => {
+        const svc = SERVICES.find(x => String(x.id) === String(id));
+        return s + (svc ? svc.duration : 0);
+      }, 0);
+      return baseDur * (state.guestCount || 1);
+    }
+
+    function getEffectiveStaffGender(st) {
+      if (st.gender && String(st.gender).trim() !== '') {
+        const g = String(st.gender).toLowerCase().trim();
+        if (['male', 'female', 'both', 'all'].includes(g)) return g;
+      }
+      const name = (st.name || '').toLowerCase();
+      if (name.includes('balaji') || name.includes('ravi') || name.includes('rahul') || name.includes('kumar') || name.includes('singh') || name.includes('man') || name.includes('male')) {
+        return 'male';
+      }
+      if (name.includes('lakshmi') || name.includes('sriya') || name.includes('meghna') || name.includes('deepa') || name.includes('priya') || name.includes('woman') || name.includes('female')) {
+        return 'female';
+      }
+      return 'both';
+    }
+
+    function staffForServices() {
+      if (state.forceManualAssign) return STAFF;
+
+      const targetGender = (state.selectedGender || '').toLowerCase();
+
+      const genderStaff = STAFF.filter(st => {
+        if (!targetGender || targetGender === 'all') return true;
+        const stGender = getEffectiveStaffGender(st);
+        if (stGender === 'both' || stGender === 'all') return true;
+        return stGender === targetGender;
+      });
+
+      let eligible = genderStaff;
+
+      if (state.selectedServices && state.selectedServices.length) {
+        const filtered = eligible.filter(st => {
+          if (!st.services || !Array.isArray(st.services) || st.services.length === 0) return true;
+          const hasAll = st.services.includes('all') || st.services.includes('All') || st.services.some(s => String(s).startsWith('sf') || String(s).startsWith('sm'));
+          if (hasAll) return true;
+          return state.selectedServices.every(sid => st.services.includes(sid));
+        });
+        if (filtered.length > 0) eligible = filtered;
+      }
+
+      // Prevent double-booking: exclude staff if the new booking overlaps with their existing bookings
+      if (state.selectedDate && state.selectedTime) {
+        const dateStr = toLocalISO(state.selectedDate);
+
+        const [sh, sm] = state.selectedTime.split(':').map(Number);
+        const newStartMins = sh * 60 + sm;
+        const newDur = totalDuration();
+        const newEndMins = newStartMins + newDur;
+
+        eligible = eligible.filter(st => {
+          const isBooked = BOOKINGS.some(b => {
+            if (state.editId && (String(b.id) === String(state.editId) || String(b._id) === String(state.editId))) return false;
+            const bDateStr = b.date && b.date.includes('T') ? toLocalISO(new Date(b.date)) : b.date;
+            if (bDateStr !== dateStr) return false;
+
+            const affectsStaff = b.staffId === st.id || (Array.isArray(b.staffId) && b.staffId.includes(st.id));
+            if (!affectsStaff) return false;
+
+            if (!b.time) return false;
+            const [bh, bm] = b.time.split(':').map(Number);
+            const bStartMins = bh * 60 + bm;
+
+            let bDur = 30; // default
+            if (b.services && Array.isArray(b.services) && typeof SERVICES !== 'undefined') {
+              bDur = b.services.reduce((sum, sid) => {
+                const svc = SERVICES.find(x => String(x.id) === String(sid));
+                return sum + (svc ? (svc.duration || 30) : 30);
+              }, 0);
+            }
+            const bEndMins = bStartMins + bDur;
+
+            // Check for time overlap
+            return (newStartMins < bEndMins) && (newEndMins > bStartMins);
+          });
+          return !isBooked;
+        });
+      }
+
+      return eligible;
+    }
+
+    async function sendWhatsApp(isAuto = false) {
+      const client = state.client ? CLIENTS.find(c => c.id === state.client) : null;
+      const name = client ? client.name : (state.clientQuery || 'Guest');
+      let phone = client ? client.phone : (state.clientPhone || '');
+
+      // If phone is missing and NOT auto, prompt for it
+      if (!phone || phone.trim() === '') {
+        if (isAuto) return; // Skip prompt on auto-trigger
+        phone = prompt("Enter Client's WhatsApp number (10 digits):");
+        if (!phone) return;
+        state.clientPhone = phone;
+      }
+
+      let cleanPhone = String(phone).replace(/\D/g, '');
+      if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
+      if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+
+      const svcs = state.selectedServices.map(id => {
+        const s = SERVICES.find(x => String(x.id) === String(id) || String(x._id) === String(id));
+        if (s && s.name) return s.name;
+        if (typeof id === 'string' && !id.startsWith('svc-')) return id;
+        return null;
+      }).filter(Boolean).join(', ');
+
+      const bookingLine = svcs ? `Your booking for *${svcs}* is confirmed!` : `Your booking is confirmed!`;
+
+      const dateStr = state.selectedDate ? fmtFull(state.selectedDate) : '';
+      const timeStr = state.selectedTime ? format12h(state.selectedTime) : '';
+      const bookingId = state.bookingId || genId();
+      const titleStr = state.selectedGender === 'female' ? 'Miss' : 'Mr';
+
+      try {
+        // Fetch Welcome Image Settings
+        const welcomeRes = await fetch(`${API_URL}/marketing/bill-ad?_t=${Date.now()}`);
+        let welcomeData = {};
+        if (welcomeRes.ok) {
+          welcomeData = await welcomeRes.json();
+        }
+
+        let promoText = '';
+        if (welcomeData.enabled) {
+          promoText = `\n\n🌟 *${welcomeData.title || ''}*\n${welcomeData.description || ''}`;
+        }
+
+        const rawMessage = `*Srijes Booking Confirmation*\n--------------------------\n*Hello ${titleStr}. ${name}*,\n\n${bookingLine}\n\n📅 *Date:* ${dateStr}\n⏰ *Time:* ${timeStr}\n🔖 *Booking ID:* ${bookingId}\n\n_Thank you for choosing Srijes!_${promoText}`;
+
+        let mediaUrl = '';
+        if (welcomeData.enabled && welcomeData.imageEnabled && welcomeData.imageUrl) {
+          mediaUrl = welcomeData.imageUrl;
+          if (mediaUrl.startsWith('./')) {
+            mediaUrl = API_URL.replace('/api', '') + mediaUrl.substring(1);
+          } else if (!mediaUrl.startsWith('http')) {
+            mediaUrl = API_URL.replace('/api', '') + (mediaUrl.startsWith('/') ? mediaUrl : '/' + mediaUrl);
+          }
+        }
+
+        let mediaUrls = mediaUrl ? [mediaUrl] : [];
+        // mediaUrls.push(API_URL.replace('/api', '') + '/uploads/onion-spa-ad.png');
+
+        const payload = {
+          recipients: [cleanPhone],
+          message: rawMessage,
+          mediaUrls: mediaUrls
+        };
+        const response = await fetch(`${API_URL}/whatsapp/send-direct-bulk`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          if (!isAuto) alert("WhatsApp Confirmation Sent!");
+        } else {
+          if (!isAuto) alert("Failed to send WhatsApp confirmation via server.");
+        }
+      } catch (err) {
+        if (!isAuto) alert("Error sending WhatsApp: " + err.message);
+      }
+    }
+
+    async function fetchAIInsight() {
+      state.aiLoading = true; state.aiInsight = ''; render();
+
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      const svcNames = state.selectedServices.map(id => SERVICES.find(x => x.id === id)?.name).join(', ');
+      const staffName = state.selectedStaff.length > 0 ? state.selectedStaff.map(id => STAFF.find(x => x.id === id)?.name).join(', ') : 'any stylist';
+
+      // Smart mock insights based on context
+      const isWeekend = state.selectedDate && (state.selectedDate.getDay() === 0 || state.selectedDate.getDay() === 6);
+      const hasColor = svcNames.toLowerCase().includes('color') || svcNames.toLowerCase().includes('highlight');
+      const hasFacial = svcNames.toLowerCase().includes('facial') || svcNames.toLowerCase().includes('cleanup');
+      const hasBridal = svcNames.toLowerCase().includes('bride') || svcNames.toLowerCase().includes('bridal');
+
+      let insight = '';
+
+      if (hasBridal) {
+        insight = `Bridal booking detected. Recommend assigning ${staffName !== 'any stylist' ? staffName : 'a senior stylist'} and offering a complimentary trial consultation. Allocate an extra 30 mins buffer.`;
+      } else if (hasColor) {
+        insight = `Color service booked. Great opportunity to upsell Olaplex treatment or post-color care products. Ensure color bowls and foils are prepped before the client arrives.`;
+      } else if (hasFacial) {
+        insight = `Skincare service scheduled. Consider recommending a hydrating sheet mask add-on. Dim the lights and prepare a relaxing ambient playlist.`;
+      } else if (isWeekend) {
+        insight = `This is a peak weekend slot. To maximize revenue, try to minimize gap times. Offer the client a quick 10-min add-on service like a head massage while they wait.`;
+      } else {
+        insight = `Standard appointment with ${staffName}. Keep the station sanitized and offer a beverage upon arrival to elevate the premium Srijes experience.`;
+      }
+
+      state.aiInsight = insight;
+      state.aiLoading = false; render();
+    }
+
+    function validate() {
+      const e = {};
+      if (!state.client && !state.clientQuery.trim()) e.client = 'Select or enter a client name';
+      if (!state.selectedServices.length) e.services = 'Select at least one service';
+      if (!state.selectedDate) e.date = 'Pick a date';
+      if (!state.selectedTime) e.time = 'Pick a time slot';
+      state.errors = e;
+      return Object.keys(e).length === 0;
+    }
+
+    async function confirm() {
+      try {
+        if (!validate()) { render(); return; }
+        // Always generate a new ID so reschedules create an audit trail
+        state.bookingId = genId();
+
+        let client = state.client ? CLIENTS.find(c => c.id === state.client) : null;
+
+        if (!client && state.clientPhone) {
+          const existingByPhone = CLIENTS.find(c => c.phone && c.phone === state.clientPhone);
+          if (existingByPhone) {
+            client = existingByPhone;
+            state.client = client.id;
+          }
+        }
+
+        let isNewClient = false;
+        if (!client) {
+          isNewClient = true;
+          client = {
+            id: 'c' + (CLIENTS.length + 1),
+            name: state.clientQuery || 'Guest',
+            phone: state.clientPhone || '',
+            location: state.clientLocation || '',
+            email: '',
+            pts: 0,
+            ltv: rupee(totalPrice()),
+            joinedDate: state.selectedDate, // Set to booking date as requested
+            av: 'av-' + ['t', 'b', 'p', 'c', 'k'][Math.floor(Math.random() * 5)],
+            gender: state.selectedGender,
+            dob: state.clientDob,
+            anniversary: state.clientAnniversary
+          };
+          CLIENTS.push(client);
+          state.client = client.id;
+        } else {
+          const ltvStr = client.ltv ? String(client.ltv) : '0';
+          const ltvNum = parseInt(ltvStr.replace(/[^0-9]/g, '')) || 0;
+          client.ltv = rupee(ltvNum + totalPrice());
+          client.pts = (client.pts || 0) + 5; // Flat 5 points for returning client as requested
+          client.gender = state.selectedGender;
+          if (state.clientDob) client.dob = state.clientDob;
+          if (state.clientAnniversary) client.anniversary = state.clientAnniversary;
+        }
+
+        const newBooking = {
+          id: state.bookingId,
+          clientId: client.id,
+          clientName: client.name,
+          clientPhone: client.phone || state.clientPhone || '',
+          services: state.selectedServices,
+          staffId: state.selectedStaff.length > 0 ? state.selectedStaff : null,
+          date: toLocalISO(state.selectedDate),
+          time: state.selectedTime,
+          total: totalPrice(),
+          status: 'upcoming',
+          notes: state.notes,
+          source: state.source,
+          location: state.clientLocation,
+          serviceLocation: state.serviceLocation || 'indoor',
+          deposit: state.deposit,
+          createdAt: new Date().toISOString()
+        };
+        await saveToDB(client, newBooking, !isNewClient);
+
+        // If it was a reschedule (editId is set), update the old booking to 'Rescheduled'
+        if (state.editId) {
+          try {
+            await fetch(`${API_URL}/bookings/${state.editId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: 'Rescheduled' })
+            });
+          } catch (e) {
+            console.error("Failed to update old booking status", e);
+          }
+        }
+
+        state.confirmed = true;
+        render();
+        setTimeout(fireConfetti, 100);
+
+        // Open WhatsApp in a background tab after the confirmation screen is shown
+        // 1. Trigger WhatsApp immediately
+        if (state.notify.includes('whatsapp')) {
+          sendWhatsApp(true);
+        }
+
+        // 2. Signal data refresh
+        const refreshMsg = 'refreshData';
+        if (window.parent && window.parent !== window) window.parent.postMessage(refreshMsg, '*');
+        if (window.opener) window.opener.postMessage(refreshMsg, '*');
+        try {
+          const bc = new BroadcastChannel('medhika_sync');
+          bc.postMessage(refreshMsg);
+          bc.close();
+        } catch (e) { }
+
+        // 3. Open Checkout Window immediately (no need to wait for WhatsApp tab)
+        window._openCheckoutWindow();
+      } catch (err) {
+        console.error("Confirmation Error:", err);
+        alert("Error confirming: " + err.message);
+      }
+    }
+
+    async function saveToDB(newClient, booking, isUpdate = false) {
+      try {
+        if (newClient) {
+          if (isUpdate) {
+            await fetch(`${API_URL}/clients/${encodeURIComponent(newClient.id)}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newClient)
+            });
+          } else {
+            await fetch(`${API_URL}/clients`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newClient)
+            });
+          }
+        }
+        await fetch(`${API_URL}/bookings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(booking)
+        });
+      } catch (err) {
+        console.error('Save to DB Error:', err);
+        alert('Error saving booking or client data: ' + err.message);
+      }
+    }
+
+    function fireConfetti() {
+      const container = document.createElement('div');
+      container.className = 'confetti';
+      document.body.appendChild(container);
+      for (let i = 0; i < 50; i++) {
+        const c = document.createElement('div');
+        c.style.position = 'absolute';
+        c.style.width = '10px';
+        c.style.height = '10px';
+        c.style.background = ['#1A6B8A', '#2196B8', '#1D9E75', '#F59E0B', '#E53E3E'][Math.floor(Math.random() * 5)];
+        c.style.left = Math.random() * 100 + 'vw';
+        c.style.top = '-10px';
+        c.style.borderRadius = '2px';
+        c.style.transform = `rotate(${Math.random() * 360}deg)`;
+        container.appendChild(c);
+        const animation = c.animate([
+          { transform: `translate3d(0,0,0) rotate(0deg)`, opacity: 1 },
+          { transform: `translate3d(${(Math.random() - 0.5) * 200}px, 100vh, 0) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+        ], { duration: 2000 + Math.random() * 3000, easing: 'cubic-bezier(0, .9, .57, 1)' });
+        animation.onfinish = () => c.remove();
+      }
+      setTimeout(() => container.remove(), 6000);
+    }
+
+    function reset() {
+      state = {
+        step: 1, client: null, clientQuery: '', showSuggestions: false,
+        selectedServices: [], selectedStaff: [], selectedDate: null,
+        selectedTime: null, notes: '', deposit: false,
+        notify: ['whatsapp', 'email'], source: 'walk-in',
+        aiInsight: '', aiLoading: false, confirmed: false,
+        bookingId: null, errors: {}, servicePriceSelections: {},
+        editId: null, guestCount: 1, showPersonalizationModal: false,
+        calYear: new Date().getFullYear(),
+        calMonth: new Date().getMonth(),
+        scheduleDate: new Date(),
+        clientPhone: '',
+        serviceQuery: '',
+        selectedGender: '',
+        serviceLocation: '',
+        clientMaritalStatus: '',
+        clientDob: '',
+        clientAnniversary: '',
+        source: ''
+      };
+      render();
+    }
+
+    function toggleService(id, priceIdx = 0) {
+      const sId = String(id);
+      if (state.selectedServices.map(String).includes(sId)) {
+        state.selectedServices = state.selectedServices.filter(x => String(x) !== sId);
+        delete state.servicePriceSelections[sId];
+      } else {
+        state.selectedServices.push(sId);
+        state.servicePriceSelections[sId] = priceIdx;
+      }
+      state.selectedStaff = [];
+      state.aiInsight = '';
+      if (state.selectedDate && state.selectedTime) fetchAIInsight();
+      render();
+    }
+
+    window._setSvcPrice = (id, idx) => {
+      state.servicePriceSelections[id] = parseInt(idx);
+      if (!state.selectedServices.map(String).includes(String(id))) {
+        state.selectedServices.push(String(id));
+      }
+      render();
+    };
+    window._toggleSvc = toggleService;
+    function toggleNotify(n) {
+      if (state.notify.includes(n)) state.notify = state.notify.filter(x => x !== n);
+      else state.notify.push(n);
+      render();
+    }
+
+    function render() {
+      document.getElementById('root').innerHTML = buildHTML();
+      document.getElementById('payment-gateway-container').innerHTML = buildPayment();
+      attachEvents();
+    }
+
+    function buildSchedulePanel() {
+      const d = state.scheduleDate;
+      const dateStr = toLocalISO(d);
+      const dayLabel = d.toDateString() === new Date().toDateString() ? "Today's Schedule" : d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+      const dayBookings = BOOKINGS.filter(b => {
+        // Handle both legacy UTC format and new local format
+        const bDateStr = b.date && b.date.includes('T') ? toLocalISO(new Date(b.date)) : b.date;
+        return bDateStr === dateStr;
+      }).sort((a, b) => a.time.localeCompare(b.time));
+
+      const statusPill = (time) => {
+        const current = new Date();
+        const currentStr = current.getHours().toString().padStart(2, '0') + ':' + current.getMinutes().toString().padStart(2, '0');
+        const isToday = d.toDateString() === current.toDateString();
+
+        if (!isToday) return `<span style="padding: 4px 10px; border-radius: 20px; background: #edf2f7; color: #718096; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px;">📂 Upcoming</span>`;
+
+        if (time < currentStr) return `<span style="padding: 4px 10px; border-radius: 20px; background: #f0fdf4; color: #1D9E75; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px;">✓ Done</span>`;
+
+        // Mock "In Progress" for the next 30 mins
+        const [h, m] = time.split(':').map(Number);
+        const bTime = new Date(); bTime.setHours(h, m, 0, 0);
+        const diff = (bTime - current) / 60000;
+        if (diff > -60 && diff <= 0) return `<span style="padding: 4px 10px; border-radius: 20px; background: #fffbeb; color: #b45309; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px;">🕒 In Progress</span>`;
+
+        return `<span style="padding: 4px 10px; border-radius: 20px; background: #edf2f7; color: #718096; font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 4px;">📂 Upcoming</span>`;
+      };
+
+      return `<div class="card" style="margin-top: 20px; padding: 24px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+    <div style="font-weight: 800; font-size: 17px; color: #1a202c;">${dayLabel}</div>
+    <div style="color: #1A6B8A; font-size: 12px; font-weight: 700; cursor: pointer;">View all</div>
+  </div>
+  <div style="font-size: 13px; color: #718096; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+    <span>${dayBookings.length} appointments</span>
+    <div style="display: flex; gap: 8px;">
+      <button onclick="window._schedNav(-1)" style="border: none; background: #f7fafc; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; color: #1A6B8A;">←</button>
+      <button onclick="window._schedNav(1)" style="border: none; background: #f7fafc; width: 24px; height: 24px; border-radius: 6px; cursor: pointer; color: #1A6B8A;">→</button>
+    </div>
+  </div>
+  
+  <div style="display: flex; flex-direction: column; gap: 20px; max-height: 400px; overflow-y: auto; padding-right: 4px;">
+    ${dayBookings.length === 0 ? `<div style="text-align: center; padding: 40px 0; color: #a0aec0; font-size: 13px;">No appointments for this date.</div>` :
+          dayBookings.map(b => {
+            const client = CLIENTS.find(c => c.id === b.clientId);
+            const svcs = b.services.map(id => SERVICES.find(s => s.id === id)?.name).join(', ');
+            const initials = b.clientName.split(' ').map(x => x[0]).join('');
+            return `<div style="display: flex; gap: 16px; align-items: center;">
+        <div style="width: 40px; text-align: center;">
+          <div style="font-weight: 800; font-size: 14px; color: #1a202c;">${b.time.split(':')[0]}</div>
+          <div style="font-size: 10px; color: #718096; margin-top: -2px;">:${b.time.split(':')[1]}</div>
+        </div>
+        <div class="av ${client?.av || 'av-t'}" style="width: 36px; height: 36px; font-size: 12px; border: 2px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">${initials}</div>
+        <div style="flex: 1;">
+          <div style="font-weight: 700; font-size: 13px; color: #1a202c;">${b.clientName}</div>
+          <div style="font-size: 11px; color: #718096; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px;">${svcs}</div>
+          <div style="font-size: 10px; font-weight: 600; margin-top: 2px; color: ${b.serviceLocation === 'outdoor' ? '#f59e0b' : '#3b82f6'};">
+            ${b.serviceLocation === 'outdoor' ? '🏡 Outdoor' : '🏢 Walk-in'}
+          </div>
+        </div>
+        <div>
+          ${statusPill(b.time)}
+        </div>
+      </div>`;
+          }).join('')}
+  </div>
+</div>`;
+    }
+
+    window._schedNav = (dir) => {
+      state.scheduleDate.setDate(state.scheduleDate.getDate() + dir);
+      render();
+    };
+
+    function buildHTML() {
+      if (state.confirmed) return buildConfirmed();
+      const steps = ['Client', 'Services', 'Schedule', 'Staff', 'Confirm'];
+      const stepBar = `<div class="step-bar">${steps.map((s, i) => {
+        const n = i + 1;
+        let cls = n < state.step ? 'done' : n === state.step ? 'active' : (state.editId ? 'done' : 'locked');
+        return `<div class="step ${cls}" data-step="${n}">${n < state.step ? '✓ ' : ''} ${s}</div>`;
+      }).join('')}</div>`;
+
+      return `<div class="wrap">
+  <div class="left">
+    ${stepBar}
+    <div class="step-content">
+      ${state.step === 1 ? buildStep1() : ''}
+      ${state.step === 2 ? buildStep2() : ''}
+      ${state.step === 3 ? buildStep3() : ''}
+      ${state.step === 4 ? buildStep4() : ''}
+      ${state.step === 5 ? buildStep5() : ''}
+    </div>
+  </div>
+  <div class="right">
+    ${buildSummaryPanel()}
+    ${buildAIPanel()}
+    <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px">
+      ${state.step < 5 ? `<button class="btn-full btn-primary" id="btnNext" style="width:100%">Continue to ${steps[state.step]} →</button>` : ''}
+      ${state.step === 5 ? `<button class="btn-full btn-primary" id="btnConfirm" style="width:100%">${state.editId ? 'Update' : 'Confirm'} appointment</button>` : ''}
+      ${state.step > 1 ? `<button class="btn-full btn-secondary" id="btnBack" style="width:100%; background:white; border:1px solid var(--color-border-primary)">← Back</button>` : ''}
+    </div>
+    ${buildSchedulePanel()}
+  </div>
+</div>
+${state.showPersonalizationModal ? buildPersonalizationModal() : ''}
+${buildCategoryModal()}`;
+    }
+
+
+    function buildStep1() {
+      const q = state.clientQuery.toLowerCase();
+      const matches = q.length > 0 ? CLIENTS.filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q))).sort((a, b) => a.name.localeCompare(b.name)) : [];
+      const selected = state.client ? CLIENTS.find(c => c.id === state.client) : null;
+      return `<div class="card">
+  <div class="card-title">
+    Client details
+    <div style="margin-left:auto; display:flex; align-items:center; gap:6px; font-size:10px; font-weight:600; background:#f8fafc; padding:2px 8px; border-radius:12px; border:1px solid var(--color-border-secondary);">
+      <span id="connection-status-dot" style="width:5px; height:5px; border-radius:50%; background:#16a34a;"></span>
+      <span id="connection-status-text" style="color:var(--color-text-secondary); font-weight:700;">Live</span>
+    </div>
+  </div>
+  ${selected ? `<div class="cs-item" style="border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);margin-bottom:10px;padding:10px 12px">
+    <div class="av ${selected.av}">${selected.name.split(' ').map(x => x[0]).join('')}</div>
+    <div><div class="cs-name">${selected.name}</div><div class="cs-sub">${selected.phone} · ${selected.pts} pts · LTV ${selected.ltv}</div></div>
+    <button onclick="window._clearClient()" style="margin-left:auto;font-size:12px;color:var(--color-text-secondary);background:none;border:none;cursor:pointer">✕</button>
+  </div>`: ''}
+  ${!selected ? `
+  <div class="field">
+    <label>Phone number (for WhatsApp invoice)</label>
+    <input type="tel" id="clientPhoneInput" value="${state.clientPhone}" placeholder="Enter 10-digit mobile number" maxlength="10">
+    ${state.errors.phone ? `<div class="error">${state.errors.phone}</div>` : ''}
+  </div>` : ''}
+  <div class="field">
+    <label>Search existing client or enter new name</label>
+    <input type="text" id="clientSearch" value="${state.clientQuery}" placeholder="Name, phone number..." autocomplete="off">
+    ${state.errors.client ? `<div class="error">${state.errors.client}</div>` : ''}
+  </div>
+  ${matches.length > 0 && !selected ? `<div class="client-suggestion">${matches.map(c => `
+    <div class="cs-item" data-cid="${c.id}">
+      <div class="av ${c.av}">${c.name.split(' ').map(x => x[0]).join('')}</div>
+      <div><div class="cs-name">${c.name}</div><div class="cs-sub">${c.phone} · ${c.pts.toLocaleString()} pts · LTV ${c.ltv}</div></div>
+      <span class="badge badge-blue">Returning</span>
+    </div>`).join('')}</div>` : ''}
+  ${!selected && !q ? `<div style="font-size:12px;color:var(--color-text-secondary);margin-top:-10px;margin-bottom:16px">Or quick-pick: ${CLIENTS.slice(0, 3).map(c => `<span data-cid="${c.id}" style="color:#1A6B8A;cursor:pointer;margin-right:8px">${c.name}</span>`).join('')}</div>` : ''}
+  ${(!selected || !selected.gender) ? `
+  <div class="field">
+    <label>Client gender (determines service menu)</label>
+    <div style="background:var(--color-background-secondary); padding:4px; border-radius:10px; display:flex; gap:4px; width: fit-content;">
+      <button class="btn-gender ${state.selectedGender === 'female' ? 'active' : ''}" onclick="window._setGender('female')">Female</button>
+      <button class="btn-gender ${state.selectedGender === 'male' ? 'active' : ''}" onclick="window._setGender('male')">Male</button>
+    </div>
+    ${state.errors.gender ? `<div class="error">${state.errors.gender}</div>` : ''}
+  </div>` : ''}
+  <div style="display:flex; gap:16px; margin-bottom:14px;">
+    <div class="field" style="flex:1; margin-bottom:0;">
+      <label>Date of Birth</label>
+      <input type="date" id="clientDobInput" value="${state.clientDob}">
+      ${state.errors.dob ? `<div class="error">${state.errors.dob}</div>` : ''}
+    </div>
+    <div class="field" style="flex:1; margin-bottom:0;">
+      <label>Marital Status</label>
+      <div style="background:var(--color-background-secondary); padding:4px; border-radius:10px; display:flex; gap:4px; width: fit-content;">
+        <button class="btn-gender ${state.clientMaritalStatus === 'single' ? 'active' : ''}" onclick="window._setMaritalStatus('single')">Single</button>
+        <button class="btn-gender ${state.clientMaritalStatus === 'married' ? 'active' : ''}" onclick="window._setMaritalStatus('married')">Married</button>
+      </div>
+      ${state.errors.maritalStatus ? `<div class="error">${state.errors.maritalStatus}</div>` : ''}
+    </div>
+  </div>
+  ${state.clientMaritalStatus === 'married' ? `
+  <div class="field" style="margin-bottom:14px;">
+    <label>Anniversary</label>
+    <input type="date" id="clientAnniversaryInput" value="${state.clientAnniversary}">
+    ${state.errors.anniversary ? `<div class="error">${state.errors.anniversary}</div>` : ''}
+  </div>` : ''}
+  <div class="field">
+    <label>Service Location</label>
+    <div style="background:var(--color-background-secondary); padding:4px; border-radius:10px; display:flex; gap:4px; width: fit-content;">
+      <button class="btn-gender ${state.serviceLocation === 'indoor' ? 'active' : ''}" onclick="window._setServiceLocation('indoor')">🏢 Walk-in</button>
+      <button class="btn-gender ${state.serviceLocation === 'outdoor' ? 'active' : ''}" onclick="window._setServiceLocation('outdoor')">🏡 Outdoor</button>
+    </div>
+    ${state.errors.serviceLocation ? `<div class="error">${state.errors.serviceLocation}</div>` : ''}
+  </div>
+  ${(state.serviceLocation === 'outdoor') ? `
+  <div class="field">
+    <label>Location / Address</label>
+    <input type="text" id="clientLocationInput" value="${state.clientLocation}" placeholder="Locality, Landmark, or Address">
+  </div>` : ''}
+  <div class="section-divider"></div>
+  <div class="field-row">
+    <div class="field"><label>Booking source</label>
+    <select id="sourceSelect">
+      <option value="" disabled ${!state.source ? 'selected' : ''}>Select Source</option>
+      <option value="walk-in" ${state.source === 'walk-in' ? 'selected' : ''}>Walk-in</option>
+      <option value="phone" ${state.source === 'phone' ? 'selected' : ''}>Phone call</option>
+      <option value="whatsapp" ${state.source === 'whatsapp' ? 'selected' : ''}>WhatsApp</option>
+      <option value="online" ${state.source === 'online' ? 'selected' : ''}>Online</option>
+      <option value="instagram" ${state.source === 'instagram' ? 'selected' : ''}>Instagram</option>
+    </select>
+    ${state.errors.source ? `<div class="error">${state.errors.source}</div>` : ''}
+    </div>
+  </div>
+</div>`;
+    }
+
+    function buildStep2() {
+      let filteredServices = SERVICES.filter(s => s.gender === state.selectedGender || s.gender === 'unisex');
+      if (state.serviceQuery && state.serviceQuery.trim()) {
+        const q = state.serviceQuery.toLowerCase();
+        filteredServices = filteredServices.filter(s => s.name.toLowerCase().includes(q) || s.cat.toLowerCase().includes(q));
+      }
+      const cats = ['All', ...new Set(filteredServices.map(s => s.cat))];
+      return `<div class="card" style="display: flex; flex-direction: column; max-height: 80vh;">
+  <div class="card-title" style="display:flex;justify-content:space-between;align-items:center; flex-shrink: 0; margin-bottom: 16px;">
+    <span>Select category for ${state.selectedGender === 'male' ? 'Men' : 'Women'}</span>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <button onclick="window._openPersonalizationModal()" style="background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%); color: white; border: none; padding: 6px 16px; border-radius: 20px; font-weight: 700; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(255,107,107,0.3); display: flex; align-items: center; gap: 6px;">
+        <span>✨</span> New Personalization
+      </button>
+      <input type="text" id="serviceSearchInput" value="${state.serviceQuery || ''}" placeholder="Search categories..." style="padding:6px 12px; border:1px solid var(--color-border-secondary); border-radius:6px; font-size:13px; width:200px; font-weight:normal;">
+    </div>
+  </div>
+  ${state.errors.services ? `<div class="error" style="margin-bottom:10px; flex-shrink: 0;">${state.errors.services}</div>` : ''}
+  
+  <div class="services-scroll-container" style="overflow-y: auto; flex: 1; padding-right: 8px;">
+    <div class="cat-scroll">
+      ${cats.map(cat => {
+        const imgUrl = getCategoryImg(cat);
+        const info = CAT_INFO[cat] || { desc: 'Premium salon service', products: 'Professional grade products' };
+        return `
+          <div class="cat-box" onclick="window._openCategoryModal('${cat}')">
+              <div class="cat-img-wrapper">
+                  <img src="${imgUrl}" alt="${cat}" class="cat-box-img" loading="lazy">
+              </div>
+              <div class="cat-hover-tip">
+                  <div class="cat-hover-desc">${info.desc}</div>
+                  <div class="cat-hover-products">✨ ${info.products}</div>
+              </div>
+              <div class="cat-box-title">${cat}</div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  </div>
+</div>`;
+    }
+
+    window._openCategoryModal = (cat) => {
+      state.selectedCategoryForModal = cat;
+      render();
+    };
+
+    window._closeCategoryModal = () => {
+      state.selectedCategoryForModal = null;
+      render();
+    };
+
+    function buildCategoryModal() {
+      if (!state.selectedCategoryForModal) return '';
+      const cat = state.selectedCategoryForModal;
+      let filteredServices = SERVICES.filter(s => (s.gender === state.selectedGender || s.gender === 'unisex') && (cat === 'All' || s.cat === cat));
+      if (state.serviceQuery && state.serviceQuery.trim()) {
+        const q = state.serviceQuery.toLowerCase();
+        filteredServices = filteredServices.filter(s => s.name.toLowerCase().includes(q));
+      }
+
+      return `<div class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);" onclick="window._closeCategoryModal()">
+      <div class="modal-content" style="background: white; border-radius: var(--border-radius-lg); width: 90%; max-width: 800px; max-height: 90vh; display: flex; flex-direction: column; position: relative; box-shadow: var(--shadow-premium);" onclick="event.stopPropagation()">
+        <button onclick="window._closeCategoryModal()" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-text-secondary);">&times;</button>
+        <div style="padding: 24px 24px 16px 24px; border-bottom: 1px solid var(--color-border-secondary);">
+          <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text-primary); margin: 0;">${cat} Services</h2>
+        </div>
+        <div style="padding: 24px; overflow-y: auto; flex: 1;">
+          <div class="svc-grid">${filteredServices.map(s => {
+        const sel = state.selectedServices.map(String).includes(String(s.id));
+        const prices = s.prices || [s.price];
+        const selectedIdx = state.servicePriceSelections[s.id] || 0;
+        const currentPrice = prices[selectedIdx] || s.price;
+
+        return `<div class="svc-card ${sel ? 'selected' : ''}" onclick="window._toggleSvc('${s.id}')">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <span style="font-size:20px">${s.icon}</span>
+                ${sel ? '<span style="color:var(--color-primary);font-size:16px">✓</span>' : ''}
+              </div>
+              <div class="svc-name ${sel ? 'selected-text' : ''}" style="font-weight:700;font-size:15px;color:var(--color-text-primary);margin-bottom:4px;letter-spacing:-0.01em;line-height:1.2;">${s.name}</div>
+              
+              ${prices.length > 1 ? `
+                <div style="margin:8px 0;" onclick="event.stopPropagation()">
+                  <select class="price-select" style="width:100%;font-size:10px;padding:4px;border-radius:4px;border:1px solid var(--color-border);background:white;" onchange="window._setSvcPrice('${s.id}', this.value)">
+                    ${prices.map((p, i) => `<option value="${i}" ${selectedIdx === i ? 'selected' : ''}>${s.variants && s.variants[i] ? s.variants[i] : 'Option ' + (i + 1)}: ${rupee(p)}</option>`).join('')}
+                  </select>
+                </div>
+              ` : ''}
+
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">
+                <span class="svc-meta" style="font-size:11px;color:var(--color-text-secondary)">${s.duration} min</span>
+                <span class="svc-price" style="font-weight:800;font-size:15px;color:var(--color-primary)">${rupee(currentPrice)}</span>
+              </div>
+            </div>`;
+      }).join('')}</div>
+          ${filteredServices.length === 0 ? '<div style="color: var(--color-text-secondary); text-align: center; padding: 20px;">No services found.</div>' : ''}
+        </div>
+      </div>
+    </div>`;
+    }
+
+    window._setGender = (g) => {
+      if (state.selectedGender === g) return;
+      state.selectedGender = g;
+      state.selectedServices = [];
+      state.selectedStaff = [];
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window._setServiceLocation = (loc) => {
+      if (state.serviceLocation === loc) return;
+      state.serviceLocation = loc;
+      render();
+    };
+
+    window._setMaritalStatus = (status) => {
+      if (state.clientMaritalStatus === status) return;
+      state.clientMaritalStatus = status;
+      if (status !== 'married') {
+        state.clientAnniversary = '';
+      }
+      render();
+    };
+
+    function buildCalendar() {
+      const y = state.calYear, m = state.calMonth;
+      const firstDay = new Date(y, m, 1).getDay(); // 0=Sun
+      const daysInMonth = new Date(y, m + 1, 0).getDate();
+      const monthName = new Date(y, m, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+      const today = now;
+
+      let cells = '';
+      // Empty cells for offset
+      for (let i = 0; i < firstDay; i++) cells += `<div class="cal-cell empty"></div>`;
+      // Day cells
+      for (let d = 1; d <= daysInMonth; d++) {
+        const date = new Date(y, m, d);
+        const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const isToday = date.getDate() === today.getDate() && date.getMonth() === today.getMonth() && date.getFullYear() === today.getFullYear();
+        const isSel = state.selectedDate && state.selectedDate.getDate() === d && state.selectedDate.getMonth() === m && state.selectedDate.getFullYear() === y;
+        let cls = 'cal-cell';
+        if (isPast) cls += ' disabled';
+        if (isToday) cls += ' today';
+        if (isSel) cls += ' selected';
+        cells += `<div class="${cls}" ${isPast ? '' : `data-calday="${d}"`}>${d}</div>`;
+      }
+
+      return `<div class="calendar-container">
+    <div class="calendar-nav-bar">
+      <button onclick="window._calNav(-1)">←</button>
+      <span class="month-label">${monthName}</span>
+      <button onclick="window._calNav(1)">→</button>
+    </div>
+    <div class="calendar-weekdays">
+      <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+    </div>
+    <div class="calendar-grid">${cells}</div>
+  </div>`;
+    }
+
+    window._calNav = (dir) => {
+      state.calMonth += dir;
+      if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
+      if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
+      render();
+    };
+
+    function buildTimeSlots() {
+      let dateStr = '';
+      if (state.selectedDate) {
+        dateStr = toLocalISO(state.selectedDate);
+      }
+
+      // Count existing bookings per time slot for that date
+      const slotCounts = {};
+      if (dateStr) {
+        BOOKINGS.forEach(b => {
+          const bDateStr = b.date && b.date.includes('T') ? toLocalISO(new Date(b.date)) : b.date;
+          if (bDateStr === dateStr) {
+            slotCounts[b.time] = (slotCounts[b.time] || 0) + 1;
+          }
+        });
+      }
+
+      const morning = TIMES.filter(t => parseInt(t) < 12);
+      const afternoon = TIMES.filter(t => parseInt(t) >= 12 && parseInt(t) < 16);
+      const evening = TIMES.filter(t => parseInt(t) >= 16);
+
+      const isToday = state.selectedDate && state.selectedDate.toDateString() === new Date().toDateString();
+      const currentFullTime = new Date();
+      const currentTimeStr = currentFullTime.getHours().toString().padStart(2, '0') + ':' + currentFullTime.getMinutes().toString().padStart(2, '0');
+
+      // Dynamic AI Recommendation based on day and bookings
+      let dynamicAiBest = [];
+      if (state.selectedDate) {
+        const day = state.selectedDate.getDay();
+        const isWeekend = (day === 0 || day === 6);
+
+        // Target hours for Morning, Afternoon, Evening
+        const targets = isWeekend ? [11, 15, 19] : [10, 14, 18];
+
+        targets.forEach(targetHour => {
+          let bestSlot = null;
+          let bestScore = -Infinity;
+          for (const t of TIMES) {
+            const count = slotCounts[t] || 0;
+            const isPast = isToday && t < currentTimeStr;
+            if (!isPast && count < 3) {
+              const [h, m] = t.split(':').map(Number);
+              const hourFloat = h + m / 60;
+              // Restrict search to roughly the segment surrounding the target hour
+              if (Math.abs(hourFloat - targetHour) <= 3) {
+                const diff = Math.abs(hourFloat - targetHour);
+                const score = -diff - (count * 2); // Penalize distance from target and high bookings
+                if (score > bestScore) {
+                  bestScore = score;
+                  bestSlot = t;
+                }
+              }
+            }
+          }
+          if (bestSlot) dynamicAiBest.push(bestSlot);
+        });
+
+        // Remove duplicates if segments overlap
+        dynamicAiBest = [...new Set(dynamicAiBest)];
+      }
+
+      function renderGroup(label, icon, slots) {
+        return `<div class="time-section-title">${icon} ${label}</div>
+    <div class="slot-grid">${slots.map(t => {
+          const count = slotCounts[t] || 0;
+          const busy = count >= 3; // Maximum 3 clients per slot
+          const isPastSlot = isToday && t < currentTimeStr;
+          const best = dynamicAiBest.includes(t);
+          const sel = state.selectedTime === t;
+          const disabled = busy || isPastSlot;
+
+          return `<div class="slot ${disabled ? 'disabled' : best ? 'ai-best' : ''} ${sel && !disabled ? 'selected' : ''}" 
+                     style="${isPastSlot ? 'opacity: 0.6; filter: blur(1.5px); cursor: not-allowed; border-color: #eee; background: #fafafa;' : ''} ${busy ? 'background: #fef2f2; color: #ef4444; border-color: #fca5a5;' : ''}"
+                     data-time="${t}">${format12h(t)}${best ? ' ★' : ''}</div>`;
+        }).join('')}</div>`;
+      }
+
+      return renderGroup('Morning', '🌅', morning) + renderGroup('Afternoon', '☀️', afternoon) + renderGroup('Evening', '🌆', evening);
+    }
+
+    function buildStep3() {
+      return `<div class="card" style="padding: 24px">
+  <div class="schedule-layout">
+    <div class="calendar-part">
+      <div class="card-title" style="margin-bottom: 16px">📅 Select Date</div>
+      ${buildCalendar()}
+      ${state.errors.date ? `<div class="error" style="margin:8px 0">${state.errors.date}</div>` : ''}
+      
+      <div class="slot-legend" style="margin-top: 24px; padding: 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md)">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 11px"><span class="sl-dot" style="background:var(--color-success)"></span>AI Recommended</span>
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 11px"><span class="sl-dot" style="background:var(--color-primary)"></span>Selected</span>
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 11px"><span class="sl-dot" style="background:#ef4444"></span>Fully Booked</span>
+          <span style="display: flex; align-items: center; gap: 8px; font-size: 11px"><span class="sl-dot" style="background:#eee; border: 1px solid #ddd; filter: blur(0.5px)"></span>Past Slots</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="time-slots-area">
+      <div class="card-title" style="margin-bottom: 8px">🕐 ${state.selectedDate ? 'Select a time for ' + fmtFull(state.selectedDate) : 'Select a time'}</div>
+      <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 16px">Available appointments for this day</div>
+      
+      <div style="max-height: 400px; overflow-y: auto; padding-right: 10px">
+        ${buildTimeSlots()}
+      </div>
+      ${state.errors.time ? `<div class="error" style="margin-top:12px">${state.errors.time}</div>` : ''}
+    </div>
+  </div>
+  
+  <div class="section-divider"></div>
+  <div class="field">
+    <label>Notes for stylist (optional)</label>
+    <textarea id="notesField" rows="2" placeholder="e.g. client prefers ammonia-free color, first-time keratin..." style="width:100%;padding:12px 16px;border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-md);font-size:13px;resize:vertical;background:var(--color-background-primary);color:var(--color-text-primary)">${state.notes}</textarea>
+  </div>
+</div>`;
+    }
+
+    function buildStep4() {
+      const eligible = staffForServices();
+      // AI Recommendation: Top rated eligible staff
+      const recommendedStaff = eligible.length > 0 ? [...eligible].sort((a, b) => b.rating - a.rating)[0] : null;
+
+      return `<div class="card">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+    <div>
+      <div class="card-title" style="margin-bottom: 4px;">Assign staff</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);">Showing ${state.selectedGender} professionals available</div>
+    </div>
+    <div class="custom-dropdown" style="position: relative; width: 220px;">
+      <div id="staffMultiSelectBtn" style="padding: 8px 12px; border: 1px solid var(--color-border-primary); border-radius: var(--border-radius-sm); background: white; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 12px; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px;">
+          ${state.selectedStaff.length > 0 ? state.selectedStaff.map(id => STAFF.find(x => x.id === id)?.name).join(', ') : 'Select staff...'}
+        </span>
+        <span style="font-size: 10px;">▼</span>
+      </div>
+      <div id="staffMultiSelectMenu" style="display: none; position: absolute; top: 100%; right: 0; width: 220px; background: white; border: 1px solid var(--color-border-secondary); border-radius: var(--border-radius-sm); box-shadow: var(--shadow-premium); margin-top: 4px; z-index: 100; max-height: 250px; overflow-y: auto;">
+        ${eligible.map(s => `
+          <label style="display: flex; align-items: center; padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--color-border-tertiary); margin: 0;">
+            <input type="checkbox" class="staff-checkbox" value="${s.id}" ${state.selectedStaff.includes(s.id) ? 'checked' : ''} style="margin-right: 12px; width:14px; height:14px; cursor: pointer;">
+            <span style="font-size: 13px;">${s.name}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  </div>
+  
+  <div class="ai-staff-promo" style="background: linear-gradient(135deg, #1A6B8A 0%, #2196B8 100%); padding: 16px; border-radius: var(--border-radius-lg); margin-bottom: 20px; color: white; display: flex; align-items: center; gap: 16px; cursor: pointer;" id="autoAssignPromo">
+    <div style="font-size: 24px;">🤖</div>
+    <div style="flex: 1;">
+      <div style="font-weight: 700; font-size: 14px;">AI Smart Match</div>
+      <div style="font-size: 11px; opacity: 0.9;">Automatically assign the best professional for your schedule and service complexity.</div>
+    </div>
+    <div style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">${state.selectedStaff.length === 0 ? 'Selected' : 'Select'}</div>
+  </div>
+
+  ${eligible.length === 0 ? `<div style="font-size:13px;color:var(--color-text-secondary);padding:12px 0;text-align:center;">
+    No ${state.selectedGender} staff members are available for the selected services at this time.<br>
+    <button class="btn-primary" style="margin-top: 16px; font-size: 13px; padding: 8px 16px; background: white; color: var(--color-primary); border: 1px solid var(--color-primary); box-shadow: none;" onclick="window._forceManualAssign()">Assign Manually (Bypass Filters)</button>
+  </div>` : ''}
+  
+  <div class="staff-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+    ${eligible.map(s => {
+        const isRec = recommendedStaff && s.id === recommendedStaff.id;
+        const sel = state.selectedStaff.includes(s.id);
+        return `<div class="staff-card ${sel ? 'selected' : ''} ${isRec ? 'recommended' : ''}" data-stid="${s.id}" style="flex-direction: column; align-items: flex-start; padding: 20px; gap: 10px;">
+        ${isRec ? '<div style="position:absolute; top:8px; right:8px; background:var(--color-success); color:white; font-size:9px; padding:2px 8px; border-radius:10px; font-weight:700;">AI CHOICE</div>' : ''}
+        <div style="display:flex; align-items:center; gap:12px; width:100%;">
+          <div class="av ${s.av}" style="width:40px;height:40px;font-size:14px; flex-shrink:0;">${s.name.slice(0, 2)}</div>
+          <div style="flex:1;">
+            <div class="staff-name" style="font-size:15px;">${s.name}</div>
+            <div class="staff-rating" style="display:flex; align-items:center; gap:4px;">
+              <span>⭐ ${s.rating}</span>
+              <span style="color:var(--color-text-tertiary); font-weight:400;">(120+ reviews)</span>
+            </div>
+          </div>
+        </div>
+        <div style="font-size:11px; color:var(--color-text-secondary); line-height:1.4;">Specializes in: ${s.spec || s.role || 'No specialization'}</div>
+        <div style="width:100%; height:1px; background:var(--color-border-secondary); margin:4px 0;"></div>
+        <div style="font-size:10px; color:var(--color-success); font-weight:600;">Available at ${state.selectedTime ? format12h(state.selectedTime) : 'requested time'}</div>
+      </div>`;
+      }).join('')}
+  </div>
+
+  <div class="section-divider"></div>
+  <div class="card-title">Notifications</div>
+  <div class="notify-chips">
+    <div class="chip ${state.notify.includes('whatsapp') ? 'on' : ''}" data-notify="whatsapp">WhatsApp</div>
+    <div class="chip ${state.notify.includes('sms') ? 'on' : ''}" data-notify="sms">SMS</div>
+    <div class="chip ${state.notify.includes('email') ? 'on' : ''}" data-notify="email">Email</div>
+  </div>
+  <div class="section-divider"></div>
+  <div class="deposit-toggle" id="depositToggle" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+    <div>
+      <div style="font-weight:500">Require deposit</div>
+      <div style="font-size:11px;color:var(--color-text-secondary)">Collect 30% (${rupee(Math.round(totalPrice() * 0.3))}) to secure slot</div>
+    </div>
+    <div class="toggle-switch ${state.deposit ? 'on' : ''}"></div>
+  </div>
+  ${state.errors.staff ? `<div class="error" style="margin-top:16px; text-align:center;">${state.errors.staff}</div>` : ''}
+</div>`;
+    }
+
+    function buildStep5() {
+      const client = state.client ? CLIENTS.find(c => c.id === state.client) : null;
+      const svcs = state.selectedServices.map(id => SERVICES.find(x => x.id === id)).filter(x => x);
+      const staffNames = state.selectedStaff.length > 0 ? state.selectedStaff.map(id => STAFF.find(x => x.id === id)?.name).join(', ') : null;
+      const total = totalPrice();
+      const dur = totalDuration();
+      return `<div class="card">
+  <div class="card-title">Review & confirm</div>
+  <div class="summary-row"><span class="summary-label">Client</span><span style="font-weight:500">${client ? client.name : state.clientQuery || '—'}</span></div>
+  <div class="summary-row" style="align-items: flex-start;">
+    <span class="summary-label">Services</span>
+    <div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end; text-align: right; max-width: 250px;">
+      ${svcs.map(s => `
+        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px;">
+          <span>${s.name}</span>
+          ${state.selectedServices.length > 1 ? `<button onclick="window._removeService('${s.id}')" style="background: none; border: none; color: var(--color-error, #ef4444); font-size: 14px; cursor: pointer; padding: 0; line-height: 1; opacity: 0.7; transition: opacity 0.2s;" title="Remove ${s.name}" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">✖</button>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  </div>
+  <div class="summary-row"><span class="summary-label">Duration</span><span>${dur} min</span></div>
+  <div class="summary-row"><span class="summary-label">Date & time</span><span>${state.selectedDate ? fmtFull(state.selectedDate) : '-'} ${state.selectedTime ? 'at ' + format12h(state.selectedTime) : ''}</span></div>
+  <div class="summary-row"><span class="summary-label">Stylist</span><span>${staffNames ? staffNames : 'AI auto-assign'}</span></div>
+  <div class="summary-row"><span class="summary-label">Notifications</span><span>${state.notify.join(', ') || 'None'}</span></div>
+  <div class="summary-row"><span class="summary-label">Deposit</span><span>${state.deposit ? rupee(Math.round(total * 0.3)) + ' required' : 'Not required'}</span></div>
+  ${state.notes ? `<div class="summary-row"><span class="summary-label">Notes</span><span style="max-width:200px;text-align:right;font-size:12px">${state.notes}</span></div>` : ''}
+
+  ${(() => {
+          let upsellSvc = null;
+          if (typeof SERVICES !== 'undefined' && SERVICES.length > 0 && state.selectedServices.length > 0) {
+            const selectedIds = state.selectedServices;
+            const selectedObjs = selectedIds.map(id => SERVICES.find(s => s.id === id)).filter(Boolean);
+            const keywords = selectedObjs.map(s => ((s.category || '') + ' ' + (s.name || '')).toLowerCase());
+
+            let recommend = 'facial'; // default fallback recommendation
+            if (keywords.some(k => k.includes('eyebrow') || k.includes('threading'))) recommend = 'upperlip';
+            else if (keywords.some(k => k.includes('hair') || k.includes('color') || k.includes('cut'))) recommend = 'spa';
+            else if (keywords.some(k => k.includes('waxing') || k.includes('body'))) recommend = 'tan';
+            else if (keywords.some(k => k.includes('facial') || k.includes('bleach'))) recommend = 'manicure';
+            else if (keywords.some(k => k.includes('makeup') || k.includes('bridal'))) recommend = 'polishing';
+
+            upsellSvc = SERVICES.find(s =>
+              !selectedIds.includes(s.id) &&
+              ((s.category && s.category.toLowerCase().includes(recommend)) || (s.name && s.name.toLowerCase().includes(recommend)))
+            );
+          }
+
+          // Fallback if no contextual match was found
+          if (!upsellSvc && typeof SERVICES !== 'undefined' && SERVICES.length > 3) {
+            upsellSvc = SERVICES.find(s => !state.selectedServices.includes(s.id));
+          }
+
+          if (upsellSvc && !state.selectedServices.includes(upsellSvc.id)) {
+            return `<div style="background: var(--color-background-secondary); border-radius: 8px; padding: 12px; margin: 16px 0; border: 1px dashed var(--color-primary); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <div style="font-weight: 600; font-size: 14px; color: var(--color-text-primary);">💡 Add ${upsellSvc.name}?</div>
+          <div style="font-size: 12px; color: var(--color-text-secondary);">Highly recommended. +${upsellSvc.duration || '15'} min.</div>
+        </div>
+        <button onclick="window._addUpsell('${upsellSvc.id}')" style="background: var(--color-primary); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer;">Add for ${rupee(upsellSvc.price || (upsellSvc.prices ? upsellSvc.prices[0] : 0))}</button>
+      </div>`;
+          }
+          return '';
+        })()}
+
+  <div class="total-row"><span>Total</span><span style="color:#1A6B8A">${rupee(total)}</span></div>
+  ${Object.keys(state.errors).length ? `<div class="error" style="margin-top:8px">Please go back and fix: ${Object.values(state.errors).join(', ')}</div>` : ''}
+</div>`;
+    }
+
+    function buildConfirmed() {
+      const client = state.client ? CLIENTS.find(c => c.id === state.client) : null;
+      const svcs = state.selectedServices.map(id => SERVICES.find(x => x.id === id) || { name: 'Unknown Service' });
+      const staffNames = state.selectedStaff.length > 0 ? state.selectedStaff.map(id => STAFF.find(x => x.id === id)?.name).join(', ') : null;
+      const total = totalPrice();
+      return `<div class="step-content" style="max-width:500px; margin:0 auto; padding:20px 0; display:flex; flex-direction:column; gap:16px;">
+  <div class="confirm-box">
+    <div class="confirm-icon">✦</div>
+    <div class="confirm-title">${state.editId ? 'Appointment updated!' : 'Appointment confirmed!'}</div>
+    <div class="confirm-sub">
+      ${client ? client.name : state.clientQuery} · ${svcs.map(s => s.name).join(', ')}<br>
+      ${state.selectedDate ? fmtFull(state.selectedDate) : ''} at ${state.selectedTime ? format12h(state.selectedTime) : ''}<br>
+      ${staffNames ? 'With ' + staffNames : 'AI will assign stylist'} · ${rupee(total)}
+    </div>
+    <div class="confirm-id">${state.bookingId}</div>
+  </div>
+  
+  <button class="btn-full btn-primary" style="background:#25D366; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2); width:100%;" onclick="window._sendWP()">
+    <span style="font-size:20px">📱</span> Manual Resend WhatsApp
+  </button>
+
+  <div class="card">
+    <div class="card-title">What happens next</div>
+    <div style="font-size:13px; display:flex; flex-direction:column; gap:8px">
+      ${state.notify.includes('whatsapp') ? `<div style="display:flex; gap:8px; align-items:flex-start"><span style="color:#1D9E75">✓</span><span>WhatsApp confirmation sent to client now</span></div>` : ''}
+      ${state.notify.includes('email') ? `<div style="display:flex; gap:8px; align-items:flex-start"><span style="color:#1D9E75">✓</span><span>Email confirmation sent with appointment details</span></div>` : ''}
+      <div style="display:flex; gap:8px; align-items:flex-start"><span style="color:#1D9E75">✓</span><span>Automatic reminder 24h and 2h before appointment</span></div>
+      <div style="display:flex; gap:8px; align-items:flex-start"><span style="color:#1D9E75">✓</span><span>Staff calendar updated — ${staffNames ? staffNames : 'stylist'} notified</span></div>
+      ${state.deposit ? `<div style="display:flex; gap:8px; align-items:flex-start"><span style="color:#F59E0B">⊙</span><span>Deposit link (${rupee(Math.round(total * 0.3))}) sent via Payment Gateway</span></div>` : ''}
+      <div style="display:flex; gap:8px; align-items:flex-start"><span style="color:#4DC0E8">◈</span><span>Draft invoice created — complete at checkout</span></div>
+    </div>
+  </div>
+
+  <div style="display:flex; flex-direction:column; gap:12px; margin-top:8px;">
+    <button class="btn-full btn-secondary" style="width:100%; background:white; border:1px solid var(--color-border-primary);" onclick="window._reset(); if(window.parent) window.parent.postMessage('closeBooking', '*'); try { if(window.parent && typeof window.parent.closeBooking === 'function') window.parent.closeBooking(); } catch(e){}">+ New booking</button>
+    <button class="btn-full btn-primary" onclick="window._openCheckoutWindow()" style="width:100%; background: #5469d4; box-shadow: 0 10px 20px rgba(84, 105, 212, 0.3);">Go to checkout ↗</button>
+  </div>
+</div>`;
+    }
+
+    function buildPayment() {
+      if (!state.showPayment) return '';
+      const total = totalPrice();
+
+      return `<div class="payment-modal" onclick="window._closePayment()">
+      <div class="payment-card" onclick="event.stopPropagation()">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+          <h2 style="font-size:20px; font-weight:800;">Secure Checkout</h2>
+          <button onclick="window._closePayment()" style="background:none; border:none; font-size:20px; cursor:pointer; color:#94a3b8;">✕</button>
+        </div>
+
+        <div class="payment-total">
+          <div>
+            <div style="font-size:12px; color:#64748b; font-weight:600;">PAYING TO</div>
+            <div style="font-size:15px; font-weight:800; color:var(--color-primary);">Srijes Salon</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:12px; color:#64748b; font-weight:600;">AMOUNT</div>
+            <div style="font-size:20px; font-weight:800; color:var(--color-primary);">${rupee(total)}</div>
+          </div>
+        </div>
+
+        <div class="payment-tabs">
+          <div class="payment-tab ${state.paymentMethod === 'upi' ? 'active' : ''}" onclick="window._setPaymentMethod('upi')">UPI ID</div>
+          <div class="payment-tab ${state.paymentMethod === 'card' ? 'active' : ''}" onclick="window._setPaymentMethod('card')">Credit Card</div>
+        </div>
+
+        ${state.paymentMethod === 'upi' ? `
+          <div class="payment-input-group">
+            <label>Select UPI App</label>
+            <div class="upi-grid">
+              <div class="upi-app" onclick="window._selectUPIApp('gpay')">
+                <span style="font-size:20px;">📱</span>
+                <span>GPay</span>
+              </div>
+              <div class="upi-app" onclick="window._selectUPIApp('phonepe')">
+                <span style="font-size:20px;">💳</span>
+                <span>PhonePe</span>
+              </div>
+              <div class="upi-app" onclick="window._selectUPIApp('paytm')">
+                <span style="font-size:20px;">💰</span>
+                <span>Paytm</span>
+              </div>
+            </div>
+            <label>Or Enter UPI ID</label>
+            <input type="text" class="payment-input" placeholder="username@upi" id="upiIdInput">
+          </div>
+        ` : `
+          <div class="payment-input-group">
+            <label>Card Number</label>
+            <input type="text" class="payment-input" placeholder="0000 0000 0000 0000" id="cardNumber">
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+            <div class="payment-input-group" style="margin:0;">
+              <label>Expiry Date</label>
+              <input type="text" class="payment-input" placeholder="MM/YY" id="cardExpiry">
+            </div>
+            <div class="payment-input-group" style="margin:0;">
+              <label>CVV</label>
+              <input type="password" class="payment-input" placeholder="***" id="cardCvv">
+            </div>
+          </div>
+          <div class="payment-input-group">
+            <label>Card Holder Name</label>
+            <input type="text" class="payment-input" placeholder="Full Name as on Card" id="cardName">
+          </div>
+        `}
+
+        <button class="btn-full btn-primary" style="width:100%; margin-top:8px;" id="payNowBtn" onclick="window._processPayment()">
+          ${state.paymentProcessing ? `<span class="ai-dot" style="background:white; margin:0;"></span> Processing...` : `Pay ${rupee(total)} Now`}
+        </button>
+        
+        <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-top:20px; opacity:0.5;">
+          <span></span>
+          <div style="width:1px; height:12px; background:#cbd5e1;"></div>
+          <span style="font-size:10px; font-weight:700; color:#64748b;">PCI-DSS COMPLIANT</span>
+        </div>
+      </div>
+    </div>`;
+    }
+
+    function buildSummaryPanel() {
+      const svcs = state.selectedServices.map(id => SERVICES.find(x => String(x.id) === String(id))).filter(x => x);
+      const total = totalPrice();
+      const dur = totalDuration();
+      const client = state.client ? CLIENTS.find(c => c.id === state.client) : null;
+
+      let pastServicesHTML = '';
+      if (client) {
+        const pastBookings = BOOKINGS.filter(b => b.clientId === client.id && b.status !== 'cancelled' && b.date)
+          .sort((a, b) => {
+            const dateA = a.date.includes('T') ? a.date.split('T')[0] : a.date;
+            const dateB = b.date && b.date.includes('T') ? b.date.split('T')[0] : b.date;
+            return new Date(dateB) - new Date(dateA);
+          }).reverse();
+
+        if (pastBookings.length > 0) {
+          const lastB = pastBookings[0];
+          const lastDate = (lastB.date && lastB.date.includes('T')) ? lastB.date.split('T')[0] : (lastB.date || '');
+          const lastSvcs = (lastB.services || []).map(sId => {
+            const s = SERVICES.find(x => x.id === sId);
+            return s ? s.name : 'Unknown Service';
+          }).join(', ');
+
+          const lastDateObj = new Date(lastDate);
+          let dateStr = lastDateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+          if (dateStr === 'Invalid Date') dateStr = lastDate; // fallback
+
+          pastServicesHTML = `
+          <div style="margin-bottom:12px; padding:10px; background:#f7fafc; border:1px solid #e2e8f0; border-radius:var(--border-radius-md);">
+            <div style="font-size:10px; font-weight:700; color:#718096; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Last Visit History</div>
+            <div style="font-size:12px; color:#2d3748; font-weight:500; line-height:1.4;">${lastSvcs}</div>
+            <div style="font-size:11px; color:#a0aec0; margin-top:4px;">📅 ${dateStr}</div>
+          </div>
+        `;
+        }
+      }
+
+      return `<div class="card">
+  <div class="card-title">Booking summary</div>
+  ${client ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)"><div class="av ${client.av}" style="width:28px;height:28px;font-size:10px">${client.name.split(' ').map(x => x[0]).join('')}</div><div><div style="font-size:13px;font-weight:500">${client.name}</div><div style="font-size:11px;color:var(--color-text-secondary)">${client.pts.toLocaleString()} pts · ${client.ltv} LTV</div></div></div>` : ''}
+  ${pastServicesHTML}
+  ${svcs.length ? svcs.map(s => `<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span>${s?.name || 'Unknown'}<br><span style="color:var(--color-text-tertiary)">${s?.duration || 0} min</span></span><span style="font-weight:500">${rupee(s?.price || 0)}</span></div>`).join('') : `<div style="font-size:12px;color:var(--color-text-secondary)">No services selected yet</div>`}
+  ${state.selectedDate ? `<div style="font-size:12px;margin-top:8px;color:var(--color-text-secondary)">Date: <span style="color:var(--color-text-primary);font-weight:500">${fmtFull(state.selectedDate)}</span></div>` : ''}
+  ${state.selectedTime ? `<div style="font-size:12px;margin-top:4px;color:var(--color-text-secondary)">Time: <span style="color:var(--color-text-primary);font-weight:500">${format12h(state.selectedTime)}</span></div>` : ''}
+  ${dur ? `<div style="font-size:12px;margin-top:4px;color:var(--color-text-secondary)">Duration: <span style="font-weight:500">${dur} min</span></div>` : ''}
+  ${total ? `<div style="display:flex; justify-content:space-between; align-items:center; font-size:18px; font-weight:800; color:var(--color-primary); margin-top:16px; padding-top:12px; border-top:1.5px solid var(--color-border-secondary);">
+    <span>Total</span>
+    <span>${rupee(total)}</span>
+  </div>` : ''}
+</div>`;
+    }
+
+    function buildAIPanel() {
+      if (state.highlightedServiceId) {
+        const svc = SERVICES.find(s => String(s.id) === String(state.highlightedServiceId));
+        if (svc) {
+          // Calculate Stats
+          const usages = BOOKINGS.filter(b => (b.services || []).includes(svc.id));
+          const clientCounts = {};
+          usages.forEach(u => {
+            clientCounts[u.clientName] = (clientCounts[u.clientName] || 0) + 1;
+          });
+          const sortedClients = Object.entries(clientCounts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+          const totalClients = new Set(usages.map(u => u.clientId)).size;
+
+          return `<div class="ai-panel" style="border-color: var(--color-primary);">
+          <div class="ai-label"><span class="ai-dot"></span>Service Intelligence: ${svc.name}</div>
+          <div class="ai-text" style="margin-bottom:12px">
+            Used by <b>${usages.length}</b> clients total (<b>${totalClients}</b> unique).
+          </div>
+          ${sortedClients.length > 0 ? `
+            <div style="font-size:11px; color:var(--color-text-secondary); margin-bottom:6px; font-weight:700;">TOP RECURRING CLIENTS:</div>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              ${sortedClients.map(([name, count]) => `
+                <div style="display:flex; justify-content:space-between; font-size:11px; background:white; padding:4px 8px; border-radius:6px;">
+                  <span>${name}</span>
+                  <span style="font-weight:700; color:var(--color-primary)">${count}x</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : '<div style="font-size:11px; opacity:0.7">No previous history found for this service.</div>'}
+        </div>`;
+        }
+      }
+
+      if (!state.selectedServices.length) return `<div class="ai-panel"><div class="ai-label"><span class="ai-dot"></span>AI booking intelligence</div><div class="ai-text">Select services to get AI-powered insights, upsell suggestions, and slot recommendations.</div></div>`;
+      if (state.aiLoading) return `<div class="ai-panel"><div class="ai-label"><span class="ai-dot"></span>AI analyzing...</div><div class="ai-loading">Checking slot demand, client history, upsell opportunities...</div></div>`;
+      if (state.aiInsight) return `<div class="ai-panel"><div class="ai-label"><span class="ai-dot"></span>AI insight</div><div class="ai-text">${state.aiInsight}</div></div>`;
+      if (state.selectedServices.length && !state.selectedDate) return `<div class="ai-panel"><div class="ai-label"><span class="ai-dot"></span>AI insight</div><div class="ai-text">10:00 AM Saturday is predicted to be the highest-revenue slot this week. Selecting it may enable dynamic pricing of +12%.</div></div>`;
+      return '';
+    }
+
+    function attachEvents() {
+      function updateSuggestions(inputEl, queryVal) {
+        const q = queryVal.toLowerCase();
+        const matches = q.length > 0 ? CLIENTS.filter(c => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q))).sort((a, b) => a.name.localeCompare(b.name)) : [];
+        let sugBox = document.querySelector('.client-suggestion');
+        if (matches.length > 0 && !state.client) {
+          if (!sugBox) {
+            sugBox = document.createElement('div');
+            sugBox.className = 'client-suggestion';
+          }
+          inputEl.after(sugBox);
+          sugBox.innerHTML = matches.map(c => `
+          <div class="cs-item" data-cid="${c.id}">
+            <div class="av ${c.av}">${c.name.split(' ').map(x => x[0]).join('')}</div>
+            <div><div class="cs-name">${c.name}</div><div class="cs-sub">${c.phone} · ${c.pts.toLocaleString()} pts · LTV ${c.ltv}</div></div>
+            <span class="badge badge-blue">Returning</span>
+          </div>`).join('');
+          sugBox.querySelectorAll('[data-cid]').forEach(el => {
+            el.addEventListener('click', () => {
+              state.client = el.dataset.cid;
+              state.clientQuery = '';
+              state.clientPhone = '';
+              const selClient = CLIENTS.find(c => c.id === state.client);
+              if (selClient) {
+                state.clientDob = selClient.dob || '';
+                state.clientAnniversary = selClient.anniversary || '';
+                if (selClient.gender) {
+                  if (selClient.gender !== state.selectedGender) window._setGender(selClient.gender);
+                  else render();
+                } else {
+                  render();
+                  const firstName = selClient.name.trim().split(' ')[0];
+                  fetch(`https://api.genderize.io/?name=${encodeURIComponent(firstName)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                      if (data.gender && (data.gender === 'male' || data.gender === 'female') && data.gender !== state.selectedGender) {
+                        window._setGender(data.gender);
+                      }
+                    }).catch(e => { });
+                }
+              } else {
+                render();
+              }
+            });
+          });
+        } else if (q.length > 0 && matches.length === 0 && !state.client) {
+          if (!sugBox) {
+            sugBox = document.createElement('div');
+            sugBox.className = 'client-suggestion';
+          }
+          inputEl.after(sugBox);
+          sugBox.innerHTML = `
+            <div class="cs-item" style="cursor:default; opacity:0.8;">
+              <div class="av" style="background:#cbd5e1;">?</div>
+              <div>
+                <div class="cs-name">No matching clients found</div>
+                <div class="cs-sub">A new profile will be created for "${queryVal}"</div>
+              </div>
+            </div>`;
+        } else if (sugBox) {
+          sugBox.remove();
+        }
+      }
+
+      let genderDebounceTimer;
+      const cs = document.getElementById('clientSearch');
+      if (cs) {
+        cs.addEventListener('input', e => {
+          state.clientQuery = e.target.value;
+          state.client = null;
+          updateSuggestions(cs, state.clientQuery);
+
+          clearTimeout(genderDebounceTimer);
+          if (state.clientQuery.trim().length > 2) {
+            genderDebounceTimer = setTimeout(async () => {
+              if (state.client) return;
+              const firstName = state.clientQuery.trim().split(' ')[0];
+              try {
+                const res = await fetch(`https://api.genderize.io/?name=${encodeURIComponent(firstName)}`);
+                const data = await res.json();
+                if (data.gender && (data.gender === 'male' || data.gender === 'female') && state.selectedGender !== data.gender) {
+                  state.selectedGender = data.gender;
+                  state.selectedServices = [];
+                  const btns = document.querySelectorAll('.field .btn-gender');
+                  btns.forEach(b => {
+                    const t = b.textContent.toLowerCase();
+                    if (t === 'female' || t === 'male') {
+                      if (t === data.gender) b.classList.add('active');
+                      else b.classList.remove('active');
+                    }
+                  });
+                }
+              } catch (err) { }
+            }, 600);
+          }
+        });
+      }
+
+      const cpi = document.getElementById('clientPhoneInput');
+      if (cpi) {
+        cpi.addEventListener('input', e => {
+          let cleaned = e.target.value.replace(/\D/g, '');
+          if (cleaned.length > 10) cleaned = cleaned.slice(0, 10);
+          e.target.value = cleaned;
+          state.clientPhone = cleaned;
+          state.client = null;
+
+          if (cleaned.length === 10) {
+            const clean10 = cleaned;
+            const existingByPhone = CLIENTS.find(c => c.phone && c.phone.replace(/\D/g, '').slice(-10) === clean10);
+            if (existingByPhone) {
+              const enteredName = (state.clientQuery || '').trim().toLowerCase();
+              if (enteredName && existingByPhone.name.trim().toLowerCase() !== enteredName) {
+                state.errors.phone = `This mobile number is already registered under name "${existingByPhone.name}". Different name with same mobile number is not allowed.`;
+              } else {
+                delete state.errors.phone;
+              }
+            } else {
+              delete state.errors.phone;
+            }
+          }
+          updateSuggestions(cpi, state.clientPhone);
+        });
+      }
+
+      const cli = document.getElementById('clientLocationInput');
+      if (cli) cli.addEventListener('input', e => state.clientLocation = e.target.value);
+
+      const cdob = document.getElementById('clientDobInput');
+      if (cdob) cdob.addEventListener('input', e => state.clientDob = e.target.value);
+
+      const cann = document.getElementById('clientAnniversaryInput');
+      if (cann) cann.addEventListener('input', e => state.clientAnniversary = e.target.value);
+
+      const ssi = document.getElementById('serviceSearchInput');
+      if (ssi) {
+        ssi.addEventListener('input', e => {
+          state.serviceQuery = e.target.value;
+          render();
+          const newSsi = document.getElementById('serviceSearchInput');
+          if (newSsi) {
+            newSsi.focus();
+            newSsi.selectionStart = newSsi.selectionEnd = newSsi.value.length;
+          }
+        });
+      }
+
+      document.querySelectorAll('[data-cid]').forEach(el => {
+        el.addEventListener('click', () => {
+          state.client = el.dataset.cid;
+          state.clientQuery = '';
+          state.clientPhone = '';
+          const selClient = CLIENTS.find(c => c.id === state.client);
+          if (selClient) {
+            state.clientDob = selClient.dob || '';
+            state.clientAnniversary = selClient.anniversary || '';
+            if (selClient.gender) {
+              if (selClient.gender !== state.selectedGender) window._setGender(selClient.gender);
+              else render();
+            } else {
+              render();
+              const firstName = selClient.name.trim().split(' ')[0];
+              fetch(`https://api.genderize.io/?name=${encodeURIComponent(firstName)}`)
+                .then(r => r.json())
+                .then(data => {
+                  if (data.gender && (data.gender === 'male' || data.gender === 'female') && data.gender !== state.selectedGender) {
+                    window._setGender(data.gender);
+                  }
+                }).catch(e => { });
+            }
+          } else {
+            render();
+          }
+        });
+      });
+      document.querySelectorAll('[data-calday]').forEach(el => {
+        el.addEventListener('click', () => {
+          const clickedDate = new Date(state.calYear, state.calMonth, parseInt(el.dataset.calday));
+          state.selectedDate = clickedDate;
+          state.scheduleDate = clickedDate;
+          state.selectedTime = null;
+          state.aiInsight = '';
+          render();
+        });
+      });
+      // Navigation handled by window._calNav
+      document.querySelectorAll('[data-time]').forEach(el => {
+        el.addEventListener('click', () => {
+          if (el.classList.contains('disabled')) return;
+          state.selectedTime = el.dataset.time;
+          render(); // Immediate feedback for selection
+          fetchAIInsight();
+        });
+      });
+      document.querySelectorAll('[data-stid]').forEach(el => {
+        el.addEventListener('click', () => {
+          const id = el.dataset.stid;
+          if (state.selectedStaff.includes(id)) {
+            state.selectedStaff = state.selectedStaff.filter(x => x !== id);
+          } else {
+            state.selectedStaff.push(id);
+          }
+          render();
+        });
+      });
+
+      const smBtn = document.getElementById('staffMultiSelectBtn');
+      const smMenu = document.getElementById('staffMultiSelectMenu');
+      if (smBtn && smMenu) {
+        smBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          smMenu.style.display = smMenu.style.display === 'none' ? 'block' : 'none';
+        });
+        document.addEventListener('click', () => {
+          if (smMenu.style.display === 'block') {
+            smMenu.style.display = 'none';
+          }
+        });
+        smMenu.addEventListener('click', (e) => e.stopPropagation());
+
+        document.querySelectorAll('.staff-checkbox').forEach(cb => {
+          cb.addEventListener('change', (e) => {
+            if (e.target.checked) {
+              if (!state.selectedStaff.includes(e.target.value)) state.selectedStaff.push(e.target.value);
+            } else {
+              state.selectedStaff = state.selectedStaff.filter(id => id !== e.target.value);
+            }
+            render();
+          });
+        });
+      }
+
+      const aa = document.getElementById('autoAssignPromo');
+      if (aa) aa.addEventListener('click', () => { state.selectedStaff = []; render(); });
+      document.querySelectorAll('[data-notify]').forEach(el => {
+        el.addEventListener('click', () => toggleNotify(el.dataset.notify));
+      });
+      const dt = document.getElementById('depositToggle');
+      if (dt) dt.addEventListener('click', () => { state.deposit = !state.deposit; render(); });
+      const nf = document.getElementById('notesField');
+      if (nf) nf.addEventListener('input', e => state.notes = e.target.value);
+      const src = document.getElementById('sourceSelect');
+      if (src) src.addEventListener('change', e => state.source = e.target.value);
+      document.querySelectorAll('.step[data-step]').forEach(el => {
+        el.addEventListener('click', () => {
+          const n = parseInt(el.dataset.step);
+          if (n < state.step || state.editId) {
+            state.step = n;
+            render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
+      });
+      const btnNext = document.getElementById('btnNext');
+      if (btnNext) btnNext.addEventListener('click', () => {
+        state.errors = {};
+        if (state.step === 1) {
+          const rawPhone = (state.clientPhone || '').trim();
+          const cleanPhone = rawPhone.replace(/\D/g, '');
+          if (!state.client && !state.clientQuery.trim()) { state.errors.client = 'Enter or select a client'; render(); return; }
+          if (!state.client && !rawPhone) { state.errors.phone = 'Enter a 10-digit mobile number'; render(); return; }
+          if (!state.client && cleanPhone.length !== 10) { state.errors.phone = 'Mobile number must be exactly 10 digits'; render(); return; }
+
+          if (!state.client && cleanPhone.length === 10) {
+            const clean10 = cleanPhone.slice(-10);
+            const existingByPhone = CLIENTS.find(c => c.phone && c.phone.replace(/\D/g, '').slice(-10) === clean10);
+            if (existingByPhone) {
+              const enteredName = state.clientQuery.trim().toLowerCase();
+              if (enteredName && existingByPhone.name.trim().toLowerCase() !== enteredName) {
+                state.errors.phone = `This mobile number is already registered under name "${existingByPhone.name}". Different name with same mobile number is not allowed.`;
+                render();
+                return;
+              } else {
+                state.client = existingByPhone.id;
+              }
+            }
+          }
+          if (!state.client && !state.selectedGender) { state.errors.gender = 'Select client gender'; render(); return; }
+          if (!state.client && !state.clientDob) { state.errors.dob = 'Select Date of Birth'; render(); return; }
+          if (!state.client && !state.clientMaritalStatus) { state.errors.maritalStatus = 'Select marital status'; render(); return; }
+          if (!state.client && state.clientMaritalStatus === 'married' && !state.clientAnniversary) { state.errors.anniversary = 'Select anniversary date'; render(); return; }
+          if (!state.client && !state.serviceLocation) { state.errors.serviceLocation = 'Select service location'; render(); return; }
+          if (!state.client && !state.source) { state.errors.source = 'Select booking source'; render(); return; }
+        }
+        if (state.step === 2 && !state.selectedServices.length) { state.errors.services = 'Select at least one service'; render(); return; }
+        if (state.step === 3) { if (!state.selectedDate) { state.errors.date = 'Pick a date'; render(); return; } if (!state.selectedTime) { state.errors.time = 'Pick a time'; render(); return; } }
+        if (state.step === 4) {
+          const eligible = staffForServices();
+          if (eligible.length === 0) {
+            state.errors.staff = 'No staff members are available for the selected services and time. Please select a different time or date.';
+            render();
+            return;
+          }
+        }
+        state.step++; render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (state.step === 4 && state.selectedDate && state.selectedTime) fetchAIInsight();
+        if (state.step === 5) render(); // Double check render for review screen
+      });
+      const btnBack = document.getElementById('btnBack');
+      if (btnBack) btnBack.addEventListener('click', () => {
+        state.step--;
+        state.forceManualAssign = false;
+        render();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+      const btnConfirm = document.getElementById('btnConfirm');
+      if (btnConfirm) btnConfirm.addEventListener('click', confirm);
+    }
+
+    window._forceManualAssign = () => { state.forceManualAssign = true; state.errors.staff = null; render(); };
+    window._clearClient = () => { state.client = null; state.clientQuery = ''; state.clientPhone = ''; state.clientLocation = ''; state.clientDob = ''; state.clientAnniversary = ''; state.clientMaritalStatus = ''; state.selectedGender = ''; state.serviceLocation = ''; state.source = ''; render(); };
+    window._hoverService = (id) => { state.highlightedServiceId = id; render(); };
+    window._sendWP = sendWhatsApp;
+    window._reset = reset;
+
+    window._openPersonalizationModal = () => { state.showPersonalizationModal = true; render(); };
+    window._closePersonalizationModal = () => { state.showPersonalizationModal = false; render(); };
+    window._bookTheLook = (svcId, staffId) => {
+      state.selectedServices = [svcId];
+      state.selectedStaff = [staffId];
+      state.showPersonalizationModal = false;
+      state.step = 3;
+      render();
+    };
+    window._setGuestCount = (count) => {
+      if (count < 1) count = 1;
+      if (count > 10) count = 10;
+      state.guestCount = count;
+      render();
+    };
+    window._addUpsell = (id) => {
+      if (!state.selectedServices.includes(id)) {
+        state.selectedServices.push(id);
+        render();
+      }
+    };
+    window._removeService = (id) => {
+      state.selectedServices = state.selectedServices.filter(sid => sid !== id);
+      // Auto-revalidate eligible staff after removal
+      if (state.selectedStaff.length > 0) {
+        const eligible = staffForServices();
+        state.selectedStaff = state.selectedStaff.filter(stId => eligible.some(e => e.id === stId));
+      }
+      render();
+    };
+
+    function buildPersonalizationModal() {
+      const look1Svc = SERVICES.length > 0 ? SERVICES[0].id : '';
+      const look2Svc = SERVICES.length > 1 ? SERVICES[1].id : look1Svc;
+      const look3Svc = SERVICES.length > 2 ? SERVICES[2].id : look1Svc;
+      const s1 = STAFF.length > 0 ? STAFF[0].id : '';
+      const s2 = STAFF.length > 1 ? STAFF[1].id : s1;
+
+      return `<div class="modal-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px);" onclick="window._closePersonalizationModal()">
+      <div class="modal-content" style="background: white; border-radius: var(--border-radius-lg); width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 24px; position: relative; box-shadow: var(--shadow-premium);" onclick="event.stopPropagation()">
+        <button onclick="window._closePersonalizationModal()" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--color-text-secondary);">&times;</button>
+        <h2 style="font-size: 20px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 24px; display: flex; align-items: center; gap: 8px;"><span>✨</span> Personalization & Client Experience</h2>
+        
+        <!-- Book the Look -->
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--color-primary);">Book the Look (Visual Booking)</h3>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px;">Browse recent styles. Click one to auto-select the exact service and stylist.</p>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+            <div onclick="window._bookTheLook('${look1Svc}', '${s1}')" style="cursor: pointer; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid transparent; transition: 0.2s;" onmouseover="this.style.borderColor='var(--color-primary)'" onmouseout="this.style.borderColor='transparent'">
+              <img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&q=80&w=200&h=200" style="width: 100%; height: 120px; object-fit: cover; display: block;">
+              <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 4px; text-align: center;">Balayage Look</div>
+            </div>
+            <div onclick="window._bookTheLook('${look2Svc}', '${s2}')" style="cursor: pointer; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid transparent; transition: 0.2s;" onmouseover="this.style.borderColor='var(--color-primary)'" onmouseout="this.style.borderColor='transparent'">
+              <img src="https://images.unsplash.com/photo-1622286342621-4bd786c2447c?auto=format&fit=crop&q=80&w=200&h=200" style="width: 100%; height: 120px; object-fit: cover; display: block;">
+              <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 4px; text-align: center;">Signature Fade</div>
+            </div>
+            <div onclick="window._bookTheLook('${look3Svc}', '${s1}')" style="cursor: pointer; border-radius: 8px; overflow: hidden; position: relative; border: 2px solid transparent; transition: 0.2s;" onmouseover="this.style.borderColor='var(--color-primary)'" onmouseout="this.style.borderColor='transparent'">
+              <img src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&q=80&w=200&h=200" style="width: 100%; height: 120px; object-fit: cover; display: block;">
+              <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 4px; text-align: center;">Bridal Styling</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="width: 100%; height: 1px; background: var(--color-border-secondary); margin: 20px 0;"></div>
+
+        <!-- Family/Group Booking -->
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px; color: var(--color-primary);">Family/Group Booking</h3>
+          <p style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 12px;">Book multiple consecutive or concurrent appointments under a single session.</p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <label style="font-size: 14px; font-weight: 500;">Number of Guests:</label>
+            <div style="display: flex; align-items: center; border: 1px solid var(--color-border-primary); border-radius: 6px; overflow: hidden;">
+              <button onclick="window._setGuestCount(state.guestCount - 1)" style="padding: 6px 12px; background: var(--color-background-secondary); border: none; cursor: pointer; border-right: 1px solid var(--color-border-primary);">-</button>
+              <div style="padding: 6px 16px; font-weight: 600; font-size: 14px; min-width: 40px; text-align: center;">${state.guestCount}</div>
+              <button onclick="window._setGuestCount(state.guestCount + 1)" style="padding: 6px 12px; background: var(--color-background-secondary); border: none; cursor: pointer; border-left: 1px solid var(--color-border-primary);">+</button>
+            </div>
+          </div>
+          ${state.guestCount > 1 ? `<div style="font-size: 12px; color: var(--color-success); margin-top: 8px; font-weight: 500;">✓ Total price and duration multiplied by ${state.guestCount}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+    }
+
+
+    window._openPayment = () => { state.showPayment = true; render(); };
+
+    window._openCheckoutWindow = () => {
+      const total = totalPrice();
+      const client = state.client ? CLIENTS.find(c => c.id === state.client) : null;
+      const checkoutData = {
+        amount: total,
+        bookingId: state.bookingId,
+        clientName: client ? client.name : (state.clientQuery || 'Guest'),
+        clientPhone: client ? client.phone : (state.clientPhone || '')
+      };
+
+      if (window.parent && window.parent !== window) {
+        // Try direct call first (if same-origin)
+        try {
+          if (typeof window.parent.openCheckoutModal === 'function') {
+            window.parent.openCheckoutModal(checkoutData);
+            if (typeof window.parent.closeBooking === 'function') window.parent.closeBooking();
+            return;
+          }
+        } catch (e) {
+          console.log("Direct parent call failed, falling back to postMessage");
+        }
+
+        // Fallback to postMessage
+        window.parent.postMessage({ type: 'openCheckout', ...checkoutData }, '*');
+        window.parent.postMessage('closeBooking', '*');
+        try {
+          if (typeof window.parent.closeBooking === 'function') {
+            window.parent.closeBooking();
+          }
+        } catch (e) { }
+      } else {
+        // Standalone mode: Initialize Payment directly
+        console.log("Standalone mode detected. Initializing local Payment instance.");
+        window._openHostedPayment();
+      }
+    };
+
+    window._openHostedPayment = async (e) => {
+      const total = totalPrice();
+      const btn = (e && e.currentTarget) ? e.currentTarget : document.querySelector('.btn-full[onclick*="_openCheckoutWindow"]');
+      const originalText = btn ? btn.innerHTML : 'Go to checkout';
+      if (btn) {
+        btn.innerHTML = 'Processing Payment...';
+        btn.disabled = true;
+      }
+
+      try {
+        // Simulate payment processing
+        setTimeout(async () => {
+          try {
+            await fetch(`${API_URL}/bookings/${state.bookingId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: 'Confirmed' })
+            });
+          } catch (e) { console.error('Failed to update status', e); }
+
+          const modal = document.getElementById('success-modal-overlay');
+          if (modal) modal.style.display = 'flex';
+        }, 1000);
+      } catch (err) {
+        console.error("Payment Error:", err);
+        alert("Payment processing failed: " + err.message);
+        if (btn) {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      }
+    };
+
+    window._closePayment = () => { state.showPayment = false; render(); };
+    window._setPaymentMethod = (m) => { state.paymentMethod = m; render(); };
+    window._selectUPIApp = (app) => {
+      const input = document.getElementById('upiIdInput');
+      if (input) input.value = `user@${app}`;
+    };
+    function handleSuccessClose() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage('refreshData', '*');
+        window.parent.postMessage('closeBooking', '*');
+        try {
+          if (typeof window.parent.closeBooking === 'function') {
+            window.parent.closeBooking();
+          }
+        } catch (e) {
+          console.log("Cross-origin parent frame, postMessage sent.");
+        }
+      } else {
+        window.location.reload();
+      }
+    }
+
+    window._processPayment = async () => {
+      state.paymentProcessing = true;
+      render();
+
+      // Simulate payment processing
+      await new Promise(r => setTimeout(r, 2000));
+
+      // On success
+      state.paymentProcessing = false;
+      state.showPayment = false;
+
+      // Update booking status in BOOKINGS array
+      const b = BOOKINGS.find(x => x.id === state.bookingId);
+      if (b) {
+        b.status = 'confirmed'; // Or 'paid' if you prefer
+
+        // Update DB if possible
+        try {
+          await fetch(`${API_URL}/bookings/${b.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: 'confirmed' })
+          });
+        } catch (e) { console.error("DB update failed", e); }
+      }
+
+      // Trigger confetti for payment success too
+      fireConfetti();
+
+      setTimeout(() => {
+        if (window.parent) {
+          window.parent.postMessage('refreshData', '*');
+          window.parent.postMessage('closeBooking', '*');
+          // Try direct call as fallback for same-origin
+          try {
+            if (typeof window.parent.closeBooking === 'function') {
+              window.parent.closeBooking();
+            }
+          } catch (e) {
+            console.log("Cross-origin parent frame, postMessage sent.");
+          }
+        }
+      }, 1500);
+
+      render();
+    };
+
+    loadFromDB();
+  </script>
+
+  <!-- Standalone Success Modal -->
+  <div id="success-modal-overlay"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:10000; justify-content:center; align-items:center;">
+    <div
+      style="background:white; padding:40px; border-radius:16px; text-align:center; max-width:400px; width:90%; box-shadow:0 20px 40px rgba(0,0,0,0.2);">
+      <div
+        style="width:80px; height:80px; background:#dcfce7; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 20px;">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="3"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h2 style="margin:0 0 10px; color:#0f172a; font-size:24px; font-weight:800;">Booking Confirmed!</h2>
+      <p style="color:#64748b; margin:0 0 24px; font-size:15px; line-height:1.5;">Your appointment has been successfully
+        booked. Our team will contact you shortly.</p>
+      <button onclick="handleSuccessClose()"
+        style="background:#0369a1; color:white; border:none; padding:12px 24px; border-radius:8px; font-weight:700; cursor:pointer; width:100%; font-size:15px; transition:background 0.2s;">Book
+        Another Appointment / Close</button>
+    </div>
+  </div>
+</body>
+
+</html>

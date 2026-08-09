@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MedhikaArts</string>
+    <string name="title_activity_main">MedhikaArts</string>
+    <string name="package_name">com.medhikaarts.app</string>
+    <string name="custom_url_scheme">com.medhikaarts.app</string>
+</resources>

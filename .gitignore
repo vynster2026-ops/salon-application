@@ -1,0 +1,8 @@
+node_modules
+.env
+.wwebjs_auth/
+.wwebjs_cache/
+*.zip
+temp.js
+temp_unzip/
+MyProject_OLD_BACKUP/

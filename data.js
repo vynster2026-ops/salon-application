@@ -1,0 +1,8023 @@
+function generateAppointments() {
+  const d = new Date();
+  const h = d.getHours();
+  const m = d.getMinutes();
+  const pad = (n) => n.toString().padStart(2, '0');
+  
+  const d1 = new Date(d); d1.setHours(h - 3); d1.setMinutes(0);
+  const d2 = new Date(d); d2.setHours(h - 2); d2.setMinutes(30);
+  const d3 = new Date(d); d3.setHours(h - 1); d3.setMinutes(15);
+  const d4 = new Date(d); d4.setMinutes(m - 15);
+  const d5 = new Date(d); d5.setHours(h + 1); d5.setMinutes(m + 15);
+  const d6 = new Date(d); d6.setHours(h + 2); d6.setMinutes(30);
+  const d7 = new Date(d); d7.setHours(h + 3); d7.setMinutes(45);
+  const d8 = new Date(d); d8.setHours(h + 4); d8.setMinutes(15);
+
+  return [
+    { id: "a1", time: `${pad(d1.getHours())}:${pad(d1.getMinutes())}`, client: "Anika Sharma", service: "Hair Spa & Blow Dry", duration: 60, price: 1200, status: "done", phone: "9876500001", notes: "Prefers cool water" },
+    { id: "a2", time: `${pad(d2.getHours())}:${pad(d2.getMinutes())}`, client: "Nisha Gupta", service: "Keratin Treatment", duration: 90, price: 3500, status: "done", phone: "9876500002" },
+    { id: "a3", time: `${pad(d3.getHours())}:${pad(d3.getMinutes())}`, client: "Divya Reddy", service: "Haircut + Styling", duration: 45, price: 800, status: "done", phone: "9876500003", notes: "Wants layers" },
+    { id: "a4", time: `${pad(d4.getHours())}:${pad(d4.getMinutes())}`, client: "Tara Joshi", service: "Global Colour", duration: 120, price: 4500, status: "in-progress", phone: "9876500004" },
+    { id: "a5", time: `${pad(d5.getHours())}:${pad(d5.getMinutes())}`, client: "Meera Rajput", service: "Bridal Makeup Trial", duration: 90, price: 3000, status: "upcoming", phone: "9876500005" },
+    { id: "a6", time: `${pad(d6.getHours())}:${pad(d6.getMinutes())}`, client: "Pooja Hegde", service: "Manicure & Pedicure", duration: 60, price: 1500, status: "upcoming", phone: "9876500006" },
+    { id: "a7", time: `${pad(d7.getHours())}:${pad(d7.getMinutes())}`, client: "Simran Kaur", service: "Root Touch-up", duration: 45, price: 1100, status: "upcoming", phone: "9876500007" },
+    { id: "a8", time: `${pad(d8.getHours())}:${pad(d8.getMinutes())}`, client: "Zoya Khan", service: "Advanced Facial", duration: 60, price: 2500, status: "upcoming", phone: "9876500008" }
+  ];
+}
+
+const STAFF_DATA = {
+  priya: {
+    name: "Priya Sharma",
+    role: "Senior Stylist",
+    avatar: "PS",
+    phone: "9876543210",
+    email: "priya@glowsuite.in",
+    joinDate: "Mar 2022",
+    shift: "9:00 AM – 6:00 PM",
+    status: "active",
+    rating: 4.9,
+    completedToday: 4,
+    todayAppointments: 8,
+    earnedRevenue: 8240,
+    avgServiceTime: 45,
+    clientReturnRate: 92,
+    attendance: 100,
+    currentClient: "Princy",
+    nextClient: "Veena G",
+    nextTime: "18:15",
+    specialties: ["Haircut", "Hair Colour", "Keratin", "Hair Spa"],
+    weeklyRevenue: [4200, 5100, 3800, 6200, 5600, 8240, 0],
+    weeklyServices: [6, 7, 5, 8, 7, 10, 0],
+    appointments: generateAppointments(),
+    reviews: [
+      {
+        client: "Anika Sharma",
+        initials: "AS",
+        rating: 5,
+        comment: "Priya is amazing! Best keratin I've ever had!",
+        service: "Keratin Treatment",
+        date: "Today",
+      },
+      {
+        client: "Divya Reddy",
+        initials: "DR",
+        rating: 5,
+        comment: "Loved the blow dry, very professional.",
+        service: "Hair Spa & Blow Dry",
+        date: "Yesterday",
+      },
+      {
+        client: "Nisha Gupta",
+        initials: "NG",
+        rating: 4,
+        comment: "Great haircut, highly recommend!",
+        service: "Haircut + Styling",
+        date: "3 days ago",
+      },
+      {
+        client: "Kavya Menon",
+        initials: "KM",
+        rating: 5,
+        comment: "She understands exactly what I want.",
+        service: "Root Touch-up",
+        date: "1 week ago",
+      },
+    ],
+    leaves: [
+      {
+        type: "casual",
+        from: "2026-05-20",
+        to: "2026-05-20",
+        reason: "Family function",
+        status: "pending",
+      },
+      {
+        type: "sick",
+        from: "2026-04-10",
+        to: "2026-04-11",
+        reason: "Fever",
+        status: "approved",
+      },
+    ],
+    clients: [
+      {
+        id: "c1",
+        name: "Anika Sharma",
+        phone: "9876541230",
+        lastVisit: "2026-05-12",
+        totalVisits: 14,
+        notes: "Allergic to ammonia. Prefers quiet appointments.",
+        formulas: [
+          { date: "2026-04-10", service: "Balayage", formula: "Wella Blondor + 20vol -> Toner: 9/16 + 1.9%" }
+        ]
+      },
+      {
+        id: "c2",
+        name: "Divya Reddy",
+        phone: "9876541231",
+        lastVisit: "2026-05-11",
+        totalVisits: 8,
+        notes: "Loves volume. Always use heat protectant.",
+        formulas: [
+          { date: "2026-05-11", service: "Hair Spa & Blow Dry", formula: "Olaplex Standalone + Dyson round brush" }
+        ]
+      },
+      {
+        id: "c3",
+        name: "Nisha Gupta",
+        phone: "9876541232",
+        lastVisit: "2026-05-09",
+        totalVisits: 5,
+        notes: "Sensitive scalp.",
+        formulas: [
+          { date: "2026-03-15", service: "Root Touch-up", formula: "Majirel 4.0 + 20vol (35 mins)" }
+        ]
+      },
+      {
+        id: "c4",
+        name: "Kavya Menon",
+        phone: "9845012345",
+        lastVisit: "2026-05-05",
+        totalVisits: 12,
+        notes: "Wants a blunt cut next time. Uses sulphate-free shampoo.",
+        formulas: [
+          { date: "2026-04-20", service: "Haircut", formula: "Graduated bob with internal layering" }
+        ]
+      },
+      {
+        id: "c5",
+        name: "Rhea Kapoor",
+        phone: "9123456789",
+        lastVisit: "2026-05-01",
+        totalVisits: 22,
+        notes: "Regular for Root Touch-up. Prefers dark coffee.",
+        formulas: [
+          { date: "2026-05-01", service: "Root Touch-up", formula: "L'Oreal Inoa 5.0 + 20vol" }
+        ]
+      },
+      {
+        id: "c6",
+        name: "Meera Iyer",
+        phone: "9888776655",
+        lastVisit: "2026-04-28",
+        totalVisits: 3,
+        notes: "New client. Interested in Keratin treatment.",
+        formulas: [
+          { date: "2026-04-28", service: "Highlights", formula: "Schwarzkopf Igora + 30vol -> 7-1 toner" }
+        ]
+      },
+      {
+        id: "c7",
+        name: "Sonal Varma",
+        phone: "9555443322",
+        lastVisit: "2026-05-10",
+        totalVisits: 7,
+        notes: "Fine hair. Avoid heavy oils.",
+        formulas: [
+          { date: "2026-05-10", service: "Blow Dry", formula: "Moroccanoil Volume Mousse + Cool shot" }
+        ]
+      },
+      {
+        id: "c8",
+        name: "Pooja Hegde",
+        phone: "9444332211",
+        lastVisit: "2026-04-15",
+        totalVisits: 10,
+        notes: "Grey coverage is priority.",
+        formulas: [
+          { date: "2026-04-15", service: "Global Color", formula: "Majirel 3.0 + 4.0 mix -> 20vol" }
+        ]
+      }
+    ],
+  },
+  sana: {
+    name: "Sana Khan",
+    role: "Color Specialist",
+    avatar: "SK",
+    phone: "9876543211",
+    email: "sana@glowsuite.in",
+    joinDate: "Jan 2023",
+    shift: "10:00 AM – 7:00 PM",
+    status: "active",
+    rating: 4.8,
+    completedToday: 3,
+    todayAppointments: 5,
+    targetRevenue: 6000,
+    earnedRevenue: 4850,
+    avgServiceTime: 65,
+    clientReturnRate: 82,
+    attendance: 92,
+    currentClient: "Meera Iyer",
+    nextClient: "Kavya Menon",
+    nextTime: "15:00",
+    specialties: ["Highlights", "Balayage", "Haircut", "Threading"],
+    weeklyRevenue: [3200, 4100, 2800, 5200, 4600, 4850, 0],
+    weeklyServices: [4, 5, 3, 6, 5, 5, 0],
+    appointments: [
+      {
+        id: "b1",
+        time: "10:15",
+        client: "Meera Iyer",
+        service: "Highlights + Cut",
+        duration: 90,
+        price: 3200,
+        status: "done",
+        phone: "9876500011",
+      },
+      {
+        id: "b2",
+        time: "12:00",
+        client: "Asha Patel",
+        service: "Balayage",
+        duration: 120,
+        price: 4500,
+        status: "done",
+        phone: "9876500012",
+      },
+      {
+        id: "b3",
+        time: "14:00",
+        client: "Ritu Sharma",
+        service: "Root Touch-up",
+        duration: 60,
+        price: 1800,
+        status: "done",
+        phone: "9876500013",
+      },
+      {
+        id: "b4",
+        time: "15:00",
+        client: "Kavya Menon",
+        service: "Threading + Haircut",
+        duration: 45,
+        price: 600,
+        status: "upcoming",
+        phone: "9876500014",
+      },
+      {
+        id: "b5",
+        time: "16:30",
+        client: "Priya Singh",
+        service: "Hair Colour",
+        duration: 90,
+        price: 2200,
+        status: "upcoming",
+        phone: "9876500015",
+      },
+    ],
+    reviews: [
+      {
+        client: "Meera Iyer",
+        initials: "MI",
+        rating: 5,
+        comment: "Sana's balayage skills are unmatched!",
+        service: "Balayage",
+        date: "Today",
+      },
+      {
+        client: "Asha Patel",
+        initials: "AP",
+        rating: 4,
+        comment: "Love the highlights, very natural look.",
+        service: "Highlights + Cut",
+        date: "2 days ago",
+      },
+      {
+        client: "Ritu Sharma",
+        initials: "RS",
+        rating: 5,
+        comment: "Always perfect colour, never too harsh.",
+        service: "Root Touch-up",
+        date: "1 week ago",
+      },
+    ],
+    leaves: [
+      {
+        type: "casual",
+        from: "2026-05-15",
+        to: "2026-05-15",
+        reason: "Family function",
+        status: "pending",
+      },
+    ],
+    clients: [
+      {
+        id: "s1",
+        name: "Meera Iyer",
+        phone: "9888776655",
+        lastVisit: "2026-05-10",
+        totalVisits: 6,
+        notes: "Prefers warm tones for highlights.",
+        formulas: [{ date: "2026-05-10", service: "Highlights", formula: "9/03 + 6% (20 mins)" }]
+      },
+      {
+        id: "s2",
+        name: "Kavya Menon",
+        phone: "9845012345",
+        lastVisit: "2026-05-08",
+        totalVisits: 3,
+        notes: "Sensitive to strong smells.",
+        formulas: [{ date: "2026-04-15", service: "Global Color", formula: "Inoa 4.0 + 20vol" }]
+      }
+    ]
+  },
+  anjali: {
+    name: "Anjali Rao",
+    role: "Esthetician",
+    avatar: "AR",
+    phone: "9876543212",
+    email: "anjali@glowsuite.in",
+    joinDate: "Aug 2022",
+    shift: "9:00 AM – 6:00 PM",
+    status: "on-break",
+    rating: 4.7,
+    completedToday: 4,
+    todayAppointments: 6,
+    targetRevenue: 5000,
+    earnedRevenue: 4120,
+    avgServiceTime: 55,
+    clientReturnRate: 79,
+    attendance: 89,
+    currentClient: null,
+    nextClient: "Ishita Verma",
+    nextTime: "15:45",
+    specialties: ["Facial", "Threading", "Waxing", "Skin Care"],
+    weeklyRevenue: [3100, 3900, 2700, 4800, 4200, 4120, 0],
+    weeklyServices: [5, 6, 4, 7, 6, 6, 0],
+    appointments: [
+      {
+        id: "c1",
+        time: "09:00",
+        client: "Anika Roy",
+        service: "Facial",
+        duration: 60,
+        price: 1200,
+        status: "done",
+        phone: "9876500021",
+      },
+      {
+        id: "c2",
+        time: "10:30",
+        client: "Seema Joshi",
+        service: "Waxing (Full)",
+        duration: 45,
+        price: 900,
+        status: "done",
+        phone: "9876500022",
+      },
+      {
+        id: "c3",
+        time: "11:30",
+        client: "Tara Mehra",
+        service: "Threading",
+        duration: 20,
+        price: 200,
+        status: "done",
+        phone: "9876500023",
+      },
+      {
+        id: "c4",
+        time: "12:30",
+        client: "Riya Nair",
+        service: "Bridal Facial",
+        duration: 90,
+        price: 2500,
+        status: "done",
+        phone: "9876500024",
+      },
+      {
+        id: "c5",
+        time: "15:45",
+        client: "Ishita Verma",
+        service: "Skin Care Consult",
+        duration: 45,
+        price: 800,
+        status: "upcoming",
+        phone: "9876500025",
+      },
+      {
+        id: "c6",
+        time: "17:00",
+        client: "Nita Gupta",
+        service: "Waxing",
+        duration: 40,
+        price: 750,
+        status: "upcoming",
+        phone: "9876500026",
+      },
+    ],
+    reviews: [
+      {
+        client: "Anika Roy",
+        initials: "AR",
+        rating: 5,
+        comment: "Best facial I've ever had, skin is glowing!",
+        service: "Facial",
+        date: "Today",
+      },
+      {
+        client: "Seema Joshi",
+        initials: "SJ",
+        rating: 4,
+        comment: "Very gentle and professional.",
+        service: "Waxing",
+        date: "3 days ago",
+      },
+    ],
+    leaves: [
+      {
+        type: "sick",
+        from: "2026-05-12",
+        to: "2026-05-13",
+        reason: "Fever and rest",
+        status: "approved",
+      },
+    ],
+    clients: [
+      {
+        id: "an1",
+        name: "Aarti Verma",
+        phone: "9111223344",
+        lastVisit: "2026-05-05",
+        totalVisits: 9,
+        notes: "Prefers herbal products.",
+        formulas: [{ date: "2026-05-05", service: "Facial", formula: "Fruit acid peel (low concentration)" }]
+      }
+    ]
+  },
+  riya: {
+    name: "Riya Patel",
+    role: "Nail Artist",
+    avatar: "RP",
+    phone: "9876543213",
+    email: "riya@glowsuite.in",
+    joinDate: "May 2023",
+    shift: "10:00 AM – 7:00 PM",
+    status: "active",
+    rating: 4.6,
+    completedToday: 5,
+    todayAppointments: 7,
+    targetRevenue: 3000,
+    earnedRevenue: 2380,
+    avgServiceTime: 38,
+    clientReturnRate: 85,
+    attendance: 94,
+    currentClient: "Kavya Menon",
+    nextClient: "Priya Patel",
+    nextTime: "14:00",
+    specialties: ["Nail Art", "Manicure", "Pedicure", "Gel Nails"],
+    weeklyRevenue: [1800, 2100, 1600, 2400, 2200, 2380, 0],
+    weeklyServices: [5, 6, 4, 7, 6, 7, 0],
+    appointments: [
+      {
+        id: "d1",
+        time: "10:00",
+        client: "Sonali Rao",
+        service: "Manicure",
+        duration: 40,
+        price: 500,
+        status: "done",
+        phone: "9876500031",
+      },
+      {
+        id: "d2",
+        time: "11:00",
+        client: "Nishi Gupta",
+        service: "Pedicure",
+        duration: 50,
+        price: 600,
+        status: "done",
+        phone: "9876500032",
+      },
+      {
+        id: "d3",
+        time: "12:00",
+        client: "Aarti Verma",
+        service: "Gel Nails",
+        duration: 60,
+        price: 900,
+        status: "done",
+        phone: "9876500033",
+      },
+      {
+        id: "d4",
+        time: "13:00",
+        client: "Priya Singh",
+        service: "Nail Art",
+        duration: 45,
+        price: 700,
+        status: "done",
+        phone: "9876500034",
+      },
+      {
+        id: "d5",
+        time: "13:30",
+        client: "Kavya Menon",
+        service: "Manicure + Pedicure",
+        duration: 80,
+        price: 1000,
+        status: "in-progress",
+        phone: "9876500035",
+      },
+      {
+        id: "d6",
+        time: "14:00",
+        client: "Priya Patel",
+        service: "Nail Extension",
+        duration: 90,
+        price: 1200,
+        status: "upcoming",
+        phone: "9876500036",
+      },
+      {
+        id: "d7",
+        time: "16:00",
+        client: "Tara Jain",
+        service: "Manicure",
+        duration: 40,
+        price: 500,
+        status: "upcoming",
+        phone: "9876500037",
+      },
+    ],
+    reviews: [
+      {
+        client: "Sonali Rao",
+        initials: "SR",
+        rating: 5,
+        comment: "Riya's nail art is so creative and precise!",
+        service: "Nail Art",
+        date: "Yesterday",
+      },
+      {
+        client: "Nishi Gupta",
+        initials: "NG",
+        rating: 4,
+        comment: "Lovely pedicure, very relaxing.",
+        service: "Pedicure",
+        date: "3 days ago",
+      },
+    ],
+    leaves: [
+      {
+        type: "emergency",
+        from: "2026-05-20",
+        to: "2026-05-20",
+        reason: "Personal emergency",
+        status: "pending",
+      },
+    ],
+    clients: [
+      {
+        id: "r1",
+        name: "Sonali Rao",
+        phone: "9876500031",
+        lastVisit: "2026-05-11",
+        totalVisits: 15,
+        notes: "Loves glitter on ring finger.",
+        formulas: [{ date: "2026-05-11", service: "Nail Art", formula: "OPI base + Swarovski crystals" }]
+      }
+    ]
+  },
+  amrita: {
+    name: "Amrita Singh",
+    role: "Makeup Artist",
+    avatar: "AS",
+    phone: "9876543215",
+    email: "amrita@glowsuite.in",
+    joinDate: "Nov 2022",
+    shift: "9:00 AM – 6:00 PM",
+    status: "active",
+    rating: 4.8,
+    completedToday: 3,
+    todayAppointments: 4,
+    targetRevenue: 7000,
+    earnedRevenue: 5600,
+    avgServiceTime: 90,
+    clientReturnRate: 76,
+    attendance: 97,
+    currentClient: "Sanya Reddy",
+    nextClient: "Neha Tolani",
+    nextTime: "16:00",
+    specialties: ["Bridal Makeup", "Party Makeup", "Facial Glow"],
+    weeklyRevenue: [4000, 5200, 3000, 5500, 4800, 5600, 0],
+    weeklyServices: [3, 4, 2, 4, 3, 4, 0],
+    appointments: [
+      {
+        id: "e1",
+        time: "09:00",
+        client: "Preethi Nair",
+        service: "Bridal Makeup",
+        duration: 120,
+        price: 5000,
+        status: "done",
+        phone: "9876500041",
+      },
+      {
+        id: "e2",
+        time: "12:00",
+        client: "Rohini Jha",
+        service: "Party Makeup",
+        duration: 90,
+        price: 2500,
+        status: "done",
+        phone: "9876500042",
+      },
+      {
+        id: "e3",
+        time: "14:00",
+        client: "Sanya Reddy",
+        service: "Engagement Look",
+        duration: 90,
+        price: 3500,
+        status: "in-progress",
+        phone: "9876500043",
+      },
+      {
+        id: "e4",
+        time: "16:00",
+        client: "Neha Tolani",
+        service: "Party Makeup",
+        duration: 90,
+        price: 2500,
+        status: "upcoming",
+        phone: "9876500044",
+      },
+    ],
+    reviews: [
+      {
+        client: "Preethi Nair",
+        initials: "PN",
+        rating: 5,
+        comment: "My bridal makeup was absolutely stunning!",
+        service: "Bridal Makeup",
+        date: "Today",
+      },
+      {
+        client: "Rohini Jha",
+        initials: "RJ",
+        rating: 5,
+        comment: "Amrita made me feel like a star!",
+        service: "Party Makeup",
+        date: "2 days ago",
+      },
+      {
+        client: "Sanya Reddy",
+        initials: "SR",
+        rating: 4,
+        comment: "Very talented, great attention to detail.",
+        service: "Engagement Look",
+        date: "1 week ago",
+      },
+    ],
+    leaves: [],
+    clients: [
+      {
+        id: "am1",
+        name: "Jyoti P",
+        phone: "9998887773",
+        lastVisit: "2026-05-09",
+        totalVisits: 4,
+        notes: "Needs extra hydration for skin.",
+        formulas: [{ date: "2026-05-09", service: "Skin Care", formula: "HydraFacial step 2 + LED therapy" }]
+      }
+    ],
+  },
+};
+
+const SERVICES_MENU = [
+  {
+    category: "⚥ UNISEX SERVICES",
+    services: [
+      { name: "24 Carat Gold Facial", duration: "45 mins", price: "1,200", icon: "✨" },
+      { name: "Acne Facial", duration: "45 mins", price: "1,000", icon: "💆" },
+      { name: "Anti Tan Treatment", duration: "45 mins", price: "1,100", icon: "🌞" },
+      { name: "Aroma Facial", duration: "45 mins", price: "800", icon: "🌸" },
+      { name: "Antidandruff Treatment", duration: "45 mins", price: "700", icon: "❄️" },
+      { name: "Fruit Facial", duration: "30 mins", price: "600", icon: "🍎" },
+      { name: "Diamond Facial", duration: "60 mins", price: "2,000", icon: "💎" },
+      { name: "Charcoal Detox", duration: "45 mins", price: "900", icon: "🖤" }
+    ]
+  },
+  {
+    category: "💇‍♀️ HAIR CARE",
+    services: [
+      { name: "Haircut + Styling", duration: "45 mins", price: "800", icon: "✂️" },
+      { name: "Balayage + Cut", duration: "120 mins", price: "4,200", icon: "🎨" },
+      { name: "Root Touch-up", duration: "60 mins", price: "1,500", icon: "🖌️" },
+      { name: "Keratin Treatment", duration: "150 mins", price: "6,500", icon: "💧" },
+      { name: "Blow Dry", duration: "30 mins", price: "500", icon: "💨" },
+      { name: "Hair Spa", duration: "45 mins", price: "900", icon: "🧖‍♀️" },
+      { name: "Global Hair Colour", duration: "90 mins", price: "3,500", icon: "👩‍🎤" },
+      { name: "Hair Extension Removal", duration: "60 mins", price: "1,000", icon: "🎀" }
+    ]
+  },
+  {
+    category: "💆‍♂️ MEN'S GROOMING",
+    services: [
+      { name: "Men's Haircut", duration: "30 mins", price: "400", icon: "✂️" },
+      { name: "Beard Trim & Shape", duration: "20 mins", price: "250", icon: "🧔" },
+      { name: "Head Massage", duration: "30 mins", price: "400", icon: "💆‍♂️" },
+      { name: "Men's Global Colour", duration: "60 mins", price: "1,200", icon: "🧑‍🎤" },
+      { name: "Men's Cleanup", duration: "30 mins", price: "500", icon: "🧼" }
+    ]
+  },
+  {
+    category: "💅 NAIL & BEAUTY",
+    services: [
+      { name: "Aroma Manicure", duration: "45 mins", price: "300", icon: "💅" },
+      { name: "Spa Pedicure", duration: "60 mins", price: "500", icon: "🦶" },
+      { name: "Gel Nail Extensions", duration: "90 mins", price: "1,500", icon: "✨" },
+      { name: "Nail Art (Per Finger)", duration: "15 mins", price: "100", icon: "🖌️" },
+      { name: "Bridal Makeup", duration: "120 mins", price: "5,000", icon: "💄" },
+      { name: "Party Makeup", duration: "60 mins", price: "2,500", icon: "💋" },
+      { name: "Threading (Eyebrows)", duration: "15 mins", price: "100", icon: "🧵" }
+    ]
+  },
+  {
+    category: "🧖‍♀️ SPA & RELAXATION",
+    services: [
+      { name: "Deep Tissue Massage", duration: "60 mins", price: "2,500", icon: "💆‍♀️" },
+      { name: "Aromatherapy Massage", duration: "60 mins", price: "2,000", icon: "🌿" },
+      { name: "Hot Stone Therapy", duration: "90 mins", price: "3,500", icon: "🪨" },
+      { name: "Body Polishing", duration: "60 mins", price: "3,000", icon: "✨" }
+    ]
+  }
+];
+
+const FALLBACK_CLIENTS = [
+    {
+        "id":  "c1",
+        "name":  "Priya Reddy",
+        "phone":  "+91 98400 12345",
+        "email":  "priya@email.com",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c2",
+        "name":  "Suresh Kumar",
+        "phone":  "+91 99000 54321",
+        "email":  "suresh@email.com",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c3",
+        "name":  "Sindhuja",
+        "phone":  "+91 6281639360",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c4",
+        "name":  "Sushmitha",
+        "phone":  "+91 6300144813",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c5",
+        "name":  "Greeshma",
+        "phone":  "+91 6300281794",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c6",
+        "name":  "Aruna",
+        "phone":  "+91 6301662645",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c7",
+        "name":  "Veena G",
+        "phone":  "+91 6302089693",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c8",
+        "name":  "Shushmita",
+        "phone":  "+91 6303246367",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c9",
+        "name":  "Lavanya",
+        "phone":  "+91 6303639711",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c10",
+        "name":  "Princy",
+        "phone":  "+91 6304071762",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c11",
+        "name":  "Deepika",
+        "phone":  "+91 6304961374",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c12",
+        "name":  "Swetha Mittal",
+        "phone":  "+91 6396467315",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c13",
+        "name":  "Kalyani",
+        "phone":  "+91 7013532346",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c14",
+        "name":  "Divya",
+        "phone":  "+91 7032350251",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c15",
+        "name":  "Grishma",
+        "phone":  "+91 7032724292",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c16",
+        "name":  "Swetha",
+        "phone":  "+91 7032920646",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c17",
+        "name":  "Sarooni",
+        "phone":  "+91 7089013836",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c18",
+        "name":  "Anusha",
+        "phone":  "+91 7093033763",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c19",
+        "name":  "Gayathri",
+        "phone":  "+91 7093540320",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c20",
+        "name":  "Shahisharma",
+        "phone":  "+91 7207621142",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c21",
+        "name":  "Sujata",
+        "phone":  "+91 7285988314",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c22",
+        "name":  "Tejeshvari",
+        "phone":  "+91 7286947722",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c23",
+        "name":  "Kavya",
+        "phone":  "+91 7330666144",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c24",
+        "name":  "Bhavana",
+        "phone":  "+91 7330885394",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c25",
+        "name":  "Akshita",
+        "phone":  "+91 7330892969",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c26",
+        "name":  "Syamala",
+        "phone":  "+91 7331121992",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c27",
+        "name":  "Revati",
+        "phone":  "+91 7337000293",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c28",
+        "name":  "Parmeshwari",
+        "phone":  "+91 7350089057",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c29",
+        "name":  "Navya",
+        "phone":  "+91 7386704300",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c30",
+        "name":  "Jyoshna",
+        "phone":  "+91 7386913491",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c31",
+        "name":  "Aavanti",
+        "phone":  "+91 7396672074",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c32",
+        "name":  "Likitha",
+        "phone":  "+91 7416482571",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c33",
+        "name":  "Vignetha",
+        "phone":  "+91 7659896776",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c34",
+        "name":  "Vinitha",
+        "phone":  "+91 7660092435",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c35",
+        "name":  "Rajani",
+        "phone":  "+91 7674861126",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c36",
+        "name":  "Srija",
+        "phone":  "+91 7674866779",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c37",
+        "name":  "Rindhu",
+        "phone":  "+91 7680009444",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c38",
+        "name":  "Vishnu Priya",
+        "phone":  "+91 7680881166",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c39",
+        "name":  "Shushmita",
+        "phone":  "+91 7680970694",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c40",
+        "name":  "Ashivitha",
+        "phone":  "+91 7680971210",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c41",
+        "name":  "Sushmitha",
+        "phone":  "+91 7680974694",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c42",
+        "name":  "Niharika",
+        "phone":  "+91 7702444080",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c43",
+        "name":  "Savya",
+        "phone":  "+91 7729935548",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c44",
+        "name":  "Sowmini",
+        "phone":  "+91 7731927869",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c45",
+        "name":  "Sahana",
+        "phone":  "+91 7780383031",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c46",
+        "name":  "Vignatha",
+        "phone":  "+91 7780554596",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c47",
+        "name":  "Akshitha",
+        "phone":  "+91 7780748295",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c48",
+        "name":  "Reshmi",
+        "phone":  "+91 7793982393",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c49",
+        "name":  "Jayathi",
+        "phone":  "+91 7799866591",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c50",
+        "name":  "Sravya",
+        "phone":  "+91 7842455570",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c51",
+        "name":  "Shravanthi",
+        "phone":  "+91 7893493254",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c52",
+        "name":  "Pooja",
+        "phone":  "+91 7893777747",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c53",
+        "name":  "Pooja",
+        "phone":  "+91 7893777757",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c54",
+        "name":  "Swethashetty",
+        "phone":  "+91 7893784916",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c55",
+        "name":  "Sandhya",
+        "phone":  "+91 7893810273",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c56",
+        "name":  "Swapna G",
+        "phone":  "+91 7893869222",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c57",
+        "name":  "Swetha",
+        "phone":  "+91 7959881700",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c58",
+        "name":  "Mahita",
+        "phone":  "+91 7989691404",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c59",
+        "name":  "Roshini",
+        "phone":  "+91 7993419927",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c60",
+        "name":  "Princy",
+        "phone":  "+91 7993690811",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c61",
+        "name":  "Sujata",
+        "phone":  "+91 7995495746",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c62",
+        "name":  "Mounika",
+        "phone":  "+91 7995505336",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c63",
+        "name":  "Pallavi",
+        "phone":  "+91 7995585362",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c64",
+        "name":  "Divya",
+        "phone":  "+91 7995918528",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c65",
+        "name":  "Akanksha",
+        "phone":  "+91 7997999939",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c66",
+        "name":  "Alekya",
+        "phone":  "+91 8008121293",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c67",
+        "name":  "Deepika",
+        "phone":  "+91 8016999459",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c68",
+        "name":  "Anupama",
+        "phone":  "+91 8019042635",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c69",
+        "name":  "Shobha Rani",
+        "phone":  "+91 8019109455",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c70",
+        "name":  "Anitha",
+        "phone":  "+91 8019464784",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c71",
+        "name":  "Anitha",
+        "phone":  "+91 8019464875",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c72",
+        "name":  "Methali",
+        "phone":  "+91 8019810196",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c73",
+        "name":  "Anusha",
+        "phone":  "+91 8074307110",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c74",
+        "name":  "Sabhitha",
+        "phone":  "+91 8074993366",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c75",
+        "name":  "Chadana",
+        "phone":  "+91 8096061702",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c76",
+        "name":  "Mounika",
+        "phone":  "+91 8096864835",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c77",
+        "name":  "Lavanya",
+        "phone":  "+91 8099988788",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c78",
+        "name":  "Srilekha",
+        "phone":  "+91 8106108752",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c79",
+        "name":  "Preethi",
+        "phone":  "+91 8106895757",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c80",
+        "name":  "Neelima",
+        "phone":  "+91 8106999459",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c81",
+        "name":  "Priyanka",
+        "phone":  "+91 8121159113",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c82",
+        "name":  "Bindu",
+        "phone":  "+91 8121705915",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c83",
+        "name":  "Mamta",
+        "phone":  "+91 8143122916",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c84",
+        "name":  "Anjali",
+        "phone":  "+91 8143260238",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c85",
+        "name":  "Ashritha",
+        "phone":  "+91 8143455697",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c86",
+        "name":  "Animisha",
+        "phone":  "+91 8171230736",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c87",
+        "name":  "Animisha",
+        "phone":  "+91 8179230736",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c88",
+        "name":  "Latha",
+        "phone":  "+91 8179386008",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c89",
+        "name":  "Shilpa",
+        "phone":  "+91 8179491828",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c90",
+        "name":  "Navya",
+        "phone":  "+91 8179539122",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c91",
+        "name":  "Hasini",
+        "phone":  "+91 8179622216",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c92",
+        "name":  "Akshita",
+        "phone":  "+91 8179752613",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c93",
+        "name":  "Likitha",
+        "phone":  "+91 8187875827",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c94",
+        "name":  "Avanthi",
+        "phone":  "+91 8247070891",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c95",
+        "name":  "Rithika",
+        "phone":  "+91 8247461243",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c96",
+        "name":  "Rishika",
+        "phone":  "+91 8247462354",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c97",
+        "name":  "Manasi",
+        "phone":  "+91 8247784912",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c98",
+        "name":  "Aparna",
+        "phone":  "+91 8297025687",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c99",
+        "name":  "Suharika",
+        "phone":  "+91 8297092102",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c100",
+        "name":  "Teju",
+        "phone":  "+91 8297685604",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c101",
+        "name":  "Neethu",
+        "phone":  "+91 8309047052",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c102",
+        "name":  "Anita",
+        "phone":  "+91 8309421173",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c103",
+        "name":  "Kutty",
+        "phone":  "+91 8309578708",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c104",
+        "name":  "Srisha",
+        "phone":  "+91 8317543707",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c105",
+        "name":  "Surishana",
+        "phone":  "+91 8328542153",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c106",
+        "name":  "Premalatha",
+        "phone":  "+91 8332814855",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c107",
+        "name":  "Swarnalatha",
+        "phone":  "+91 8341010145",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c108",
+        "name":  "Bhagya",
+        "phone":  "+91 8341360917",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c109",
+        "name":  "Swethaq",
+        "phone":  "+91 8360212710",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c110",
+        "name":  "Monika M",
+        "phone":  "+91 8374023030",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c111",
+        "name":  "Akhila",
+        "phone":  "+91 8374172412",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c112",
+        "name":  "Bhavani",
+        "phone":  "+91 8374229459",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c113",
+        "name":  "Anitha",
+        "phone":  "+91 8374288548",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c114",
+        "name":  "Sananitha",
+        "phone":  "+91 8374476908",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c115",
+        "name":  "Saritha",
+        "phone":  "+91 8374583326",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c116",
+        "name":  "Mahthi",
+        "phone":  "+91 8464995804",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c117",
+        "name":  "Vivekana",
+        "phone":  "+91 8465964547",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c118",
+        "name":  "Malathi",
+        "phone":  "+91 8520914281",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c119",
+        "name":  "Sridhevi",
+        "phone":  "+91 8522073309",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c120",
+        "name":  "Grishma",
+        "phone":  "+91 8523815676",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c121",
+        "name":  "nagamani",
+        "phone":  "+91 8555977341",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c122",
+        "name":  "Shwetha",
+        "phone":  "+91 8618070795",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c123",
+        "name":  "Swarnalata",
+        "phone":  "+91 8639269663",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c124",
+        "name":  "Rajita",
+        "phone":  "+91 8686948523",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c125",
+        "name":  "Shoba",
+        "phone":  "+91 8688544888",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c126",
+        "name":  "Mounika",
+        "phone":  "+91 8688854560",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c127",
+        "name":  "Sunita",
+        "phone":  "+91 8778561079",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c128",
+        "name":  "Sahiti",
+        "phone":  "+91 8790133163",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c129",
+        "name":  "Padmaja",
+        "phone":  "+91 8790133301",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c130",
+        "name":  "Madhuri",
+        "phone":  "+91 8790328407",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c131",
+        "name":  "Kirishi",
+        "phone":  "+91 8790397066",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c132",
+        "name":  "Madhavi",
+        "phone":  "+91 8801107606",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c133",
+        "name":  "Somiya B",
+        "phone":  "+91 8801232058",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c134",
+        "name":  "Ankita",
+        "phone":  "+91 8860209382",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c135",
+        "name":  "Sneha",
+        "phone":  "+91 8878868564",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c136",
+        "name":  "Ujwala",
+        "phone":  "+91 8884140291",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c137",
+        "name":  "Suvarna",
+        "phone":  "+91 8885163243",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c138",
+        "name":  "Chohitha",
+        "phone":  "+91 8885198355",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c139",
+        "name":  "Satya",
+        "phone":  "+91 8885308833",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c140",
+        "name":  "Geeta",
+        "phone":  "+91 8885402374",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c141",
+        "name":  "Kinnera",
+        "phone":  "+91 8886086800",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c142",
+        "name":  "Swathi",
+        "phone":  "+91 8886180778",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c143",
+        "name":  "Salini Potla",
+        "phone":  "+91 8886742775",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c144",
+        "name":  "saravanthi",
+        "phone":  "+91 8886885142",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c145",
+        "name":  "Jyothsna",
+        "phone":  "+91 8897298889",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c146",
+        "name":  "Shoba",
+        "phone":  "+91 8897349123",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c147",
+        "name":  "Manisha",
+        "phone":  "+91 8897361994",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c148",
+        "name":  "Swapna",
+        "phone":  "+91 8897453438",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c149",
+        "name":  "Ramya",
+        "phone":  "+91 8897606842",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c150",
+        "name":  "Soniya",
+        "phone":  "+91 8897757697",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c151",
+        "name":  "Satyapriya",
+        "phone":  "+91 8903847403",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c152",
+        "name":  "Sarala",
+        "phone":  "+91 8919282759",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c153",
+        "name":  "Preethi",
+        "phone":  "+91 8919903202",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c154",
+        "name":  "Sridhevi",
+        "phone":  "+91 8919949618",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c155",
+        "name":  "Sowmya",
+        "phone":  "+91 8977173340",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c156",
+        "name":  "Shravya",
+        "phone":  "+91 8977430934",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c157",
+        "name":  "Navya",
+        "phone":  "+91 8977434514",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c158",
+        "name":  "Prabha",
+        "phone":  "+91 8977486394",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c159",
+        "name":  "Jyoshitha",
+        "phone":  "+91 8978470667",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c160",
+        "name":  "Sandhya Rithvik",
+        "phone":  "+91 8978752118",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c161",
+        "name":  "Supraja",
+        "phone":  "+91 9000069670",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c162",
+        "name":  "Netra",
+        "phone":  "+91 9000123093",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c163",
+        "name":  "Rekha",
+        "phone":  "+91 9000266628",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c164",
+        "name":  "Latha",
+        "phone":  "+91 9000522628",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c165",
+        "name":  "Angana",
+        "phone":  "+91 9000679072",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c166",
+        "name":  "Swathi",
+        "phone":  "+91 9000889827",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c167",
+        "name":  "Jaya",
+        "phone":  "+91 9000953292",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c168",
+        "name":  "Indhira",
+        "phone":  "+91 9008800117",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c169",
+        "name":  "Shrevanti",
+        "phone":  "+91 9010003520",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c170",
+        "name":  "Kavya",
+        "phone":  "+91 9010194760",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c171",
+        "name":  "Poojitha",
+        "phone":  "+91 9010339005",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c172",
+        "name":  "Mary Jyothi",
+        "phone":  "+91 9010396115",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c173",
+        "name":  "Sushma",
+        "phone":  "+91 9010511112",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c174",
+        "name":  "Pranathi",
+        "phone":  "+91 9010782401",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c175",
+        "name":  "Anu",
+        "phone":  "+91 9014521200",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c176",
+        "name":  "Sidhu",
+        "phone":  "+91 9030110557",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c177",
+        "name":  "Rajitha",
+        "phone":  "+91 9030509867",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c178",
+        "name":  "Swapna",
+        "phone":  "+91 9030671112",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c179",
+        "name":  "Veena",
+        "phone":  "+91 9030883895",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c180",
+        "name":  "Vidyu",
+        "phone":  "+91 9030905070",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c181",
+        "name":  "Vinutha",
+        "phone":  "+91 9032018788",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c182",
+        "name":  "Lahari",
+        "phone":  "+91 9032325805",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c183",
+        "name":  "Rajitha",
+        "phone":  "+91 9032513550",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c184",
+        "name":  "Swathi",
+        "phone":  "+91 9032758583",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c185",
+        "name":  "Arimitha",
+        "phone":  "+91 9051874601",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c186",
+        "name":  "Aishwariya",
+        "phone":  "+91 9052129384",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c187",
+        "name":  "Swati A",
+        "phone":  "+91 9052501226",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c188",
+        "name":  "Nilima",
+        "phone":  "+91 9052899799",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c189",
+        "name":  "Nandini",
+        "phone":  "+91 9059002275",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c190",
+        "name":  "Prasamsa",
+        "phone":  "+91 9059195021",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c191",
+        "name":  "Swetha",
+        "phone":  "+91 9059488134",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c192",
+        "name":  "Deepika",
+        "phone":  "+91 9059738869",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c193",
+        "name":  "Sahiti",
+        "phone":  "+91 9063452395",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c194",
+        "name":  "Kavya",
+        "phone":  "+91 9063602398",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c195",
+        "name":  "Reshma",
+        "phone":  "+91 9100388845",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c196",
+        "name":  "Saipriya",
+        "phone":  "+91 9100768999",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c197",
+        "name":  "Srinithya",
+        "phone":  "+91 9110350700",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c198",
+        "name":  "Saraya",
+        "phone":  "+91 9121606153",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c199",
+        "name":  "Vaishnavi",
+        "phone":  "+91 9121702079",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c200",
+        "name":  "Deepika",
+        "phone":  "+91 9133008069",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c201",
+        "name":  "Anusha",
+        "phone":  "+91 9133057949",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c202",
+        "name":  "Swathi",
+        "phone":  "+91 9154477752",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c203",
+        "name":  "Divya",
+        "phone":  "+91 9160005206",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c204",
+        "name":  "Sarla",
+        "phone":  "+91 9160367678",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c205",
+        "name":  "Sahithi",
+        "phone":  "+91 9160968328",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c206",
+        "name":  "Madhavi",
+        "phone":  "+91 9177158666",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c207",
+        "name":  "Aishwarya",
+        "phone":  "+91 9177513084",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c208",
+        "name":  "Nethra",
+        "phone":  "+91 9177893833",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c209",
+        "name":  "Gayatri",
+        "phone":  "+91 9182107924",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c210",
+        "name":  "Sandhya Sahitya",
+        "phone":  "+91 9182116719",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c211",
+        "name":  "Praveena",
+        "phone":  "+91 9182545755",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c212",
+        "name":  "Mounika",
+        "phone":  "+91 9246224308",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c213",
+        "name":  "Rajini",
+        "phone":  "+91 9246342294",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c214",
+        "name":  "Kavita",
+        "phone":  "+91 9246549971",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c215",
+        "name":  "Sheleja",
+        "phone":  "+91 9246588771",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c216",
+        "name":  "Gayathri",
+        "phone":  "+91 9246842320",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c217",
+        "name":  "Savanthi",
+        "phone":  "+91 9247866043",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c218",
+        "name":  "Geeta",
+        "phone":  "+91 9248677221",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c219",
+        "name":  "Anitha",
+        "phone":  "+91 9290090088",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c220",
+        "name":  "Vanaja",
+        "phone":  "+91 9290703835",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c221",
+        "name":  "Aruna",
+        "phone":  "+91 9293312295",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c222",
+        "name":  "Aruna",
+        "phone":  "+91 9293322959",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c223",
+        "name":  "Ramamani",
+        "phone":  "+91 9346035907",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c224",
+        "name":  "Sowmya",
+        "phone":  "+91 9381396591",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c225",
+        "name":  "Shirisha",
+        "phone":  "+91 9381630344",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c226",
+        "name":  "Shreya",
+        "phone":  "+91 9381947472",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c227",
+        "name":  "Prasanna",
+        "phone":  "+91 9390901969",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c228",
+        "name":  "Megana",
+        "phone":  "+91 9391373417",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c229",
+        "name":  "Samira",
+        "phone":  "+91 9392517998",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c230",
+        "name":  "Samyuktha",
+        "phone":  "+91 9392995745",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c231",
+        "name":  "Meena",
+        "phone":  "+91 9394307104",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c232",
+        "name":  "Nagamani",
+        "phone":  "+91 9394814165",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c233",
+        "name":  "Revathi",
+        "phone":  "+91 9397141420",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c234",
+        "name":  "Sarita",
+        "phone":  "+91 9397958895",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c235",
+        "name":  "Uma",
+        "phone":  "+91 9398054097",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c236",
+        "name":  "Kreethi",
+        "phone":  "+91 9398551801",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c237",
+        "name":  "Shivakumari",
+        "phone":  "+91 9398939652",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c238",
+        "name":  "Sumithra",
+        "phone":  "+91 9399326146",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c239",
+        "name":  "Keerthi",
+        "phone":  "+91 9440404370",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c240",
+        "name":  "Diraja",
+        "phone":  "+91 9440750274",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c241",
+        "name":  "Gayathri",
+        "phone":  "+91 9440843150",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c242",
+        "name":  "Anusha",
+        "phone":  "+91 9440974826",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c243",
+        "name":  "Saritha",
+        "phone":  "+91 9441117639",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c244",
+        "name":  "Dhiksha",
+        "phone":  "+91 9441214415",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c245",
+        "name":  "Shwetha",
+        "phone":  "+91 9441217341",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c246",
+        "name":  "Kiriya",
+        "phone":  "+91 9441223863",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c247",
+        "name":  "Shruthi",
+        "phone":  "+91 9490115746",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c248",
+        "name":  "Sreesha",
+        "phone":  "+91 9490118097",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c249",
+        "name":  "Triveni",
+        "phone":  "+91 9490119131",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c250",
+        "name":  "Sharda",
+        "phone":  "+91 9490291866",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c251",
+        "name":  "Vinila",
+        "phone":  "+91 9490511834",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c252",
+        "name":  "Vineela",
+        "phone":  "+91 9490518344",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c253",
+        "name":  "Aruna",
+        "phone":  "+91 9490556764",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c254",
+        "name":  "Sunanda",
+        "phone":  "+91 9490583020",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c255",
+        "name":  "Kavya",
+        "phone":  "+91 9491022120",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c256",
+        "name":  "Tejaswi",
+        "phone":  "+91 9491261294",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c257",
+        "name":  "Praveena",
+        "phone":  "+91 9491634355",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c258",
+        "name":  "Ratnavali",
+        "phone":  "+91 9492042096",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c259",
+        "name":  "Reshma",
+        "phone":  "+91 9492063804",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c260",
+        "name":  "Kamala",
+        "phone":  "+91 9492715569",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c261",
+        "name":  "Krishnaveni",
+        "phone":  "+91 9493246170",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c262",
+        "name":  "Pratyusha",
+        "phone":  "+91 9493403485",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c263",
+        "name":  "Mamatha",
+        "phone":  "+91 9493789072",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c264",
+        "name":  "Monika",
+        "phone":  "+91 9494337083",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c265",
+        "name":  "Jyoti",
+        "phone":  "+91 9494420180",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c266",
+        "name":  "Rajyalaxmi",
+        "phone":  "+91 9494540865",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c267",
+        "name":  "Vimala",
+        "phone":  "+91 9494573477",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c268",
+        "name":  "Laxmi",
+        "phone":  "+91 9494730088",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c269",
+        "name":  "Ramya",
+        "phone":  "+91 9502826464",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c270",
+        "name":  "Sowmya",
+        "phone":  "+91 9502895511",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c271",
+        "name":  "Pavitra",
+        "phone":  "+91 9502922321",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c272",
+        "name":  "Swetha",
+        "phone":  "+91 9505100888",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c273",
+        "name":  "Divya",
+        "phone":  "+91 9505812156",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c274",
+        "name":  "Mamatha",
+        "phone":  "+91 9505832950",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c275",
+        "name":  "Niveditha",
+        "phone":  "+91 9505908979",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c276",
+        "name":  "Jeevana",
+        "phone":  "+91 9515228227",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c277",
+        "name":  "Sridevi P",
+        "phone":  "+91 9515312944",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c278",
+        "name":  "Madhu",
+        "phone":  "+91 9532835014",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c279",
+        "name":  "Roja",
+        "phone":  "+91 9542546920",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c280",
+        "name":  "Jyothi",
+        "phone":  "+91 9542743812",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c281",
+        "name":  "Sridevi",
+        "phone":  "+91 9542767676",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c282",
+        "name":  "Navatha",
+        "phone":  "+91 9550019246",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c283",
+        "name":  "Soumya K",
+        "phone":  "+91 9550065675",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c284",
+        "name":  "Harika",
+        "phone":  "+91 9550218883",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c285",
+        "name":  "Srilatha",
+        "phone":  "+91 9550289891",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c286",
+        "name":  "Akila",
+        "phone":  "+91 9550550433",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c287",
+        "name":  "Anusha",
+        "phone":  "+91 9550598922",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c288",
+        "name":  "Panitha",
+        "phone":  "+91 9550731680",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c289",
+        "name":  "Chetaniya S",
+        "phone":  "+91 9550754219",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c290",
+        "name":  "Shalini",
+        "phone":  "+91 9553251801",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c291",
+        "name":  "Srilatha",
+        "phone":  "+91 9553311125",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c292",
+        "name":  "Vijalaxmi",
+        "phone":  "+91 9553833388",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c293",
+        "name":  "Shivapriya",
+        "phone":  "+91 9553927191",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c294",
+        "name":  "Tanvee",
+        "phone":  "+91 9573220027",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c295",
+        "name":  "Vani",
+        "phone":  "+91 9573554040",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c296",
+        "name":  "Anapurna",
+        "phone":  "+91 9573825220",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c297",
+        "name":  "Aparna",
+        "phone":  "+91 9573886960",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c298",
+        "name":  "Swapna",
+        "phone":  "+91 9581112238",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c299",
+        "name":  "Azeema",
+        "phone":  "+91 9581165326",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c300",
+        "name":  "Prashanti",
+        "phone":  "+91 9581234434",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c301",
+        "name":  "Bindhu",
+        "phone":  "+91 9581339898",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c302",
+        "name":  "Likitha",
+        "phone":  "+91 9603341044",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c303",
+        "name":  "Sradha",
+        "phone":  "+91 9603403668",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c304",
+        "name":  "Purnima",
+        "phone":  "+91 9618056745",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c305",
+        "name":  "Santoshi",
+        "phone":  "+91 9618086668",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c306",
+        "name":  "Anushka",
+        "phone":  "+91 9618194801",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c307",
+        "name":  "Swathi",
+        "phone":  "+91 9618544522",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c308",
+        "name":  "Soniya Kathri",
+        "phone":  "+91 9619436740",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c309",
+        "name":  "Sreeparna",
+        "phone":  "+91 9632677488",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c310",
+        "name":  "Divya",
+        "phone":  "+91 9640007091",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c311",
+        "name":  "Akila",
+        "phone":  "+91 9640029163",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c312",
+        "name":  "Likitha",
+        "phone":  "+91 9640237235",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c313",
+        "name":  "Alekya",
+        "phone":  "+91 9640501877",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c314",
+        "name":  "Bhavya",
+        "phone":  "+91 9642063545",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c315",
+        "name":  "Sunita",
+        "phone":  "+91 9642443589",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c316",
+        "name":  "Rajani",
+        "phone":  "+91 9642632832",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c317",
+        "name":  "Rajitha",
+        "phone":  "+91 9642632838",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c318",
+        "name":  "Safa",
+        "phone":  "+91 9642753658",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c319",
+        "name":  "Vidhushi",
+        "phone":  "+91 9643867580",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c320",
+        "name":  "Sailaja",
+        "phone":  "+91 9652850516",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c321",
+        "name":  "Pravalika",
+        "phone":  "+91 9652948686",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c322",
+        "name":  "Pushpa",
+        "phone":  "+91 9666169397",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c323",
+        "name":  "Priya",
+        "phone":  "+91 9666362026",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c324",
+        "name":  "Subha",
+        "phone":  "+91 9666664585",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c325",
+        "name":  "Rishita",
+        "phone":  "+91 9676118200",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c326",
+        "name":  "Veena",
+        "phone":  "+91 9676444976",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c327",
+        "name":  "Amrutha",
+        "phone":  "+91 9676761781",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c328",
+        "name":  "Padma",
+        "phone":  "+91 9676875183",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c329",
+        "name":  "Chitra",
+        "phone":  "+91 9676933382",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c330",
+        "name":  "Bhavya",
+        "phone":  "+91 9700141624",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c331",
+        "name":  "Apoorva",
+        "phone":  "+91 9700326218",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c332",
+        "name":  "Shushma",
+        "phone":  "+91 9701008050",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c333",
+        "name":  "Gouthami",
+        "phone":  "+91 9701114781",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c334",
+        "name":  "Padmavathi",
+        "phone":  "+91 9701450810",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c335",
+        "name":  "Sridevi",
+        "phone":  "+91 9701810401",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c336",
+        "name":  "Suchitra",
+        "phone":  "+91 9703098098",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c337",
+        "name":  "Shreya",
+        "phone":  "+91 9703285443",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c338",
+        "name":  "Deepa",
+        "phone":  "+91 9703345458",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c339",
+        "name":  "Avanti",
+        "phone":  "+91 9704101329",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c340",
+        "name":  "Swapna",
+        "phone":  "+91 9704316882",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c341",
+        "name":  "Swapna",
+        "phone":  "+91 9704316982",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c342",
+        "name":  "Jahanvi",
+        "phone":  "+91 9704656033",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c343",
+        "name":  "Sudha",
+        "phone":  "+91 9704693944",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c344",
+        "name":  "Saritha M",
+        "phone":  "+91 9704770666",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c345",
+        "name":  "Pavani",
+        "phone":  "+91 9704916177",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c346",
+        "name":  "Navita",
+        "phone":  "+91 9705063046",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c347",
+        "name":  "Rajeshwari",
+        "phone":  "+91 9731000710",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c348",
+        "name":  "Pavani",
+        "phone":  "+91 9743329000",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c349",
+        "name":  "Rohini",
+        "phone":  "+91 9748992205",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c350",
+        "name":  "Swethamital",
+        "phone":  "+91 9761311572",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c351",
+        "name":  "Vani",
+        "phone":  "+91 9829074250",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c352",
+        "name":  "Priya",
+        "phone":  "+91 9848063610",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c353",
+        "name":  "Jayanti",
+        "phone":  "+91 9848105513",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c354",
+        "name":  "Sudhavani",
+        "phone":  "+91 9848275958",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c355",
+        "name":  "Ajitha",
+        "phone":  "+91 9848481789",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c356",
+        "name":  "Parimala",
+        "phone":  "+91 9848622336",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c357",
+        "name":  "Pramila",
+        "phone":  "+91 9848622337",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c358",
+        "name":  "Geetha",
+        "phone":  "+91 9848669923",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c359",
+        "name":  "Sameena",
+        "phone":  "+91 9848785786",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c360",
+        "name":  "Swetha",
+        "phone":  "+91 9848849924",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c361",
+        "name":  "Advacate",
+        "phone":  "+91 9849032634",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c362",
+        "name":  "Swapna",
+        "phone":  "+91 9849438800",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c363",
+        "name":  "Arvinda",
+        "phone":  "+91 9849605960",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c364",
+        "name":  "Yesh",
+        "phone":  "+91 9849652864",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c365",
+        "name":  "Akshitha",
+        "phone":  "+91 9866046589",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c366",
+        "name":  "Vaishnavi",
+        "phone":  "+91 9866115005",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c367",
+        "name":  "Pornima",
+        "phone":  "+91 9866147288",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c368",
+        "name":  "Vijaya",
+        "phone":  "+91 9866260076",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c369",
+        "name":  "Soumya A",
+        "phone":  "+91 9866322243",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c370",
+        "name":  "Manjula",
+        "phone":  "+91 9866407640",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c371",
+        "name":  "Hema",
+        "phone":  "+91 9866416497",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c372",
+        "name":  "Manjula",
+        "phone":  "+91 9866464023",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c373",
+        "name":  "Anitha",
+        "phone":  "+91 9866578719",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c374",
+        "name":  "Chandu",
+        "phone":  "+91 9866802595",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c375",
+        "name":  "Reshma",
+        "phone":  "+91 9884935845",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c376",
+        "name":  "Reshma",
+        "phone":  "+91 9884935875",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c377",
+        "name":  "Amuliya",
+        "phone":  "+91 9885111878",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c378",
+        "name":  "Vijayalakshmi",
+        "phone":  "+91 9885182555",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c379",
+        "name":  "Chandu",
+        "phone":  "+91 9885936695",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c380",
+        "name":  "Umadhevi",
+        "phone":  "+91 9900889870",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c381",
+        "name":  "Manasa",
+        "phone":  "+91 9908471403",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c382",
+        "name":  "Anvishna",
+        "phone":  "+91 9908711713",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c383",
+        "name":  "Indira",
+        "phone":  "+91 9908846247",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c384",
+        "name":  "Chaitanya",
+        "phone":  "+91 9908923684",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c385",
+        "name":  "Veda",
+        "phone":  "+91 9908974780",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c386",
+        "name":  "Tejeswini",
+        "phone":  "+91 9912271338",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c387",
+        "name":  "Revathi",
+        "phone":  "+91 9912310490",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c388",
+        "name":  "Swati",
+        "phone":  "+91 9912656464",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c389",
+        "name":  "Chandana",
+        "phone":  "+91 9912915660",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c390",
+        "name":  "Ramanya",
+        "phone":  "+91 9926203544",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c391",
+        "name":  "Akila",
+        "phone":  "+91 9930802832",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c392",
+        "name":  "Anju",
+        "phone":  "+91 9946365903",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c393",
+        "name":  "Shwetha",
+        "phone":  "+91 9948209093",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c394",
+        "name":  "Shaileja",
+        "phone":  "+91 9948439301",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c395",
+        "name":  "Sandhya Sahi",
+        "phone":  "+91 9948542303",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c396",
+        "name":  "Dhanalaxmi",
+        "phone":  "+91 9948550675",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c397",
+        "name":  "Kavitha",
+        "phone":  "+91 9948695968",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c398",
+        "name":  "Hridiya",
+        "phone":  "+91 9949028437",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c399",
+        "name":  "Hemalatha",
+        "phone":  "+91 9949111323",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c400",
+        "name":  "Sandya",
+        "phone":  "+91 9949250365",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c401",
+        "name":  "Chandrika",
+        "phone":  "+91 9949385169",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c402",
+        "name":  "Anuradha",
+        "phone":  "+91 9949672719",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c403",
+        "name":  "Vani",
+        "phone":  "+91 9949779227",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c404",
+        "name":  "Madhavi",
+        "phone":  "+91 9949968137",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c405",
+        "name":  "Lakshmi Rajyam",
+        "phone":  "+91 9949969580",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c406",
+        "name":  "Pooja",
+        "phone":  "+91 9951685390",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c407",
+        "name":  "Sneha",
+        "phone":  "+91 9951854774",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c408",
+        "name":  "Shravanthi",
+        "phone":  "+91 9959111995",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c409",
+        "name":  "Sindhu",
+        "phone":  "+91 9959323288",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c410",
+        "name":  "Hema",
+        "phone":  "+91 9959444413",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c411",
+        "name":  "Prasana",
+        "phone":  "+91 9959516736",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c412",
+        "name":  "Kavitha",
+        "phone":  "+91 9959537671",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c413",
+        "name":  "Sawathi",
+        "phone":  "+91 9959727858",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c414",
+        "name":  "Swetha Reddy",
+        "phone":  "+91 9959879119",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c415",
+        "name":  "Swetha",
+        "phone":  "+91 9959881700",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c416",
+        "name":  "Shirisha",
+        "phone":  "+91 9959901796",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c417",
+        "name":  "Parimala",
+        "phone":  "+91 9963601693",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c418",
+        "name":  "Satya",
+        "phone":  "+91 9963707160",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c419",
+        "name":  "Srinutha",
+        "phone":  "+91 9963925555",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c420",
+        "name":  "Irene",
+        "phone":  "+91 9966094638",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c421",
+        "name":  "Alekya",
+        "phone":  "+91 9966350262",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c422",
+        "name":  "Saneena",
+        "phone":  "+91 9966614448",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c423",
+        "name":  "Karunasri",
+        "phone":  "+91 9966774981",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c424",
+        "name":  "Rupa",
+        "phone":  "+91 9966803606",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c425",
+        "name":  "Sahithya",
+        "phone":  "+91 9966900899",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c426",
+        "name":  "Tejeshvi",
+        "phone":  "+91 9980725552",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c427",
+        "name":  "Aruna K",
+        "phone":  "+91 9985098330",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c428",
+        "name":  "Swapna",
+        "phone":  "+91 9985217351",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c429",
+        "name":  "Sirisha",
+        "phone":  "+91 9985368959",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c430",
+        "name":  "Sunanda",
+        "phone":  "+91 9985437979",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c431",
+        "name":  "Shalini",
+        "phone":  "+91 9985853657",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c432",
+        "name":  "Shamla",
+        "phone":  "+91 9989255740",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c433",
+        "name":  "Kalpana",
+        "phone":  "+91 9989351012",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c434",
+        "name":  "Manjula",
+        "phone":  "+91 9989661469",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c435",
+        "name":  "Shivjyothi",
+        "phone":  "+91 9989940577",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c436",
+        "name":  "1 Shilpa Client",
+        "phone":  "+91 9247421420",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c437",
+        "name":  "Aarti Client",
+        "phone":  "+91 9849523740",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c438",
+        "name":  "Abhigna Client New",
+        "phone":  "+91 9121606185",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c439",
+        "name":  "Agnihotri Garu",
+        "phone":  "+91 9866197109",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c440",
+        "name":  "Agnihotri Jayalaxmi Garu",
+        "phone":  "+91 9000037755",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c441",
+        "name":  "Aishwarya Client Highlights",
+        "phone":  "+91 7702606855",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c442",
+        "name":  "Akanksha Client New",
+        "phone":  "+91 8885541855",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c443",
+        "name":  "Akila Client",
+        "phone":  "+91 7995262821",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c444",
+        "name":  "Akshaya Client New",
+        "phone":  "+91 9618033699",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c445",
+        "name":  "Amrutha Garu",
+        "phone":  "+91 9573649998",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c446",
+        "name":  "Animisha Client 1 Above Ratnadeep",
+        "phone":  "+91 8790469966",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c447",
+        "name":  "Anitha Client",
+        "phone":  "+91 9290091522",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c448",
+        "name":  "Annapurna Client",
+        "phone":  "+91 8686646482",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c449",
+        "name":  "Annapurna Client",
+        "phone":  "+91 8978778730",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c450",
+        "name":  "Annapurna Garu Client",
+        "phone":  "+91 8686478892",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c451",
+        "name":  "Ansha Client",
+        "phone":  "+91 9182783289",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c452",
+        "name":  "Anu Client",
+        "phone":  "+91 9848082166",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c453",
+        "name":  "Anusha Client",
+        "phone":  "+91 9849962674",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c454",
+        "name":  "Anusha Client",
+        "phone":  "+91 9052070279",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c455",
+        "name":  "Anusha Client New",
+        "phone":  "+91 7989270501",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c456",
+        "name":  "Aparna Client New",
+        "phone":  "+91 9676951637",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c457",
+        "name":  "Aparna Client Whatsapp",
+        "phone":  "+91 8712861530",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c458",
+        "name":  "Aprna Client",
+        "phone":  "+91 7093746842",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c459",
+        "name":  "Archana Client",
+        "phone":  "+91 7396451903",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c460",
+        "name":  "Archana Client Dhanalaxmi",
+        "phone":  "+91 9246595979",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c461",
+        "name":  "Archna Client",
+        "phone":  "+91 9705375596",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c462",
+        "name":  "Aruba Client New",
+        "phone":  "+91 9100532963",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c463",
+        "name":  "Aruna Client",
+        "phone":  "+91 8008113936",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c464",
+        "name":  "Aruna Client O",
+        "phone":  "+91 9440565041",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c465",
+        "name":  "Azeema Client",
+        "phone":  "+91 9849790081",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c466",
+        "name":  "Babta Client",
+        "phone":  "+91 9989128202",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c467",
+        "name":  "Bhavana Banglore Client",
+        "phone":  "+91 9108674153",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c468",
+        "name":  "Bindu Client",
+        "phone":  "+91 7989540926",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c469",
+        "name":  "Bridal Client New",
+        "phone":  "+91 9849351529",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c470",
+        "name":  "Bridal Client New",
+        "phone":  "+91 9160582918",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c471",
+        "name":  "Chandana Client",
+        "phone":  "+91 7032215526",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c472",
+        "name":  "Chandna Client",
+        "phone":  "+91 7680909772",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c473",
+        "name":  "Chandra Client Dsnr",
+        "phone":  "+91 9959495043",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c474",
+        "name":  "Charisma Client New",
+        "phone":  "+91 9100414761",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c475",
+        "name":  "Client 2 Niveditha",
+        "phone":  "+91 9989300108",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c476",
+        "name":  "Client Anusha Yousufguda",
+        "phone":  "+91 9703202996",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c477",
+        "name":  "Client College Admin",
+        "phone":  "+91 9100495460",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c478",
+        "name":  "Client Near More",
+        "phone":  "+91 8885828162",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c479",
+        "name":  "Client New 625",
+        "phone":  "+91 9676462280",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c480",
+        "name":  "Client New Australia",
+        "phone":  "+91 9493559999",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c481",
+        "name":  "Client New Haircut",
+        "phone":  "+91 8639734285",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c482",
+        "name":  "Client New Nuis",
+        "phone":  "+91 7842555555",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c483",
+        "name":  "Client New Query",
+        "phone":  "+91 9000841586",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c484",
+        "name":  "Client New Qwerty",
+        "phone":  "+91 9000118833",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c485",
+        "name":  "Client New R",
+        "phone":  "+91 7890696863",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c486",
+        "name":  "Client New1",
+        "phone":  "+91 9441511392",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c487",
+        "name":  "Client New11",
+        "phone":  "+91 9100161259",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c488",
+        "name":  "Client New11111",
+        "phone":  "+91 8309271694",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c489",
+        "name":  "Client New2",
+        "phone":  "+91 9392151606",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c490",
+        "name":  "Client New222",
+        "phone":  "+91 9650815861",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c491",
+        "name":  "Client New56",
+        "phone":  "+91 9110589194",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c492",
+        "name":  "Client News S",
+        "phone":  "+91 9581401670",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c493",
+        "name":  "Client Nnn",
+        "phone":  "+91 9246532425",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c494",
+        "name":  "Client Oldcity",
+        "phone":  "+91 7674814450",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c495",
+        "name":  "Client Whatsapp New",
+        "phone":  "+91 9100653699",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c496",
+        "name":  "Client1",
+        "phone":  "+91 9441332720",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c497",
+        "name":  "Client3",
+        "phone":  "+91 7013972138",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c498",
+        "name":  "Deeksha Client New1",
+        "phone":  "+91 9652553546",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c499",
+        "name":  "Deepa Client",
+        "phone":  "+91 9000936511",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c500",
+        "name":  "Deepika Client",
+        "phone":  "+91 9966480626",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c501",
+        "name":  "Deepthi Client",
+        "phone":  "+91 9908593740",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c502",
+        "name":  "Deepthi Client G",
+        "phone":  "+91 9664806256",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c503",
+        "name":  "Deepthi Client New11",
+        "phone":  "+91 8500457454",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c504",
+        "name":  "Deepthi Clientn",
+        "phone":  "+91 8978799088",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c505",
+        "name":  "Deepthi New Client",
+        "phone":  "+91 7702909687",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c506",
+        "name":  "Deepthi Reddy Client",
+        "phone":  "+91 8978402552",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c507",
+        "name":  "Deepthi Singh Quikr Client",
+        "phone":  "+91 9133471706",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c508",
+        "name":  "Delhi Client",
+        "phone":  "+91 9582882105",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c509",
+        "name":  "Dhanalaxmi Client",
+        "phone":  "+91 9849724429",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c510",
+        "name":  "Dhanalaxmi Client2",
+        "phone":  "+91 9849296454",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c511",
+        "name":  "Dipka Client",
+        "phone":  "+91 9398217026",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c512",
+        "name":  "Divya Client",
+        "phone":  "+91 7036916400",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c513",
+        "name":  "Divya Client 1",
+        "phone":  "+91 9505561457",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c514",
+        "name":  "Divya Client Neigh",
+        "phone":  "+91 8121150090",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c515",
+        "name":  "Divya Client New",
+        "phone":  "+91 9160506887",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c516",
+        "name":  "Divya Dsnr Client",
+        "phone":  "+91 8555021119",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c517",
+        "name":  "Divya Whatsapp Client",
+        "phone":  "+91 7995738236",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c518",
+        "name":  "Doctor Client",
+        "phone":  "+91 9866591359",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c519",
+        "name":  "Dr Anamika Garu",
+        "phone":  "+91 9848429935",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c520",
+        "name":  "Dr Neeraja Garu",
+        "phone":  "+91 9701686136",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c521",
+        "name":  "Dr. Manjula Client",
+        "phone":  "+998961469",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c522",
+        "name":  "Ekta Client",
+        "phone":  "+91 7706873770",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c523",
+        "name":  "Engagement Client 2nd",
+        "phone":  "+91 9666654527",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c524",
+        "name":  "Flornce Client",
+        "phone":  "+91 7032710193",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c525",
+        "name":  "G Rama Devi Garu",
+        "phone":  "+91 9963334199",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c526",
+        "name":  "Geetha Client New",
+        "phone":  "+91 8008955525",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c527",
+        "name":  "Haaarika Client",
+        "phone":  "+(807)4272106",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c528",
+        "name":  "Hair Cut Client",
+        "phone":  "+91 8897606841",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c529",
+        "name":  "Harika Client",
+        "phone":  "+91 9393777126",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c530",
+        "name":  "Harika Client New",
+        "phone":  "+91 8074272106",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c531",
+        "name":  "Harika Client Ou",
+        "phone":  "+91 8978254560",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c532",
+        "name":  "Harit Reddy Client",
+        "phone":  "+900746814",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c533",
+        "name":  "Hasmitha Client",
+        "phone":  "+91 7995726402",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c534",
+        "name":  "Hema Lecturer Arora Client",
+        "phone":  "+91 9994321633",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c535",
+        "name":  "Hemalatha Garu Vasavi Colony",
+        "phone":  "+91 8977486467",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c536",
+        "name":  "Himaja Client",
+        "phone":  "+91 8977878278",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c537",
+        "name":  "Hitaja Client Whatsapp",
+        "phone":  "+91 9908062034",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c538",
+        "name":  "Jahnavi Client K",
+        "phone":  "+91 8790013467",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c539",
+        "name":  "Janaki Garu",
+        "phone":  "+91 9948568779",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c540",
+        "name":  "Jyothi Client New",
+        "phone":  "+91 9154107865",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c541",
+        "name":  "Jyothi Client New1",
+        "phone":  "+91 9533899200",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c542",
+        "name":  "K Suma Client New",
+        "phone":  "+91 8639999719",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c543",
+        "name":  "Kala Garu",
+        "phone":  "+91 8792450277",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c544",
+        "name":  "Kamakshi Client N",
+        "phone":  "+91 8446449200",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c545",
+        "name":  "Kamala Client",
+        "phone":  "+91 9491115279",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c546",
+        "name":  "Karishma 1 Client",
+        "phone":  "+91 9078155647",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c547",
+        "name":  "Karishma Client",
+        "phone":  "+91 8093391463",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c548",
+        "name":  "Karuna Client",
+        "phone":  "+91 9052767630",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c549",
+        "name":  "Karuna New Client",
+        "phone":  "+91 7893398856",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c550",
+        "name":  "Kavitha Client New",
+        "phone":  "+91 9959647289",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c551",
+        "name":  "Kavta Client",
+        "phone":  "+91 7738684199",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c552",
+        "name":  "Keerthana Garu",
+        "phone":  "+91 9701936630",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c553",
+        "name":  "Keerthi Client",
+        "phone":  "+91 9133788800",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c554",
+        "name":  "Kiranmaie Client",
+        "phone":  "+91 9246844093",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c555",
+        "name":  "Kiranmaie Client",
+        "phone":  "+91 9959192888",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c556",
+        "name":  "Koteswari Client",
+        "phone":  "+91 9441237218",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c557",
+        "name":  "Krishna Rao Garu",
+        "phone":  "+91 7673927555",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c558",
+        "name":  "Laasya Client",
+        "phone":  "+91 8374242448",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c559",
+        "name":  "Lahari Client",
+        "phone":  "+91 9494438839",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c560",
+        "name":  "Lalitha Gary Client1",
+        "phone":  "+91 7702724199",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c561",
+        "name":  "Latha Client1",
+        "phone":  "+91 9440701777",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c562",
+        "name":  "Lavanya Clieny",
+        "phone":  "+91 9247628884",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c563",
+        "name":  "Laxmi Garu Client Nw",
+        "phone":  "+91 9573455066",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c564",
+        "name":  "Laxmi Makeup Client",
+        "phone":  "+91 9494235590",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c565",
+        "name":  "Leela Client",
+        "phone":  "+91 9948346775",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c566",
+        "name":  "Leela Garu Client",
+        "phone":  "+91 9133152493",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c567",
+        "name":  "Leela New Client",
+        "phone":  "+1(732)2071102",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c568",
+        "name":  "Likitha Client",
+        "phone":  "+91 8125564904",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c569",
+        "name":  "Likitha Client New",
+        "phone":  "+91 7396528765",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c570",
+        "name":  "Likitha Garu",
+        "phone":  "+91 9492058366",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c571",
+        "name":  "Madhavi Garu",
+        "phone":  "+91 9885270002",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c572",
+        "name":  "Madhavi Reddy Client",
+        "phone":  "+91 9959677300",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c573",
+        "name":  "Madhu Client",
+        "phone":  "+91 9030003152",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c574",
+        "name":  "Madhulika Client",
+        "phone":  "+91 4024030306",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c575",
+        "name":  "Madhulika Client1",
+        "phone":  "+91 9705372877",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c576",
+        "name":  "Madhuri Client",
+        "phone":  "+91 9441552601",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c577",
+        "name":  "Madhuri Client",
+        "phone":  "+91 8096184294",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c578",
+        "name":  "Madhuri Garu Client New",
+        "phone":  "+91 7842282373",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c579",
+        "name":  "Mahalaxmi Client1",
+        "phone":  "+91 7330008056",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c580",
+        "name":  "Mahalaxmi Client1 What\u0027s App",
+        "phone":  "+91 7330008083",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c581",
+        "name":  "Makeup Client Vasavi Colony",
+        "phone":  "+91 9949653394",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c582",
+        "name":  "Malakpet Client Bride",
+        "phone":  "+91 8686027866",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c583",
+        "name":  "Malati Client New",
+        "phone":  "+91 8897755588",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c584",
+        "name":  "Mamta Client 9",
+        "phone":  "+91 8019567132",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c585",
+        "name":  "Mamtha Garu",
+        "phone":  "+91 8184899895",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c586",
+        "name":  "Manasa 1 Client",
+        "phone":  "+91 7661099659",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c587",
+        "name":  "Manasa Client",
+        "phone":  "+91 8008540022",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c588",
+        "name":  "Manasa Garu",
+        "phone":  "+91 9030869092",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c589",
+        "name":  "Manju Client11",
+        "phone":  "+91 9000277569",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c590",
+        "name":  "Manjula Client1",
+        "phone":  "+91 9246822567",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c591",
+        "name":  "Manogna Client",
+        "phone":  "+91 9849011459",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c592",
+        "name":  "Meena Client New",
+        "phone":  "+91 9059879421",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c593",
+        "name":  "Mehndi Client",
+        "phone":  "+91 9179979968",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c594",
+        "name":  "Monica Bride New Client",
+        "phone":  "+91 9121756093",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c595",
+        "name":  "Monik Client",
+        "phone":  "+91 9177464110",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c596",
+        "name":  "Monika Client",
+        "phone":  "+91 9663546789",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c597",
+        "name":  "Mounika Client",
+        "phone":  "+91 8008137833",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c598",
+        "name":  "Mounika Client Hair",
+        "phone":  "+91 9032858666",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c599",
+        "name":  "Mounika Client New1",
+        "phone":  "+91 8688854566",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c600",
+        "name":  "Mousumi Garu",
+        "phone":  "+91 8121459299",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c601",
+        "name":  "Munika Client",
+        "phone":  "+91 9542078465",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c602",
+        "name":  "Mythri Client",
+        "phone":  "+91 9885395172",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c603",
+        "name":  "Nasreen Clients",
+        "phone":  "+91 7729993349",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c604",
+        "name":  "Navta Client",
+        "phone":  "+91 8790069435",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c605",
+        "name":  "Neelima Client New G",
+        "phone":  "+91 9705573759",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c606",
+        "name":  "Neelima Client Nu",
+        "phone":  "+91 9246733557",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c607",
+        "name":  "New Client",
+        "phone":  "+91 8374096432",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c608",
+        "name":  "New Client Pallavi Other Group",
+        "phone":  "+91 7331143288",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c609",
+        "name":  "New Client Qwer",
+        "phone":  "+91 6300868301",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c610",
+        "name":  "New Facial Client",
+        "phone":  "+91 8328343927",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c611",
+        "name":  "New Recording Client",
+        "phone":  "+91 9849194449",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c612",
+        "name":  "Niharika Client",
+        "phone":  "+91 9701229830",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c613",
+        "name":  "Nikhila Client",
+        "phone":  "+91 9160154154",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c614",
+        "name":  "Nikhila Client Whatsapp",
+        "phone":  "+91 8096878138",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c615",
+        "name":  "Nirmala Garu",
+        "phone":  "+91 9246544313",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c616",
+        "name":  "Nu Client",
+        "phone":  "+91 9026319100",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c617",
+        "name":  "Nw Jhansi Client",
+        "phone":  "+91 9550840787",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c618",
+        "name":  "Nw NamrathA Client",
+        "phone":  "+91 9705651109",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c619",
+        "name":  "Padmavati Client",
+        "phone":  "+91 9866129399",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c620",
+        "name":  "Pallavi Garu Cli",
+        "phone":  "+91 9866685372",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c621",
+        "name":  "Pavani Client",
+        "phone":  "+91 7416066335",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c622",
+        "name":  "Pavani Client New",
+        "phone":  "+91 8977111213",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c623",
+        "name":  "Pavani Reddy Client 5",
+        "phone":  "+91 9849283178",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c624",
+        "name":  "Pooja Client New",
+        "phone":  "+91 9949655666",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c625",
+        "name":  "Pranati Client New",
+        "phone":  "+91 9642183399",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c626",
+        "name":  "Pranati Client Y",
+        "phone":  "+91 8790487671",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c627",
+        "name":  "Praneetha Client",
+        "phone":  "+91 9701218801",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c628",
+        "name":  "Praneetha Garu",
+        "phone":  "+91 9247459368",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c629",
+        "name":  "Pranita Client",
+        "phone":  "+91 9492036676",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c630",
+        "name":  "Pranita Client B",
+        "phone":  "+91 7569567110",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c631",
+        "name":  "Prasuna Client",
+        "phone":  "+91 9492980020",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c632",
+        "name":  "Pratyusa Client",
+        "phone":  "+91 9052825499",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c633",
+        "name":  "Pratyusha Client Nee",
+        "phone":  "+91 9133786759",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c634",
+        "name":  "Pratyusha Client Nu",
+        "phone":  "+(913)3786759",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c635",
+        "name":  "Pravallika Client",
+        "phone":  "+91 7995921538",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c636",
+        "name":  "Pravallika New Client",
+        "phone":  "+91 9000705470",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c637",
+        "name":  "preethi Client",
+        "phone":  "+91 9553050728",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c638",
+        "name":  "Priya Client V",
+        "phone":  "+91 8125792187",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c639",
+        "name":  "Priyanka Client",
+        "phone":  "+91 7075969419",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c640",
+        "name":  "Priyanka Infy Client",
+        "phone":  "+91 8712119320",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c641",
+        "name":  "Prnta Client",
+        "phone":  "+91 9391145476",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c642",
+        "name":  "Radhika Client",
+        "phone":  "+91 7207350042",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c643",
+        "name":  "Rahulya Client V",
+        "phone":  "+91 7799624827",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c644",
+        "name":  "Rajeshwari Client 3",
+        "phone":  "+91 8186885418",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c645",
+        "name":  "Rajeswari New Client",
+        "phone":  "+91 9989256914",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c646",
+        "name":  "Rajini Client",
+        "phone":  "+91 9849011450",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c647",
+        "name":  "Rajini New Client",
+        "phone":  "+91 7382609043",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c648",
+        "name":  "Ramana Client",
+        "phone":  "+91 9945610352",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c649",
+        "name":  "Ramitha Client",
+        "phone":  "+91 9177508939",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c650",
+        "name":  "Ramya Client",
+        "phone":  "+91 7893600091",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c651",
+        "name":  "Ramya Client New",
+        "phone":  "+91 7730999805",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c652",
+        "name":  "Ramya Client New",
+        "phone":  "+91 9885310781",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c653",
+        "name":  "Ramya Client New 1",
+        "phone":  "+91 9160763487",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c654",
+        "name":  "Rashmi Bridal Client",
+        "phone":  "+91 9032762899",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c655",
+        "name":  "Rashmi Bridal Client New",
+        "phone":  "+91 7780631246",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c656",
+        "name":  "Rashmi Client",
+        "phone":  "+91 9494850474",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c657",
+        "name":  "Rashmi Client 45",
+        "phone":  "+91 8332925635",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c658",
+        "name":  "Rasmi Client",
+        "phone":  "+91 7032685303",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c659",
+        "name":  "Ratna Client New Opp",
+        "phone":  "+91 8317605619",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c660",
+        "name":  "Ravali Client",
+        "phone":  "+91 9550235682",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c661",
+        "name":  "Rebonding Client",
+        "phone":  "+91 9542164164",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c662",
+        "name":  "Rekha Client",
+        "phone":  "+91 7702772777",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c663",
+        "name":  "Renuka Client",
+        "phone":  "+91 7702868715",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c664",
+        "name":  "Renuka Mom Himabindu Client",
+        "phone":  "+91 8106847332",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c665",
+        "name":  "Sadhana Client",
+        "phone":  "+91 8374768314",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c666",
+        "name":  "Saeesha REDDY Client",
+        "phone":  "+91 9515514611",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c667",
+        "name":  "Sahiti Client B",
+        "phone":  "+91 7569461979",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c668",
+        "name":  "Sahiti Client New1",
+        "phone":  "+91 9063422395",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c669",
+        "name":  "Sahiti Client Y",
+        "phone":  "+91 8790133613",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c670",
+        "name":  "Sahitya Client Sandhya Mam Daughter",
+        "phone":  "+91 9492219754",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c671",
+        "name":  "Saipriya Client",
+        "phone":  "+91 8639838499",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c672",
+        "name":  "Sandhya 4 Client",
+        "phone":  "+91 9704170720",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c673",
+        "name":  "Sandhya Client New1",
+        "phone":  "+91 8790566905",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c674",
+        "name":  "Sandhya Client12",
+        "phone":  "+91 7416453132",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c675",
+        "name":  "Sandhya Rani New Client",
+        "phone":  "+91 9246530678",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c676",
+        "name":  "Sangita Client N",
+        "phone":  "+91 7032522084",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c677",
+        "name":  "Sariceremony Client",
+        "phone":  "+91 8065722555",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c678",
+        "name":  "Sarika Client",
+        "phone":  "+91 9052004006",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c679",
+        "name":  "Saritha Garu New Client",
+        "phone":  "+91 8341191589",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c680",
+        "name":  "Satyavathi Client",
+        "phone":  "+91 9966532335",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c681",
+        "name":  "Saumini Client 2",
+        "phone":  "+91 6300251203",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c682",
+        "name":  "Seetha Garu Teacher",
+        "phone":  "+91 9032009524",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c683",
+        "name":  "Sharmitha Bride Client New",
+        "phone":  "+91 9949439531",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c684",
+        "name":  "Shazia Client",
+        "phone":  "+91 8125760899",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c685",
+        "name":  "Sheela Client",
+        "phone":  "+91 9848753540",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c686",
+        "name":  "Shilpa Garu Client",
+        "phone":  "+91 7207603889",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c687",
+        "name":  "Shilpika Client1",
+        "phone":  "+91 9866659634",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c688",
+        "name":  "Shivani Client New",
+        "phone":  "+91 9989326140",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c689",
+        "name":  "Shivani New Client",
+        "phone":  "+91 8332976529",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c690",
+        "name":  "Shobha Client Doctors Colony",
+        "phone":  "+91 9490311477",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c691",
+        "name":  "Shravani Client",
+        "phone":  "+91 9849487929",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c692",
+        "name":  "Shravani Client Near Prajay",
+        "phone":  "+91 9014981817",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c693",
+        "name":  "Shravani Client Neww",
+        "phone":  "+91 9493143185",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c694",
+        "name":  "Shravani Garu",
+        "phone":  "+91 9059684255",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c695",
+        "name":  "Shravani New Client",
+        "phone":  "+91 9000520750",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c696",
+        "name":  "Shravanthi Alkapuri Makeup Client",
+        "phone":  "+91 7702210902",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c697",
+        "name":  "Sindhu Client 1",
+        "phone":  "+91 9000512054",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c698",
+        "name":  "Sindhu Client New",
+        "phone":  "+91 9908764405",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c699",
+        "name":  "Sindhu Client Phd",
+        "phone":  "+91 7477759222",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c700",
+        "name":  "Sindhura Client",
+        "phone":  "+91 9000288922",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c701",
+        "name":  "Sindhura Client",
+        "phone":  "+91 7377155246",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c702",
+        "name":  "Sindhuri Client New",
+        "phone":  "+91 9949662122",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c703",
+        "name":  "Sireesha Reddy Client",
+        "phone":  "+91 9553243220",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c704",
+        "name":  "Sirisha Client New",
+        "phone":  "+91 9963442206",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c705",
+        "name":  "Sirivennela Client",
+        "phone":  "+91 8179147964",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c706",
+        "name":  "Sirsha Client",
+        "phone":  "+91 9246371600",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c707",
+        "name":  "Sonali Gary Clients",
+        "phone":  "+91 9494657530",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c708",
+        "name":  "Soujanya Client",
+        "phone":  "+91 9014441920",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c709",
+        "name":  "Soujanya Client 87",
+        "phone":  "+91 9533995659",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c710",
+        "name":  "Soujanya Client H",
+        "phone":  "+91 9494273089",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c711",
+        "name":  "Soumini Mom Client",
+        "phone":  "+91 9052827897",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c712",
+        "name":  "Soumya Client",
+        "phone":  "+91 8790843858",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c713",
+        "name":  "Soumya New Client",
+        "phone":  "+91 9440954518",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c714",
+        "name":  "Sowjanya Client",
+        "phone":  "+91 9247880428",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c715",
+        "name":  "Sowjanya Client Jio",
+        "phone":  "+91 8919235339",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c716",
+        "name":  "Sravani Client",
+        "phone":  "+91 8019473788",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c717",
+        "name":  "Sravanthi Client222",
+        "phone":  "+91 9701028024",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c718",
+        "name":  "Sravnti Client",
+        "phone":  "+91 8374468085",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c719",
+        "name":  "Sree Vidya Client",
+        "phone":  "+91 8885042489",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c720",
+        "name":  "Sridevi Garu Lbnagar",
+        "phone":  "+91 8885569985",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c721",
+        "name":  "Srihitha Reddy Garu",
+        "phone":  "+91 9599617909",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c722",
+        "name":  "Srija Client",
+        "phone":  "+91 7032666729",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c723",
+        "name":  "Srilatha Garu",
+        "phone":  "+91 9154992073",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c724",
+        "name":  "Srilekha Client New",
+        "phone":  "+91 7036431442",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c725",
+        "name":  "Sruti Client",
+        "phone":  "+91 9049992016",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c726",
+        "name":  "Steffi Client",
+        "phone":  "+91 7675083007",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c727",
+        "name":  "Straightening Client",
+        "phone":  "+91 8712444363",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c728",
+        "name":  "Subashini Client",
+        "phone":  "+91 8686106250",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c729",
+        "name":  "Sudh Client",
+        "phone":  "+91 9849449122",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c730",
+        "name":  "Sudha Client",
+        "phone":  "+91 9032233261",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c731",
+        "name":  "Sudha Garu1",
+        "phone":  "+91 8885186865",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c732",
+        "name":  "Sujatha Client N",
+        "phone":  "+91 7893577475",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c733",
+        "name":  "Sujatha Garu",
+        "phone":  "+91 8125728881",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c734",
+        "name":  "Suma Client 1",
+        "phone":  "+91 8106360690",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c735",
+        "name":  "Suma Client  Whatsapp",
+        "phone":  "+91 7981647556",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c736",
+        "name":  "Sunitha Client",
+        "phone":  "+91 9866879582",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c737",
+        "name":  "Sunitha Client New",
+        "phone":  "+91 9652445735",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c738",
+        "name":  "Surekha Garu",
+        "phone":  "+91 9247575479",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c739",
+        "name":  "Sushma Wedding Client",
+        "phone":  "+91 9059769262",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c740",
+        "name":  "Sushmitha Sony Sis Client",
+        "phone":  "+91 9849128628",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c741",
+        "name":  "Swapna Client",
+        "phone":  "+91 9640100085",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c742",
+        "name":  "Swapna Client J",
+        "phone":  "+91 9959210231",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c743",
+        "name":  "Swapna Client1",
+        "phone":  "+91 9676954479",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c744",
+        "name":  "Swapna Garu Above Rstnadeep",
+        "phone":  "+91 9949563084",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c745",
+        "name":  "Swapna Wedding client",
+        "phone":  "+91 9972988991",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c746",
+        "name":  "Swathi Garu",
+        "phone":  "+91 8790034215",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c747",
+        "name":  "Swathi Garu Client",
+        "phone":  "+91 9490702682",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c748",
+        "name":  "Swathi Garu1",
+        "phone":  "+91 9515875144",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c749",
+        "name":  "Swetha Client 1",
+        "phone":  "+91 7386371188",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c750",
+        "name":  "Swetha Client 2",
+        "phone":  "+91 9989647105",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c751",
+        "name":  "Swetha Client Doctors Colony",
+        "phone":  "+91 9010334447",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c752",
+        "name":  "Swetha Client New1",
+        "phone":  "+91 9542204442",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c753",
+        "name":  "Swetha Client New1",
+        "phone":  "+91 9158199981",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c754",
+        "name":  "Swetha Highlights Client",
+        "phone":  "+91 8309298054",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c755",
+        "name":  "Swpna. Client",
+        "phone":  "+91 9959210251",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c756",
+        "name":  "Tejaswi Client",
+        "phone":  "+91 9393158585",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c757",
+        "name":  "Tejaswi Client New",
+        "phone":  "+91 9849240664",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c758",
+        "name":  "Tejaswini Client",
+        "phone":  "+91 8143390601",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c759",
+        "name":  "Tulsi Client",
+        "phone":  "+91 7799628877",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c760",
+        "name":  "Udaya Client",
+        "phone":  "+91 9985370535",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c761",
+        "name":  "Ujwala Client",
+        "phone":  "+91 9703255437",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c762",
+        "name":  "Ujwala Client1",
+        "phone":  "+91 9676945533",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c763",
+        "name":  "Uma Client G",
+        "phone":  "+91 9177576420",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c764",
+        "name":  "Uma Client H",
+        "phone":  "+91 9550956461",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c765",
+        "name":  "Usha Client",
+        "phone":  "+91 9032588372",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c766",
+        "name":  "Usha Client H",
+        "phone":  "+91 9676739486",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c767",
+        "name":  "Usha New Client",
+        "phone":  "+91 8125919577",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c768",
+        "name":  "Vahini Client",
+        "phone":  "+91 9542933721",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c769",
+        "name":  "Valli Client New",
+        "phone":  "+91 7416108712",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c770",
+        "name":  "Vamshika Client",
+        "phone":  "+91 8919958262",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c771",
+        "name":  "Vanaja Client1",
+        "phone":  "+91 9441061896",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c772",
+        "name":  "Vanaja Garu",
+        "phone":  "+91 9246287777",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c773",
+        "name":  "Vandana Garu",
+        "phone":  "+91 9299203222",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c774",
+        "name":  "Vani Garu",
+        "phone":  "+91 9394718971",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c775",
+        "name":  "Vanitha Client",
+        "phone":  "+91 9848740321",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c776",
+        "name":  "Vardhini Garu",
+        "phone":  "+91 9989332127",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c777",
+        "name":  "Vasavi Client",
+        "phone":  "+91 8978984090",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c778",
+        "name":  "Veena Client 1",
+        "phone":  "+91 8977129027",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c779",
+        "name":  "Vidya Client",
+        "phone":  "+91 9030572965",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c780",
+        "name":  "Vidya Client J",
+        "phone":  "+91 9652646575",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c781",
+        "name":  "Vijaya Client New Halfsaree",
+        "phone":  "+91 9618523678",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c782",
+        "name":  "Vijaya Client New111",
+        "phone":  "+91 7306976660",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c783",
+        "name":  "Vijaya Garu",
+        "phone":  "+91 9000414287",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c784",
+        "name":  "Vijaya Garu Client",
+        "phone":  "+91 9666638837",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c785",
+        "name":  "Vijaya Garu Wedding",
+        "phone":  "+91 9490867967",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c786",
+        "name":  "Vineela Client",
+        "phone":  "+91 9248040179",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c787",
+        "name":  "Vineeta Client",
+        "phone":  "+91 9032018786",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c788",
+        "name":  "Vinutna Client",
+        "phone":  "+91 9701165555",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c789",
+        "name":  "Vishala Garu Sree Krupa Apartment",
+        "phone":  "+91 9848122992",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c790",
+        "name":  "Vishala Needentist Client",
+        "phone":  "+91 9676650931",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c791",
+        "name":  "Vrishali Client",
+        "phone":  "+91 8806661860",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c792",
+        "name":  "Wedding Makeup Client",
+        "phone":  "+91 8978923353",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c793",
+        "name":  "Yami Client",
+        "phone":  "+91 8125503703",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c794",
+        "name":  "Yashvita Medico Client",
+        "phone":  "+91 9908879740",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c795",
+        "name":  "Yogitha Client",
+        "phone":  "+91 7893899930",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹0",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c796",
+        "name":  "sharan",
+        "phone":  "7396269877",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹600",
+        "av":  "av-b"
+    },
+    {
+        "id":  "c797",
+        "name":  "lakshmi",
+        "phone":  "8985761088",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹22,700",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c798",
+        "name":  "sriya",
+        "phone":  "9515239877",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹1,500",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c799",
+        "name":  "balaji",
+        "phone":  "6300188680",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹1,500",
+        "av":  "av-p"
+    },
+    {
+        "id":  "c800",
+        "name":  "xyz",
+        "phone":  "7330702864",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹23,900",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c801",
+        "name":  "Test User",
+        "phone":  "1234567890",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹7,000",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c802",
+        "name":  "Demo User",
+        "phone":  "9999999999",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹4,800",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c803",
+        "name":  "sharan",
+        "phone":  "7396269877",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹150",
+        "av":  "av-t"
+    },
+    {
+        "id":  "c804",
+        "name":  "swarupa",
+        "phone":  "7382965318",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹3,550",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c805",
+        "name":  "Test User",
+        "phone":  "9876543210",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹40",
+        "av":  "av-k"
+    },
+    {
+        "id":  "c806",
+        "name":  "Debug",
+        "phone":  "1111111111",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹40",
+        "av":  "av-c"
+    },
+    {
+        "id":  "c807",
+        "name":  "srisha vv",
+        "phone":  "7382965318",
+        "location":  "13-15-62 sri giri nilayam vv nagar dilshuknagar",
+        "email":  "",
+        "pts":  0,
+        "ltv":  "₹200",
+        "av":  "av-c"
+    }
+];
+
+// --- GlowSuite Real-Time Reassignment Waitlist & Log Store ---
+window.salonWaitlist = JSON.parse(localStorage.getItem('salonWaitlist')) || [];
+window.reassignmentLogs = JSON.parse(localStorage.getItem('reassignmentLogs')) || [];
+window.saveSalonWaitlist = function() {
+  localStorage.setItem('salonWaitlist', JSON.stringify(window.salonWaitlist));
+};
+window.saveReassignmentLogs = function() {
+  localStorage.setItem('reassignmentLogs', JSON.stringify(window.reassignmentLogs));
+};

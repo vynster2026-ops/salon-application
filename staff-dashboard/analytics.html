@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Srijes, the beauty destination</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon" style="font-size: 24px; color: var(--primary); margin-right: 12px;">✦</div>
+      <div>
+        <div class="brand-name" style="line-height: 1.1;">Srijes<br><span style="font-size: 11px; font-weight: normal; color: var(--muted);">the beauty destination</span></div>
+      </div>
+      <button class="close-btn" id="closeSidebar" onclick="closeSidebar()">
+        ✕
+      </button>
+    </div>
+
+    <div class="staff-badge">
+      <div class="staff-avatar-sm" id="sidebarAvatar">PS</div>
+      <div class="staff-badge-info">
+        <div class="staff-badge-name" id="sidebarName">Priya Sharma</div>
+        <div class="staff-badge-role" id="sidebarRole">
+          Senior Stylist · 9AM–6PM
+        </div>
+      </div>
+      <div class="status-dot active" id="sidebarDot"></div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item ripple" onclick="window.location.href='index.html'">
+        <span class="nav-icon">⊞</span> My Dashboard
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='schedule.html'">
+        <span class="nav-icon">📅</span> My Schedule
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='attendance.html'">
+        <span class="nav-icon">🕐</span> Attendance
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='clients.html'">
+        <span class="nav-icon">👥</span> Client Records
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='services.html'">
+        <span class="nav-icon">✂️</span> Services
+      </button>
+      <button class="nav-item ripple active" onclick="window.location.href='analytics.html'">
+        <span class="nav-icon">📊</span> Analytics
+        <span class="nav-dot"></span>
+      </button>
+      <button class="nav-item ripple" onclick="openInventoryModal()">
+        <span class="nav-icon">📦</span> Request Supplies
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='staff-summary.html'">
+        <span class="nav-icon">📝</span> Staff Summary
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='settings.html'">
+        <span class="nav-icon">⚙️</span> Settings
+      </button>
+    </nav>
+  </aside>
+
+
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="menu-btn" onclick="openSidebar()">☰</button>
+      <div class="topbar-info"><div class="topbar-title">Analytics</div></div>
+      <div class="header-profile">
+        <div class="staff-avatar-sm" id="headerAvatar">PS</div>
+        <div class="header-profile-info" >
+          <div class="hp-name" id="headerName">Staff</div>
+          <div class="hp-role">· <span style="color:#e74c3c;font-weight:600;">Logout 🚪</span></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="page-heading">
+        <div>
+          <h1 class="greeting" id="greeting">Analytics 📊</h1>
+          <p class="shift-line">Your performance overview and insights</p>
+        </div>
+        <select id="periodSelect" class="form-input" style="width:150px;padding:8px 12px;" onchange="buildAnalytics()">
+          <option value="week">This Week</option>
+          <option value="month" selected>This Month</option>
+          <option value="quarter">This Quarter</option>
+        </select>
+      </div>
+
+      <!-- KPI Row -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px;" id="analyticsKPIs"></div>
+
+      <div class="row">
+        <!-- Revenue Chart -->
+        <div class="col-8">
+          <div class="card" style="margin-bottom:24px;">
+            <h2 style="font-family:'Playfair Display',serif;font-size:18px;color:var(--primary);margin-bottom:4px;">Revenue Trend</h2>
+            <p style="color:var(--muted);font-size:13px;margin-bottom:20px;">Daily revenue generated this period</p>
+            <div id="revenueChart" style="display:flex;align-items:flex-end;gap:6px;height:160px;padding:0 4px;"></div>
+            <div id="revenueChartLabels" style="display:flex;gap:6px;margin-top:8px;"></div>
+          </div>
+
+          <!-- Service Mix -->
+          <div class="card" style="margin-bottom:24px;">
+            <h2 style="font-family:'Playfair Display',serif;font-size:18px;color:var(--primary);margin-bottom:16px;">Service Mix</h2>
+            <div id="serviceMixBars" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+
+          <!-- Client Retention Trend -->
+          <div class="card">
+            <h2 style="font-family:'Playfair Display',serif;font-size:18px;color:var(--primary);margin-bottom:16px;">⭐ Rating History</h2>
+            <div id="ratingChart" style="display:flex;align-items:flex-end;gap:8px;height:100px;"></div>
+            <div id="ratingLabels" style="display:flex;gap:8px;margin-top:6px;"></div>
+          </div>
+        </div>
+
+        <!-- Right panels -->
+        <div class="col-4">
+          <!-- Top Services -->
+          <div class="card" style="margin-bottom:20px;">
+            <h2 style="font-family:'Playfair Display',serif;font-size:18px;color:var(--primary);margin-bottom:14px;">🏆 Top Services</h2>
+            <div id="topServicesList" style="display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+
+          <!-- Client stats -->
+          <div class="card" style="margin-bottom:20px;">
+            <h2 style="font-family:'Playfair Display',serif;font-size:18px;color:var(--primary);margin-bottom:14px;">👥 Client Stats</h2>
+            <div id="clientStats" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+
+          <!-- Goals -->
+          <div class="card">
+            <h2 style="font-family:'Playfair Display',serif;font-size:18px;color:var(--primary);margin-bottom:14px;">🎯 Monthly Goals</h2>
+            <div id="goalsList" style="display:flex;flex-direction:column;gap:12px;"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+  <button class="chat-fab ripple" onclick="toggleStaffChat()">💬</button>
+  <div class="chat-window hidden" id="staffChatWindow">
+    <div class="chat-header"><div style="font-weight:600">Reception Desk</div><button class="close-btn" style="display:block" onclick="toggleStaffChat()">✕</button></div>
+    <div class="chat-body" id="chatBody"><div class="chat-msg received">Hi! Let us know if you need anything.</div></div>
+    <div class="chat-quick-replies">
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Running 10 mins late')">10 mins late</button>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Type message..." onkeypress="if(event.key==='Enter')sendChatMessage(this.value)">
+      <button class="btn-primary ripple" onclick="sendChatMessage(document.getElementById('chatInput').value)">➤</button>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    function initAnalytics() {
+      if (typeof serviceCatalog !== 'undefined' && serviceCatalog.length > 0 && window.allBookings && window.allAppointments) {
+        try {
+          buildAnalytics();
+        } catch (e) {
+          document.getElementById('analyticsKPIs').innerHTML = `<div style="color:red; grid-column: span 5;">Error: ${e.message} <br> ${e.stack}</div>`;
+        }
+      } else {
+        setTimeout(initAnalytics, 100);
+      }
+    }
+
+    function buildAnalytics() {
+      const period = document.getElementById('periodSelect').value;
+      const staffId = typeof currentStaff !== 'undefined' ? currentStaff : 'priya';
+      const s = STAFF_DATA[staffId] || STAFF_DATA['priya'];
+      const name = (localStorage.getItem('loggedInUser') || s.name).split(' ')[0];
+
+      document.getElementById('greeting').textContent = `Analytics — ${name} 📊`;
+
+      const now = new Date();
+      let startDate = new Date();
+      let numBuckets = 7;
+      let labelType = 'day';
+
+      if (period === 'week') {
+        startDate.setDate(now.getDate() - 6);
+        startDate.setHours(0,0,0,0);
+        numBuckets = 7;
+        labelType = 'day';
+      } else if (period === 'month') {
+        startDate.setDate(now.getDate() - 29);
+        startDate.setHours(0,0,0,0);
+        numBuckets = 4;
+        labelType = 'week';
+      } else {
+        startDate.setDate(now.getDate() - 89);
+        startDate.setHours(0,0,0,0);
+        numBuckets = 3;
+        labelType = 'month';
+      }
+
+      // Combine bookings and appointments
+      let validRecords = [];
+      
+      // Add all live done appointments
+      window.allAppointments.forEach(apt => {
+        if (aptStates[apt.id] === 'done' || apt.status === 'done') {
+          // Resolve price
+          let price = apt.price || 0;
+          if (!price) {
+             const svc = serviceCatalog.find(s => s.name === apt.service || s.id === apt.service);
+             if (svc) price = svc.price || 0;
+          }
+          validRecords.push({ date: new Date(), price: price, service: apt.service });
+        }
+      });
+
+      // Add all completed or non-cancelled bookings
+      window.allBookings.forEach(bk => {
+        if (bk.status !== 'cancelled' && bk.status !== 'no-show') {
+          const bkDate = new Date(bk.date);
+          if (bkDate <= now && bkDate >= startDate) {
+            let total = 0;
+            // Lookup prices
+            const servicesArray = Array.isArray(bk.services) ? bk.services : [bk.service];
+            servicesArray.forEach(svcId => {
+              const svc = serviceCatalog.find(s => s.id === svcId);
+              if (svc) total += svc.price;
+            });
+            validRecords.push({ date: bkDate, price: total, services: servicesArray, client: bk.client });
+          }
+        }
+      });
+
+      // Compute Revenue Data
+      let revData = new Array(numBuckets).fill(0);
+      let labels = [];
+
+      if (labelType === 'day') {
+        labels = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+        const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        // Generate last 7 days labels
+        labels = [];
+        for (let i = 6; i >= 0; i--) {
+          let d = new Date();
+          d.setDate(d.getDate() - i);
+          labels.push(dayNames[d.getDay()]);
+        }
+        validRecords.forEach(r => {
+          const diffDays = Math.floor((now - r.date) / (1000 * 60 * 60 * 24));
+          if (diffDays >= 0 && diffDays < 7) {
+            revData[6 - diffDays] += r.price;
+          }
+        });
+      } else if (labelType === 'week') {
+        labels = ['Wk 1','Wk 2','Wk 3','Wk 4'];
+        validRecords.forEach(r => {
+          const diffDays = Math.floor((now - r.date) / (1000 * 60 * 60 * 24));
+          if (diffDays >= 0 && diffDays < 30) {
+            const weekIdx = 3 - Math.floor(diffDays / 7.5);
+            if(weekIdx >= 0 && weekIdx < 4) revData[weekIdx] += r.price;
+          }
+        });
+      } else {
+        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        labels = [];
+        for(let i=2; i>=0; i--) {
+          let d = new Date();
+          d.setMonth(d.getMonth() - i);
+          labels.push(monthNames[d.getMonth()]);
+        }
+        validRecords.forEach(r => {
+          const m1 = now.getMonth() + now.getFullYear()*12;
+          const m2 = r.date.getMonth() + r.date.getFullYear()*12;
+          const diffMonths = m1 - m2;
+          if (diffMonths >= 0 && diffMonths < 3) {
+            revData[2 - diffMonths] += r.price;
+          }
+        });
+      }
+
+      const totalRev = revData.reduce((a,b)=>a+b,0);
+      const fmt = v => `₹${v.toLocaleString('en-IN')}`;
+
+      // Calculate Services and Mix
+      let serviceCounts = {};
+      let totalServices = 0;
+      validRecords.forEach(r => {
+        const svcs = r.services || [r.service];
+        svcs.forEach(svcId => {
+          const svc = serviceCatalog.find(c => c.id === svcId);
+          if (svc) {
+            totalServices++;
+            const cat = svc.cat || 'Other';
+            if (!serviceCounts[cat]) serviceCounts[cat] = { count: 0, name: cat };
+            serviceCounts[cat].count++;
+          }
+        });
+      });
+
+      // Calculate Clients
+      const allClientsInPeriod = validRecords.filter(r => r.client).map(r => r.client);
+      const uniqueClients = new Set(allClientsInPeriod).size;
+      
+      const kpis = [
+        { icon:'💰', label:'Revenue', value: fmt(totalRev), color:'#1a6b8a' },
+        { icon:'✂️', label:'Services Done', value: totalServices, color:'#2d9e6b' },
+        { icon:'⭐', label:'Rating', value: s.rating || '4.9', color:'#f59e0b' },
+        { icon:'👥', label:'Clients', value: uniqueClients || 0, color:'#a04090' },
+        { icon:'📈', label:'Return Rate', value: `${s.clientReturnRate||85}%`, color:'#0891b2' },
+      ];
+      document.getElementById('analyticsKPIs').innerHTML = kpis.map((k,i) => `
+        <div class="card" style="text-align:center;padding:18px;animation-delay:${i*0.07}s;">
+          <div style="font-size:26px;margin-bottom:6px;">${k.icon}</div>
+          <div style="font-size:22px;font-weight:800;color:${k.color};">${k.value}</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-top:2px;">${k.label}</div>
+        </div>`).join('');
+
+      // Revenue chart
+      const maxRev = Math.max(...revData, 1);
+      const colors = ['#1a6b8a','#2d9e6b','#a04090','#e07b39','#0891b2','#7c3aed','#f59e0b'];
+      document.getElementById('revenueChart').innerHTML = revData.map((v,i) => {
+        const h = Math.round((v/maxRev)*140);
+        return `<div class="chart-bar pay-week-bar" data-tip="${fmt(v)}" style="height:${h}px;flex:1;background:${colors[i%colors.length]};border-radius:8px 8px 0 0;opacity:0.85;animation-delay:${i*0.06}s;"></div>`;
+      }).join('');
+      document.getElementById('revenueChartLabels').innerHTML = labels.map(l =>
+        `<div class="pay-week-label" style="flex:1;">${l}</div>`
+      ).join('');
+
+      // Service mix
+      const mixColors = ['#1a6b8a', '#a04090', '#e07b39', '#2d9e6b', '#0891b2'];
+      const topCategories = Object.values(serviceCounts).sort((a,b) => b.count - a.count).slice(0, 5);
+      if (topCategories.length === 0) topCategories.push({name: 'No Data', count: 0});
+      
+      const servicesMix = topCategories.map((c, i) => ({
+        name: c.name,
+        pct: totalServices > 0 ? Math.round((c.count / totalServices) * 100) : 0,
+        color: mixColors[i % mixColors.length]
+      }));
+
+      document.getElementById('serviceMixBars').innerHTML = servicesMix.map(sv => `
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+            <span style="font-weight:600;">${sv.name}</span>
+            <span style="color:var(--muted);">${sv.pct}%</span>
+          </div>
+          <div style="background:var(--border);border-radius:999px;height:8px;overflow:hidden;">
+            <div style="width:${sv.pct}%;height:100%;background:${sv.color};border-radius:999px;transition:width 1s ease;"></div>
+          </div>
+        </div>`).join('');
+
+      // Rating chart (last 6 months)
+      const ratings = [4.6, 4.7, 4.8, 4.8, 4.9, s.rating||4.9];
+      const rLabels = ['Nov','Dec','Jan','Feb','Mar','Apr'];
+      const maxR = 5;
+      document.getElementById('ratingChart').innerHTML = ratings.map((r,i) => {
+        const h = Math.round((r/maxR)*90);
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+          <div style="font-size:11px;font-weight:700;color:#f59e0b;">${r}</div>
+          <div style="height:${h}px;width:100%;background:linear-gradient(#f59e0b,#fbbf24);border-radius:6px 6px 0 0;animation:barRise 0.6s ease backwards;animation-delay:${i*0.08}s;"></div>
+        </div>`;
+      }).join('');
+      document.getElementById('ratingLabels').innerHTML = rLabels.map(l =>
+        `<div style="flex:1;text-align:center;font-size:11px;color:var(--muted);">${l}</div>`
+      ).join('');
+
+      // Top services
+      let individualServiceCounts = {};
+      validRecords.forEach(r => {
+        const svcs = r.services || [r.service];
+        svcs.forEach(svcId => {
+          const svc = serviceCatalog.find(c => c.id === svcId);
+          if (svc) {
+            if (!individualServiceCounts[svc.name]) individualServiceCounts[svc.name] = 0;
+            individualServiceCounts[svc.name]++;
+          }
+        });
+      });
+      const topServicesRanking = Object.entries(individualServiceCounts)
+                                 .sort((a,b) => b[1] - a[1])
+                                 .slice(0, 5)
+                                 .map(entries => ({ name: entries[0], count: entries[1] }));
+      
+      document.getElementById('topServicesList').innerHTML = topServicesRanking.length > 0 ? topServicesRanking.map((sv,i) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--bg);border-radius:10px;">
+          <div style="width:24px;height:24px;border-radius:50%;background:${mixColors[i%mixColors.length]};color:white;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;">${i+1}</div>
+          <div style="flex:1;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${sv.name}">${sv.name}</div>
+          <div style="font-size:12px;color:var(--muted);">${sv.count}</div>
+        </div>`).join('') : '<div style="font-size:13px;color:var(--muted);">No data</div>';
+
+      // Client stats
+      document.getElementById('clientStats').innerHTML = [
+        { label:'Total Served', value: uniqueClients, icon:'👥' },
+        { label:'New This Month', value: Math.round(uniqueClients * 0.15), icon:'✨' }, // Estimated new
+        { label:'Returning', value: Math.round(uniqueClients * 0.85), icon:'🔄' },
+        { label:'Avg Spend', value: uniqueClients > 0 ? fmt(Math.round(totalRev/uniqueClients)) : '₹0', icon:'💳' },
+      ].map(c => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-radius:10px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="font-size:16px;">${c.icon}</span>
+            <span style="font-size:13px;font-weight:600;">${c.label}</span>
+          </div>
+          <span style="font-weight:800;color:var(--primary);">${c.value}</span>
+        </div>`).join('');
+
+      // Goals
+      const goals = [
+        { label:'Monthly Revenue', current: totalRev, target: period === 'week' ? 20000 : period === 'month' ? 80000 : 250000, color:'#1a6b8a' },
+        { label:'Client Count', current: uniqueClients, target: period === 'week' ? 10 : period === 'month' ? 40 : 120, color:'#2d9e6b' },
+        { label:'Avg Rating', current: (s.rating||4.9)*10, target: 50, color:'#f59e0b' },
+      ];
+      document.getElementById('goalsList').innerHTML = goals.map(g => {
+        const pct = Math.min(100, Math.round((g.current/g.target)*100));
+        return `
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;">
+              <span style="font-weight:600;">${g.label}</span>
+              <span style="color:var(--muted);">${pct}%</span>
+            </div>
+            <div style="background:var(--border);border-radius:999px;height:8px;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;background:${g.color};border-radius:999px;transition:width 1.2s ease;"></div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', initAnalytics);
+  </script>
+
+  <!-- INVENTORY MODAL -->
+  <div class="modal-overlay hidden" id="inventoryModalOverlay" onclick="closeInventoryModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 400px">
+      <div class="modal-head">
+        <h3>Request Supplies</h3>
+        <button class="close-btn" style="display: block" onclick="closeInventoryModal()">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Select Item</label>
+            <select id="invItem" class="form-input" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                ">
+              <option value="Olaplex">Olaplex</option>
+              <option value="Shampoo">Shampoo</option>
+              <option value="Gloves">Gloves</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Quantity Needed</label>
+            <input type="number" id="invQty" class="form-input" value="1" min="1" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Station / Room</label>
+            <input type="text" id="invStation" class="form-input" placeholder="e.g., Station 4" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <button class="btn-primary ripple" style="width: 100%; margin-top: 8px; padding: 10px"
+            onclick="submitInventoryRequest()">
+            Send Request
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

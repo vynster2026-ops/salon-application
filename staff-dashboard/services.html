@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Srijes, the beauty destination</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon" style="font-size: 24px; color: var(--primary); margin-right: 12px;">✦</div>
+      <div>
+        <div class="brand-name" style="line-height: 1.1;">Srijes<br><span style="font-size: 11px; font-weight: normal; color: var(--muted);">the beauty destination</span></div>
+      </div>
+      <button class="close-btn" id="closeSidebar" onclick="closeSidebar()">
+        ✕
+      </button>
+    </div>
+
+    <div class="staff-badge">
+      <div class="staff-avatar-sm" id="sidebarAvatar">PS</div>
+      <div class="staff-badge-info">
+        <div class="staff-badge-name" id="sidebarName">Priya Sharma</div>
+        <div class="staff-badge-role" id="sidebarRole">
+          Senior Stylist · 9AM–6PM
+        </div>
+      </div>
+      <div class="status-dot active" id="sidebarDot"></div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item ripple" onclick="window.location.href='index.html'">
+        <span class="nav-icon">⊞</span> My Dashboard
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='schedule.html'">
+        <span class="nav-icon">📅</span> My Schedule
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='attendance.html'">
+        <span class="nav-icon">🕐</span> Attendance
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='clients.html'">
+        <span class="nav-icon">👥</span> Client Records
+      </button>
+      <button class="nav-item ripple active" onclick="window.location.href='services.html'">
+        <span class="nav-icon">✂️</span> Services
+        <span class="nav-dot"></span>
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='analytics.html'">
+        <span class="nav-icon">📊</span> Analytics
+      </button>
+      <button class="nav-item ripple" onclick="openInventoryModal()">
+        <span class="nav-icon">📦</span> Request Supplies
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='staff-summary.html'">
+        <span class="nav-icon">📝</span> Staff Summary
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='settings.html'">
+        <span class="nav-icon">⚙️</span> Settings
+      </button>
+    </nav>
+  </aside>
+
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="menu-btn" onclick="openSidebar()">☰</button>
+      <div class="topbar-info"><div class="topbar-title">Services</div></div>
+      <div class="header-profile">
+        <div class="staff-avatar-sm" id="headerAvatar">PS</div>
+        <div class="header-profile-info" >
+          <div class="hp-name" id="headerName">Staff</div>
+          <div class="hp-role">· <span style="color:#e74c3c;font-weight:600;">Logout 🚪</span></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <div class="page-heading">
+        <div>
+          <h1 class="greeting">Services Catalog ✂️</h1>
+          <p class="shift-line">All offered services and pricing at Srijes Salon</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <input type="text" id="svcSearch" placeholder="🔍 Search services..." class="form-input" style="width:220px;padding:8px 12px;" oninput="filterServices()">
+        </div>
+      </div>
+
+      <!-- Category filter pills -->
+      <div id="catPills" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;"></div>
+
+      <!-- Services grid -->
+      <div id="servicesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;"></div>
+    </main>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+  <button class="chat-fab ripple" onclick="toggleStaffChat()">💬</button>
+  <div class="chat-window hidden" id="staffChatWindow">
+    <div class="chat-header">
+      <div style="font-weight:600">Reception Desk</div>
+      <button class="close-btn" style="display:block" onclick="toggleStaffChat()">✕</button>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="chat-msg received">Hi! Let us know if you need anything.</div>
+    </div>
+    <div class="chat-quick-replies">
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Running 10 mins late')">10 mins late</button>
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Client arrived?')">Client arrived?</button>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Type message..." onkeypress="if(event.key==='Enter')sendChatMessage(this.value)">
+      <button class="btn-primary ripple" onclick="sendChatMessage(document.getElementById('chatInput').value)">➤</button>
+    </div>
+  </div>
+
+  <style>
+    .svc-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 0;
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: fadeUp 0.4s ease backwards;
+    }
+    .svc-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+    .svc-card-header {
+      padding: 16px 18px 12px;
+      background: linear-gradient(135deg, var(--primary), #2d9fd4);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .svc-card-body { padding: 14px 18px; }
+    .svc-price {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .svc-duration {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .cat-pill {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cat-pill.active, .cat-pill:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+    .svc-gender-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.2);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    let activeCat = 'All';
+
+    function buildServicesPage() {
+      const grid = document.getElementById('servicesGrid');
+      const pillsEl = document.getElementById('catPills');
+      const search = document.getElementById('svcSearch').value.toLowerCase();
+
+      const allCats = ['All', ...new Set((SERVICES_MENU || []).map(c => c.category))];
+      pillsEl.innerHTML = allCats.map(c =>
+        `<button class="cat-pill ${c===activeCat?'active':''}" onclick="activeCat='${c}';buildServicesPage()">${c}</button>`
+      ).join('');
+
+      let services = [];
+      (SERVICES_MENU || []).forEach(cat => {
+        cat.services.forEach(svc => {
+          services.push({ ...svc, category: cat.category });
+        });
+      });
+
+      if (activeCat !== 'All') services = services.filter(s => s.category === activeCat);
+      if (search) services = services.filter(s =>
+        s.name.toLowerCase().includes(search) ||
+        (s.category||'').toLowerCase().includes(search)
+      );
+
+      if (services.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1;padding:40px;text-align:center;color:var(--muted);">No services found.</div>`;
+        return;
+      }
+
+      const colors = ['#1a6b8a','#2d9e6b','#a04090','#e07b39','#0891b2','#7c3aed'];
+      grid.innerHTML = services.map((s, i) => {
+        const col = colors[i % colors.length];
+        const cleanDur = String(s.duration || '').replace(/(mins|min|minutes|minute)/gi, '').trim();
+        const dur = cleanDur ? `⏱ ${cleanDur} mins` : '';
+        const gender = s.gender ? `<span class="svc-gender-badge">${s.gender}</span>` : '';
+        return `
+          <div class="svc-card" style="animation-delay:${i*0.04}s">
+            <div class="svc-card-header" style="background:linear-gradient(135deg,${col},${col}cc)">
+              <div>
+                <div style="font-weight:700;font-size:15px;">${s.name}</div>
+                <div style="font-size:11px;opacity:0.85;margin-top:2px;">${s.category}</div>
+              </div>
+              ${gender}
+            </div>
+            <div class="svc-card-body">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <div>
+                  <div class="svc-price">₹${(s.price||0).toLocaleString('en-IN')}</div>
+                  <div class="svc-duration">${dur}</div>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function filterServices() { buildServicesPage(); }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      buildServicesPage();
+    });
+  </script>
+
+  <!-- INVENTORY MODAL -->
+  <div class="modal-overlay hidden" id="inventoryModalOverlay" onclick="closeInventoryModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 400px">
+      <div class="modal-head">
+        <h3>Request Supplies</h3>
+        <button class="close-btn" style="display: block" onclick="closeInventoryModal()">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Select Item</label>
+            <select id="invItem" class="form-input" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                ">
+              <option value="Olaplex">Olaplex</option>
+              <option value="Shampoo">Shampoo</option>
+              <option value="Gloves">Gloves</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Quantity Needed</label>
+            <input type="number" id="invQty" class="form-input" value="1" min="1" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Station / Room</label>
+            <input type="text" id="invStation" class="form-input" placeholder="e.g., Station 4" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <button class="btn-primary ripple" style="width: 100%; margin-top: 8px; padding: 10px"
+            onclick="submitInventoryRequest()">
+            Send Request
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

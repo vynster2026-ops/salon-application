@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Srijes, the beauty destination</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-body">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon" style="font-size: 24px; color: var(--primary); margin-right: 12px;">✦</div>
+      <div>
+        <div class="brand-name" style="line-height: 1.1;">Srijes<br><span style="font-size: 11px; font-weight: normal; color: var(--muted);">the beauty destination</span></div>
+      </div>
+      <button class="close-btn" id="closeSidebar" onclick="closeSidebar()">
+        ✕
+      </button>
+    </div>
+
+    <div class="staff-badge">
+      <div class="staff-avatar-sm" id="sidebarAvatar">PS</div>
+      <div class="staff-badge-info">
+        <div class="staff-badge-name" id="sidebarName">Priya Sharma</div>
+        <div class="staff-badge-role" id="sidebarRole">
+          Senior Stylist · 9AM–6PM
+        </div>
+      </div>
+      <div class="status-dot active" id="sidebarDot"></div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item ripple" onclick="window.location.href='index.html'">
+        <span class="nav-icon">⊞</span> My Dashboard
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='schedule.html'">
+        <span class="nav-icon">📅</span> My Schedule
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='attendance.html'">
+        <span class="nav-icon">🕐</span> Attendance
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='clients.html'">
+        <span class="nav-icon">👥</span> Client Records
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='services.html'">
+        <span class="nav-icon">✂️</span> Services
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='analytics.html'">
+        <span class="nav-icon">📊</span> Analytics
+      </button>
+      <button class="nav-item ripple" onclick="openInventoryModal()">
+        <span class="nav-icon">📦</span> Request Supplies
+      </button>
+      <button class="nav-item ripple active" onclick="window.location.href='staff-summary.html'">
+        <span class="nav-icon">📝</span> Staff Summary
+        <span class="nav-dot"></span>
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='settings.html'">
+        <span class="nav-icon">⚙️</span> Settings
+      </button>
+    </nav>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="menu-btn" onclick="openSidebar()">☰</button>
+      <div class="topbar-info">
+        <div class="topbar-title">Account Settings</div>
+      </div>
+      <div class="header-profile">
+        <div class="staff-avatar-sm" id="headerAvatar">PS</div>
+        <div class="header-profile-info" >
+          <div class="hp-name" id="headerName">Priya Sharma</div>
+          <div class="hp-role">Senior Stylist · <span style="color: #e74c3c; font-weight: 600">Logout 🚪</span></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+    <div class="page-heading" style="margin-bottom: 10px;">
+      <h1 class="greeting">Staff Summary ✨</h1>
+      <p class="subtitle">Your professional profile summary</p>
+    </div>
+
+    <div style="background: white; padding: 8px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.02); max-width: 800px; margin: 0 auto;">
+      <h2 style="margin-bottom: 10px; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 24px;">Professional Summary</h2>
+      
+      <div id="summaryContent" style="font-size: 16px; line-height: 1.8; color: var(--fg); background: var(--bg); padding: 8px; border-radius: 12px; border-left: 4px solid var(--primary); white-space: pre-wrap;">
+        Loading summary...
+      </div>
+      
+      <div style="margin-top: 10px; text-align: right;">
+        <button class="btn-outline ripple" style="padding: 10px 20px;" onclick="window.location.href='settings.html'">Edit in Settings</button>
+      </div>
+    </div>
+
+    <!-- Overall Staff Summary -->
+    <div style="margin-top: 16px; max-width: 800px; margin-left: auto; margin-right: auto;">
+      <h2 style="margin-bottom: 10px; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 24px;">Overall Staff Performance</h2>
+      <div class="kpi-grid">
+        <div class="kpi-card" style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
+          <div class="kpi-title">Total Active Staff</div>
+          <div class="kpi-value" id="kpiTotalStaff">0</div>
+        </div>
+        <div class="kpi-card" style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); color: white;">
+          <div class="kpi-title" style="color: rgba(255,255,255,0.8)">Combined Revenue</div>
+          <div class="kpi-value" id="kpiTotalRevenue" style="color: white;">₹0</div>
+        </div>
+        <div class="kpi-card" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white;">
+          <div class="kpi-title" style="color: rgba(255,255,255,0.8)">Total Appts Today</div>
+          <div class="kpi-value" id="kpiTotalAppts" style="color: white;">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff Leaderboard -->
+    <div style="margin-top: 16px; max-width: 800px; margin-left: auto; margin-right: auto; background: white; padding: 8px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h2 style="color: var(--primary); font-family: 'Playfair Display', serif; font-size: 24px;">Staff Leaderboard 🏆</h2>
+        <select id="leaderboardSort" class="form-input" style="width: auto; padding: 8px 12px; border-radius: 8px;" onchange="renderLeaderboard()">
+          <option value="revenue">Sort by Revenue</option>
+          <option value="rating">Sort by Rating</option>
+          <option value="appointments">Sort by Appointments</option>
+        </select>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="leaderboard-table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="text-align: center; width: 60px;">Rank</th>
+              <th style="text-align: left;">Staff Member</th>
+              <th style="text-align: center;">Rating</th>
+              <th style="text-align: right;">Appts Today</th>
+              <th style="text-align: right;">Revenue</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+</main>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const summary = localStorage.getItem('loggedInSummary') || 'No professional summary provided. Please update your profile in Settings.';
+    document.getElementById('summaryContent').textContent = summary;
+
+    if (typeof STAFF_DATA !== 'undefined') {
+      renderLeaderboard();
+      renderStaffSummary();
+    }
+  });
+
+  function renderStaffSummary() {
+    let totalStaff = 0;
+    let totalRevenue = 0;
+    let totalAppts = 0;
+    
+    Object.values(STAFF_DATA).forEach(staff => {
+      if (staff.status === 'active') {
+        totalStaff++;
+        totalRevenue += (staff.earnedRevenue || 0);
+        totalAppts += (staff.todayAppointments || 0);
+      }
+    });
+    
+    document.getElementById('kpiTotalStaff').textContent = totalStaff;
+    document.getElementById('kpiTotalRevenue').textContent = `₹${totalRevenue.toLocaleString("en-IN")}`;
+    document.getElementById('kpiTotalAppts').textContent = totalAppts;
+  }
+
+  function renderLeaderboard() {
+    const sortBy = document.getElementById('leaderboardSort').value;
+    let staffArray = Object.values(STAFF_DATA).filter(s => s.status === 'active');
+    
+    staffArray.sort((a, b) => {
+      if (sortBy === 'revenue') return (b.earnedRevenue || 0) - (a.earnedRevenue || 0);
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      if (sortBy === 'appointments') return (b.todayAppointments || 0) - (a.todayAppointments || 0);
+      return 0;
+    });
+    
+    const tbody = document.getElementById('leaderboardBody');
+    tbody.innerHTML = '';
+    
+    staffArray.forEach((staff, index) => {
+      const tr = document.createElement('tr');
+      
+      let rankMedal = `#${index + 1}`;
+      if (index === 0) rankMedal = '🥇';
+      if (index === 1) rankMedal = '🥈';
+      if (index === 2) rankMedal = '🥉';
+      
+      tr.innerHTML = `
+        <td style="text-align: center; font-weight: bold; font-size: 18px;">${rankMedal}</td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="staff-avatar-sm" style="background: var(--primary); color: white; flex-shrink: 0;">${staff.avatar}</div>
+            <div>
+              <div style="font-weight: 600; color: var(--fg);">${staff.name}</div>
+              <div style="font-size: 12px; color: var(--muted);">${staff.role}</div>
+            </div>
+          </div>
+        </td>
+        <td style="text-align: center; font-weight: 600; color: #f39c12;">⭐ ${staff.rating || 'N/A'}</td>
+        <td style="text-align: right; font-variant-numeric: tabular-nums;">${staff.completedToday || 0} / ${staff.todayAppointments || 0}</td>
+        <td style="text-align: right; font-weight: bold; color: var(--primary);">₹${(staff.earnedRevenue || 0).toLocaleString("en-IN")}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+</script>
+</div>
+  <style>
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+    .kpi-card {
+      padding: 12px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+    }
+    .kpi-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: 'Playfair Display', serif;
+    }
+
+    .leaderboard-table th {
+    padding: 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    border-bottom: 2px solid var(--border);
+  }
+  .leaderboard-table td {
+    padding: 8px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    transition: background-color 0.2s;
+  }
+  .leaderboard-table tr:hover td {
+    background-color: var(--muted-bg);
+  }
+  .leaderboard-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .readonly-style {
+    background: transparent !important;
+    border-color: transparent !important;
+    padding-left: 0 !important;
+    font-weight: 600;
+    color: var(--primary) !important;
+    cursor: default;
+  }
+
+  .readonly-style::placeholder {
+    color: transparent;
+  }
+
+  #setAadhar.readonly-style::placeholder,
+  #setPan.readonly-style::placeholder,
+  #setBankAcc.readonly-style::placeholder,
+  #setBankIfsc.readonly-style::placeholder {
+    color: var(--muted) !important;
+    font-weight: normal;
+    font-style: italic;
+  }
+
+    <!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Srijes, the beauty destination</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dashboard-body">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon" style="font-size: 24px; color: var(--primary); margin-right: 12px;">✦</div>
+      <div>
+        <div class="brand-name" style="line-height: 1.1;">Srijes<br><span style="font-size: 11px; font-weight: normal; color: var(--muted);">the beauty destination</span></div>
+      </div>
+      <button class="close-btn" id="closeSidebar" onclick="closeSidebar()">
+        ✕
+      </button>
+    </div>
+
+    <div class="staff-badge">
+      <div class="staff-avatar-sm" id="sidebarAvatar">PS</div>
+      <div class="staff-badge-info">
+        <div class="staff-badge-name" id="sidebarName">Priya Sharma</div>
+        <div class="staff-badge-role" id="sidebarRole">
+          Senior Stylist · 9AM–6PM
+        </div>
+      </div>
+      <div class="status-dot active" id="sidebarDot"></div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item ripple" onclick="window.location.href='index.html'">
+        <span class="nav-icon">⊞</span> My Dashboard
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='schedule.html'">
+        <span class="nav-icon">📅</span> My Schedule
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='attendance.html'">
+        <span class="nav-icon">🕐</span> Attendance
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='clients.html'">
+        <span class="nav-icon">👥</span> Client Records
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='services.html'">
+        <span class="nav-icon">✂️</span> Services
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='analytics.html'">
+        <span class="nav-icon">📊</span> Analytics
+      </button>
+      <button class="nav-item ripple" onclick="openInventoryModal()">
+        <span class="nav-icon">📦</span> Request Supplies
+      </button>
+      <button class="nav-item ripple active" onclick="window.location.href='staff-summary.html'">
+        <span class="nav-icon">📝</span> Staff Summary
+        <span class="nav-dot"></span>
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='settings.html'">
+        <span class="nav-icon">⚙️</span> Settings
+      </button>
+    </nav>
+  </aside>
+
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="menu-btn" onclick="openSidebar()">☰</button>
+      <div class="topbar-info">
+        <div class="topbar-title">Account Settings</div>
+      </div>
+      <div class="header-profile">
+        <div class="staff-avatar-sm" id="headerAvatar">PS</div>
+        <div class="header-profile-info" >
+          <div class="hp-name" id="headerName">Priya Sharma</div>
+          <div class="hp-role">Senior Stylist · <span style="color: #e74c3c; font-weight: 600">Logout 🚪</span></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+    <div class="page-heading" style="margin-bottom: 30px;">
+      <h1 class="greeting">Staff Summary ✨</h1>
+      <p class="subtitle">Your professional profile summary</p>
+    </div>
+
+    <div style="background: white; padding: 40px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.02); max-width: 800px; margin: 0 auto;">
+      <h2 style="margin-bottom: 10px; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 24px;">Professional Summary</h2>
+      
+      <div id="summaryContent" style="font-size: 16px; line-height: 1.8; color: var(--fg); background: var(--bg); padding: 8px; border-radius: 12px; border-left: 4px solid var(--primary); white-space: pre-wrap;">
+        Loading summary...
+      </div>
+      
+      <div style="margin-top: 30px; text-align: right;">
+        <button class="btn-outline ripple" style="padding: 10px 20px;" onclick="window.location.href='settings.html'">Edit in Settings</button>
+      </div>
+    </div>
+
+    <!-- Overall Staff Summary -->
+    <div style="margin-top: 16px; max-width: 800px; margin-left: auto; margin-right: auto;">
+      <h2 style="margin-bottom: 10px; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 24px;">Overall Staff Performance</h2>
+      <div class="kpi-grid">
+        <div class="kpi-card" style="background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);">
+          <div class="kpi-title">Total Active Staff</div>
+          <div class="kpi-value" id="kpiTotalStaff">0</div>
+        </div>
+        <div class="kpi-card" style="background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); color: white;">
+          <div class="kpi-title" style="color: rgba(255,255,255,0.8)">Combined Revenue</div>
+          <div class="kpi-value" id="kpiTotalRevenue" style="color: white;">₹0</div>
+        </div>
+        <div class="kpi-card" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white;">
+          <div class="kpi-title" style="color: rgba(255,255,255,0.8)">Total Appts Today</div>
+          <div class="kpi-value" id="kpiTotalAppts" style="color: white;">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff Leaderboard -->
+    <div style="margin-top: 16px; max-width: 800px; margin-left: auto; margin-right: auto; background: white; padding: 8px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h2 style="color: var(--primary); font-family: 'Playfair Display', serif; font-size: 24px;">Staff Leaderboard 🏆</h2>
+        <select id="leaderboardSort" class="form-input" style="width: auto; padding: 8px 12px; border-radius: 8px;" onchange="renderLeaderboard()">
+          <option value="revenue">Sort by Revenue</option>
+          <option value="rating">Sort by Rating</option>
+          <option value="appointments">Sort by Appointments</option>
+        </select>
+      </div>
+      
+      <div class="table-responsive">
+        <table class="leaderboard-table" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th style="text-align: center; width: 60px;">Rank</th>
+              <th style="text-align: left;">Staff Member</th>
+              <th style="text-align: center;">Rating</th>
+              <th style="text-align: right;">Appts Today</th>
+              <th style="text-align: right;">Revenue</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboardBody">
+            <!-- Rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+</main>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const summary = localStorage.getItem('loggedInSummary') || 'No professional summary provided. Please update your profile in Settings.';
+    document.getElementById('summaryContent').textContent = summary;
+
+    if (typeof STAFF_DATA !== 'undefined') {
+      renderLeaderboard();
+      renderStaffSummary();
+    }
+  });
+
+  function renderStaffSummary() {
+    let totalStaff = 0;
+    let totalRevenue = 0;
+    let totalAppts = 0;
+    
+    Object.values(STAFF_DATA).forEach(staff => {
+      if (staff.status === 'active') {
+        totalStaff++;
+        totalRevenue += (staff.earnedRevenue || 0);
+        totalAppts += (staff.todayAppointments || 0);
+      }
+    });
+    
+    document.getElementById('kpiTotalStaff').textContent = totalStaff;
+    document.getElementById('kpiTotalRevenue').textContent = `₹${totalRevenue.toLocaleString("en-IN")}`;
+    document.getElementById('kpiTotalAppts').textContent = totalAppts;
+  }
+
+  function renderLeaderboard() {
+    const sortBy = document.getElementById('leaderboardSort').value;
+    let staffArray = Object.values(STAFF_DATA).filter(s => s.status === 'active');
+    
+    staffArray.sort((a, b) => {
+      if (sortBy === 'revenue') return (b.earnedRevenue || 0) - (a.earnedRevenue || 0);
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      if (sortBy === 'appointments') return (b.todayAppointments || 0) - (a.todayAppointments || 0);
+      return 0;
+    });
+    
+    const tbody = document.getElementById('leaderboardBody');
+    tbody.innerHTML = '';
+    
+    staffArray.forEach((staff, index) => {
+      const tr = document.createElement('tr');
+      
+      let rankMedal = `#${index + 1}`;
+      if (index === 0) rankMedal = '🥇';
+      if (index === 1) rankMedal = '🥈';
+      if (index === 2) rankMedal = '🥉';
+      
+      tr.innerHTML = `
+        <td style="text-align: center; font-weight: bold; font-size: 18px;">${rankMedal}</td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="staff-avatar-sm" style="background: var(--primary); color: white; flex-shrink: 0;">${staff.avatar}</div>
+            <div>
+              <div style="font-weight: 600; color: var(--fg);">${staff.name}</div>
+              <div style="font-size: 12px; color: var(--muted);">${staff.role}</div>
+            </div>
+          </div>
+        </td>
+        <td style="text-align: center; font-weight: 600; color: #f39c12;">⭐ ${staff.rating || 'N/A'}</td>
+        <td style="text-align: right; font-variant-numeric: tabular-nums;">${staff.completedToday || 0} / ${staff.todayAppointments || 0}</td>
+        <td style="text-align: right; font-weight: bold; color: var(--primary);">₹${(staff.earnedRevenue || 0).toLocaleString("en-IN")}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+    }
+
+    .settings-section:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 10px;
+      color: var(--primary);
+      font-size: 18px;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cbd5e1;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    input:checked+.slider {
+      background-color: var(--primary);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(20px);
+    }
+
+    .avatar-wrapper:hover .edit-only:not(.hidden) {
+      opacity: 1 !important;
+    }
+
+    .avatar-overlay {
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- INVENTORY MODAL -->
+  <div class="modal-overlay hidden" id="inventoryModalOverlay" onclick="closeInventoryModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 400px">
+      <div class="modal-head">
+        <h3>Request Supplies</h3>
+        <button class="close-btn" style="display: block" onclick="closeInventoryModal()">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Select Item</label>
+            <select id="invItem" class="form-input" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                ">
+              <option value="Olaplex">Olaplex</option>
+              <option value="Shampoo">Shampoo</option>
+              <option value="Gloves">Gloves</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Quantity Needed</label>
+            <input type="number" id="invQty" class="form-input" value="1" min="1" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Station / Room</label>
+            <input type="text" id="invStation" class="form-input" placeholder="e.g., Station 4" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <button class="btn-primary ripple" style="width: 100%; margin-top: 8px; padding: 10px"
+            onclick="submitInventoryRequest()">
+            Send Request
+          </button>
+        </div>
+      </div>
+      </div>
+
+  <!-- SERVICE MENU CHEAT SHEET MODAL -->
+  <div class="modal-overlay hidden" id="cheatSheetModalOverlay" onclick="closeCheatSheetModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 600px; width:90%;">
+      <div class="modal-head">
+        <h3>Service & Price Menu</h3>
+        <button class="close-btn" style="display: block" onclick="closeCheatSheetModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <input type="text" id="cheatSheetSearch" class="form-input" placeholder="Search services..."
+          onkeyup="filterCheatSheet()"
+          style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); margin-bottom: 16px;" />
+
+        <div id="cheatSheetBody"
+          style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 4px;">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF CHAT FAB & WINDOW -->
+  <button class="chat-fab ripple" onclick="toggleStaffChat()">💬</button>
+  <div class="chat-window hidden" id="staffChatWindow">
+    <div class="chat-header">
+      <div style="font-weight: 600">Reception Desk</div>
+      <button class="close-btn" style="display: block" onclick="toggleStaffChat()">
+        ✕
+      </button>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="chat-msg received">
+        Hi! Let us know if you need anything.
+      </div>
+    </div>
+    <div class="chat-quick-replies">
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Running 10 mins late')">
+        10 mins late
+      </button>
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Client arrived?')">
+        Client arrived?
+      </button>
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Need help at station')">
+        Need help
+      </button>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Type message..."
+        onkeypress="if (event.key === 'Enter') sendChatMessage(this.value);" />
+      <button class="btn-primary ripple" onclick="sendChatMessage(document.getElementById('chatInput').value)">
+        ➤
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script>
+    let isEditMode = false;
+
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      const inputs = document.querySelectorAll('.form-input');
+      const checkboxes = document.querySelectorAll('#specialtyContainer input');
+      const toggleBtn = document.getElementById('editToggleBtn');
+      const actions = document.getElementById('formActions');
+      const roleText = document.getElementById('setRoleText');
+      const roleSelect = document.getElementById('setRole');
+
+      const editOnlyEls = document.querySelectorAll('.edit-only');
+
+      inputs.forEach(input => {
+        if (input.id === 'setRole' || input.id === 'setRoleText') return;
+
+        if (['setAadhar', 'setPan', 'setBankAcc', 'setBankIfsc'].includes(input.id) && input.dataset.saved === "true") {
+          input.readOnly = true;
+          input.classList.add('readonly-style');
+          return;
+        }
+
+        input.readOnly = !isEditMode;
+        input.classList.toggle('readonly-style', !isEditMode);
+      });
+
+      checkboxes.forEach(cb => cb.disabled = !isEditMode);
+      editOnlyEls.forEach(el => el.classList.toggle('hidden', !isEditMode));
+
+      document.getElementById('twoFactorToggle').disabled = !isEditMode;
+      document.getElementById('loginAlertsToggle').disabled = !isEditMode;
+
+      roleText.classList.toggle('hidden', isEditMode);
+      roleSelect.classList.toggle('hidden', !isEditMode);
+
+      toggleBtn.classList.toggle('hidden', isEditMode);
+      actions.classList.toggle('hidden', !isEditMode);
+
+      if (isEditMode) {
+        document.getElementById('setPass').placeholder = "Leave blank to keep current";
+        document.getElementById('setConfirm').placeholder = "Confirm new password";
+      } else {
+        document.getElementById('setPass').placeholder = "********";
+        document.getElementById('setConfirm').placeholder = "********";
+      }
+    }
+
+    function saveSettings() {
+      const pass = document.getElementById('setPass').value;
+      const confirm = document.getElementById('setConfirm').value;
+      const aadhar = document.getElementById('setAadhar');
+      const pan = document.getElementById('setPan');
+      const bankAcc = document.getElementById('setBankAcc');
+      const bankIfsc = document.getElementById('setBankIfsc');
+
+      if (pass && pass !== confirm) {
+        showToast("Passwords do not match!", "warning", "⚠️");
+        return;
+      }
+
+      if (aadhar.value && !/^\d{12}$/.test(aadhar.value.replace(/\s/g, ''))) {
+        showToast("Please enter a valid 12-digit Aadhar number.", "warning", "⚠️");
+        return;
+      }
+
+      if (pan.value && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i.test(pan.value.replace(/\s/g, ''))) {
+        showToast("Please enter a valid PAN number.", "warning", "⚠️");
+        return;
+      }
+
+      if (bankIfsc.value && !/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(bankIfsc.value.replace(/\s/g, ''))) {
+        showToast("Please enter a valid IFSC code.", "warning", "⚠️");
+        return;
+      }
+
+      if (aadhar.value.trim() !== '') aadhar.dataset.saved = "true";
+      if (pan.value.trim() !== '') {
+        pan.value = pan.value.toUpperCase();
+        pan.dataset.saved = "true";
+      }
+      if (bankAcc.value.trim() !== '') bankAcc.dataset.saved = "true";
+      if (bankIfsc.value.trim() !== '') {
+        bankIfsc.value = bankIfsc.value.toUpperCase();
+        bankIfsc.dataset.saved = "true";
+      }
+
+      // Update the display role
+      document.getElementById('setRoleText').value = document.getElementById('setRole').value;
+
+      // Update data across UI and persist it
+      const newName = document.getElementById('setName').value;
+      const newPhone = document.getElementById('setPhone').value;
+      const newEmail = document.getElementById('setEmail').value;
+      const newRole = document.getElementById('setRole').value;
+
+      const checkedSpecs = Array.from(document.querySelectorAll('#specialtyContainer input:checked'))
+        .map(input => input.parentElement.textContent.trim());
+
+      localStorage.setItem('loggedInUser', newName);
+      localStorage.setItem('loggedInPhone', newPhone);
+      localStorage.setItem('loggedInEmail', newEmail);
+      localStorage.setItem('loggedInRole', newRole);
+      localStorage.setItem('loggedInSpecialties', JSON.stringify(checkedSpecs));
+
+      // Update DOM instantly across all elements
+      const initials = newName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+      ['headerName', 'sidebarName', 'settingsDisplayName'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = newName;
+      });
+      ['headerRole', 'settingsDisplayRole', 'sidebarRole'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = id === 'sidebarRole' ? newRole + ' · 9:00 AM' : newRole;
+      });
+      ['headerAvatar', 'sidebarAvatar', 'settingsAvatar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = initials;
+      });
+
+      showToast("Settings saved successfully!", "success", "✨");
+      toggleEditMode(); // Switch back to view mode
+    }
+
+    function addSpecialty() {
+      const spec = prompt("Enter a new specialty:");
+      if (spec && spec.trim()) {
+        const container = document.getElementById('specialtyContainer');
+        const label = document.createElement('label');
+        label.className = 'checkbox-item';
+        label.innerHTML = `<input type="checkbox" checked /> ${spec}`;
+        container.appendChild(label);
+      }
+    }
+
+    function previewAvatar(input) {
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const av = document.getElementById('settingsAvatar');
+          av.style.backgroundImage = `url(${e.target.result})`;
+          av.style.backgroundSize = 'cover';
+          av.style.backgroundPosition = 'center';
+          av.textContent = ''; // hide initials
+
+          // Also update header avatar if needed
+          const headerAv = document.getElementById('headerAvatar');
+          headerAv.style.backgroundImage = `url(${e.target.result})`;
+          headerAv.style.backgroundSize = 'cover';
+          headerAv.style.backgroundPosition = 'center';
+          headerAv.textContent = '';
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+  </script>
+</body>
+
+</html>

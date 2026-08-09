@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Srijes, the beauty destination</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon" style="font-size: 24px; color: var(--primary); margin-right: 12px;">✦</div>
+      <div>
+        <div class="brand-name" style="line-height: 1.1;">Srijes<br><span style="font-size: 11px; font-weight: normal; color: var(--muted);">the beauty destination</span></div>
+      </div>
+      <button class="close-btn" id="closeSidebar" onclick="closeSidebar()">
+        ✕
+      </button>
+    </div>
+
+    <div class="staff-badge">
+      <div class="staff-avatar-sm" id="sidebarAvatar">PS</div>
+      <div class="staff-badge-info">
+        <div class="staff-badge-name" id="sidebarName">Priya Sharma</div>
+        <div class="staff-badge-role" id="sidebarRole">
+          Senior Stylist · 9AM–6PM
+        </div>
+      </div>
+      <div class="status-dot active" id="sidebarDot"></div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item ripple" onclick="window.location.href='index.html'">
+        <span class="nav-icon">⊞</span> My Dashboard
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='schedule.html'">
+        <span class="nav-icon">📅</span> My Schedule
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='attendance.html'">
+        <span class="nav-icon">🕐</span> Attendance
+      </button>
+      <button class="nav-item ripple active" onclick="window.location.href='clients.html'">
+        <span class="nav-icon">👥</span> Client Records
+        <span class="nav-dot"></span>
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='services.html'">
+        <span class="nav-icon">✂️</span> Services
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='analytics.html'">
+        <span class="nav-icon">📊</span> Analytics
+      </button>
+      <button class="nav-item ripple" onclick="openInventoryModal()">
+        <span class="nav-icon">📦</span> Request Supplies
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='staff-summary.html'">
+        <span class="nav-icon">📝</span> Staff Summary
+      </button>
+      <button class="nav-item ripple" onclick="window.location.href='settings.html'">
+        <span class="nav-icon">⚙️</span> Settings
+      </button>
+    </nav>
+  </aside>
+
+  <!-- OVERLAY -->
+  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- MAIN -->
+  <div class="main-wrap">
+    <!-- HEADER -->
+    <header class="topbar">
+      <button class="menu-btn" onclick="openSidebar()">☰</button>
+      <div class="topbar-info">
+        <div class="topbar-title">Staff Dashboard</div>
+        <div class="topbar-date" id="todayDate"></div>
+      </div>
+      <div class="topbar-actions">
+        <button class="status-badge active ripple" id="headerStatus" onclick="toggleBreak()"
+          style="border: none; cursor: pointer" title="Click to start/end break">
+          ● On Duty
+        </button>
+        <button class="icon-btn" onclick="toggleDark()" title="Toggle theme">
+          🌙
+        </button>
+        <div style="position: relative">
+          <button class="icon-btn notif-btn" onclick="toggleNotifPanel()">
+            🔔<span class="notif-dot"></span>
+          </button>
+          <div class="notif-panel hidden" id="notifPanel">
+            <div class="notif-header">Notifications</div>
+            <div class="notif-body">
+              <div class="notif-item">
+                <span class="notif-icon success">✅</span>
+                <div>
+                  <strong>Leave Approved</strong><br />Your leave for 20th May
+                  is approved.
+                </div>
+              </div>
+              <div class="notif-item">
+                <span class="notif-icon warning">📅</span>
+                <div>
+                  <strong>Next Client</strong><br />Divya is arriving in 15
+                  mins.
+                </div>
+              </div>
+              <div class="notif-item">
+                <span class="notif-icon primary">⭐</span>
+                <div>
+                  <strong>New Review</strong><br />Anika left you a 5-star
+                  review!
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="header-profile">
+          <div class="staff-avatar-sm" id="headerAvatar">PS</div>
+          <div class="header-profile-info"  title="Click to Logout">
+            <div class="hp-name" id="headerName">Priya Sharma</div>
+            <div class="hp-role"><span id="headerRole">Senior Stylist</span> · <span
+                style="color: #e74c3c; font-weight: 600">Logout 🚪</span></div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content">
+      <!-- PAGE HEADING -->
+      <div class="page-heading">
+        <div>
+          <h1 class="greeting" id="greeting">Good afternoon, Priya ✨</h1>
+          <p class="shift-line">
+            Your shift today:
+            <strong id="shiftLine">9:00 AM – 6:00 PM</strong>
+          </p>
+        </div>
+      </div>
+
+      <!-- SECTIONS CONTAINER -->
+      <div id="dashboardSection" class="content-section">
+        <!-- CLIENT RECORDS HEADER -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Client Records</div>
+              <div class="card-sub">Access history, formulas, and notes</div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <input type="text" id="clientSearch" class="form-input" placeholder="Search clients..."
+                onkeyup="filterClients()" style="padding: 6px 12px;" />
+            </div>
+          </div>
+        </div>
+
+        <div class="main-grid" style="grid-template-columns: 350px 1fr;">
+          <!-- CLIENT LIST -->
+          <div class="left-col">
+            <div class="card" style="height: 600px; overflow-y: auto; padding: 0;">
+              <div id="clientList" class="client-list">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- CLIENT DETAIL -->
+          <div class="right-col">
+            <div class="card" id="clientDetailCard"
+              style="height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--muted);">
+              <div style="font-size: 48px; margin-bottom: 16px;">👤</div>
+              <div>Select a client from the list<br>to view their history and formulas.</div>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div class="footer-note">Srijes Salon · Staff Portal</div>
+      </div> <!-- End dashboardSection -->
+
+    </main>
+  </div>
+
+  <!-- CALENDAR MODAL -->
+  <div class="modal-overlay hidden" id="calModalOverlay" onclick="closeCalModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <h3 id="calModalTitle">Attendance Details</h3>
+        <button class="close-btn" style="display: block" onclick="closeCalModal()">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="calModalContent"></div>
+        <button class="btn-outline ripple" style="width: 100%; margin-top: 16px"
+          onclick="showToast('Dispute raised successfully!', 'warning', '✋')">
+          Raise a Dispute
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD APPOINTMENT MODAL -->
+  <div class="modal-overlay hidden" id="addAptModalOverlay" onclick="closeAddAptModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <h3>Add Appointment</h3>
+        <button class="close-btn" style="display: block" onclick="closeAddAptModal()">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Client Name</label>
+            <input type="text" id="newAptClient" class="form-input" placeholder="E.g. Aditi Sharma" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Phone Number</label>
+            <input type="text" id="newAptPhone" class="form-input" placeholder="10-digit number" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Service</label>
+            <input type="text" id="newAptService" class="form-input" placeholder="E.g. Haircut" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <div style="display: flex; gap: 12px">
+            <div style="flex: 1">
+              <label style="font-size: 12px; color: var(--muted); font-weight: 600">Time</label>
+              <input type="time" id="newAptTime" class="form-input" style="
+                    width: 100%;
+                    padding: 8px;
+                    border: 1px solid var(--border);
+                    border-radius: 6px;
+                    background: var(--muted-bg);
+                    color: var(--fg);
+                    margin-top: 4px;
+                  " />
+            </div>
+            <div style="flex: 1">
+              <label style="font-size: 12px; color: var(--muted); font-weight: 600">Duration (min)</label>
+              <input type="number" id="newAptDuration" class="form-input" value="60" style="
+                    width: 100%;
+                    padding: 8px;
+                    border: 1px solid var(--border);
+                    border-radius: 6px;
+                    background: var(--muted-bg);
+                    color: var(--fg);
+                    margin-top: 4px;
+                  " />
+            </div>
+          </div>
+          <button class="btn-primary ripple" style="width: 100%; margin-top: 12px; padding: 10px"
+            onclick="submitNewAppointment()">
+            Save Appointment
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+  <!-- BREAK MODAL -->
+  <div class="modal-overlay hidden" id="breakModalOverlay" onclick="closeBreakModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 300px">
+      <div class="modal-head">
+        <h3>Start Break</h3>
+        <button class="close-btn" style="display: block" onclick="closeBreakModal()">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <label style="font-size: 12px; color: var(--muted); font-weight: 600">Break Duration (mins)</label>
+        <input type="number" id="breakDurationInput" class="form-input" value="15" style="
+              width: 100%;
+              padding: 8px;
+              border: 1px solid var(--border);
+              border-radius: 6px;
+              background: var(--muted-bg);
+              color: var(--fg);
+              margin-top: 4px;
+              margin-bottom: 12px;
+            " />
+        <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+          <button class="btn-outline btn-sm ripple" style="flex: 1"
+            onclick="document.getElementById('breakDurationInput').value=15; startBreak()">15m</button>
+          <button class="btn-outline btn-sm ripple" style="flex: 1"
+            onclick="document.getElementById('breakDurationInput').value=30; startBreak()">30m</button>
+          <button class="btn-outline btn-sm ripple" style="flex: 1"
+            onclick="document.getElementById('breakDurationInput').value=45; startBreak()">45m</button>
+        </div>
+        <button class="btn-primary ripple" style="width: 100%; padding: 10px" onclick="startBreak()">
+          Start Custom Timer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INVENTORY MODAL -->
+  <div class="modal-overlay hidden" id="inventoryModalOverlay" onclick="closeInventoryModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 400px">
+      <div class="modal-head">
+        <h3>Request Supplies</h3>
+        <button class="close-btn" style="display: block" onclick="closeInventoryModal()">
+          ✕
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; flex-direction: column; gap: 12px">
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Select Item</label>
+            <select id="invItem" class="form-input" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                ">
+              <option value="Olaplex">Olaplex</option>
+              <option value="Shampoo">Shampoo</option>
+              <option value="Gloves">Gloves</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Quantity Needed</label>
+            <input type="number" id="invQty" class="form-input" value="1" min="1" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <div>
+            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Station / Room</label>
+            <input type="text" id="invStation" class="form-input" placeholder="e.g., Station 4" style="
+                  width: 100%;
+                  padding: 8px;
+                  border: 1px solid var(--border);
+                  border-radius: 6px;
+                  background: var(--muted-bg);
+                  color: var(--fg);
+                  margin-top: 4px;
+                " />
+          </div>
+          <button class="btn-primary ripple" style="width: 100%; margin-top: 8px; padding: 10px"
+            onclick="submitInventoryRequest()">
+            Send Request
+          </button>
+        </div>
+      </div>
+    </div>
+    </div>
+
+  <!-- SERVICE MENU CHEAT SHEET MODAL -->
+  <div class="modal-overlay hidden" id="cheatSheetModalOverlay" onclick="closeCheatSheetModal()">
+    <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 600px; width:90%;">
+      <div class="modal-head">
+        <h3>Service & Price Menu</h3>
+        <button class="close-btn" style="display: block" onclick="closeCheatSheetModal()">✕</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <input type="text" id="cheatSheetSearch" class="form-input" placeholder="Search services..."
+          onkeyup="filterCheatSheet()"
+          style="width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--fg); margin-bottom: 16px;" />
+
+        <div id="cheatSheetBody" style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding-right: 4px;">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF CHAT FAB & WINDOW -->
+  <button class="chat-fab ripple" onclick="toggleStaffChat()">💬</button>
+  <div class="chat-window hidden" id="staffChatWindow">
+    <div class="chat-header">
+      <div style="font-weight: 600">Reception Desk</div>
+      <button class="close-btn" style="display: block" onclick="toggleStaffChat()">
+        ✕
+      </button>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="chat-msg received">
+        Hi! Let us know if you need anything.
+      </div>
+    </div>
+    <div class="chat-quick-replies">
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Running 10 mins late')">
+        10 mins late
+      </button>
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Client arrived?')">
+        Client arrived?
+      </button>
+      <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Need help at station')">
+        Need help
+      </button>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Type message..."
+        onkeypress="if (event.key === 'Enter') sendChatMessage(this.value);" />
+      <button class="btn-primary ripple" onclick="sendChatMessage(document.getElementById('chatInput').value)">
+        ➤
+      </button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+
+</html>

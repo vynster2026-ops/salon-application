@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Vynster Staff Hub - Staff Module</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="/socket.io/socket.io.js"></script>
+
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1A6B8A">
+    <link rel="apple-touch-icon" href="icon-512.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <style>
+        /* Consolidated section hidden rule */
+        .content-section.hidden {
+            display: none !important;
+        }
+
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 12px;
+            padding: 16px 0;
+            background: transparent;
+            border: none;
+        }
+
+        .cal-cell {
+            height: 64px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            color: #94a3b8;
+            background: transparent;
+        }
+
+        .cal-cell:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .cal-cell.empty {
+            pointer-events: none;
+        }
+
+        .cal-cell.present {
+            background: #00897b;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(0, 137, 123, 0.25);
+        }
+
+        .cal-cell.late {
+            background: #f59e0b;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25);
+        }
+
+        .cal-cell.weekly-off {
+            background: #475569;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(71, 85, 105, 0.25);
+        }
+
+        .cal-cell.absent {
+            background: #8e24aa;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(142, 36, 170, 0.25);
+        }
+
+        .cal-cell.holiday {
+            background: #ef4444;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.25);
+        }
+
+        .cal-cell.permission {
+            background: #0284c7;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
+        }
+
+        .cal-cell.planned-leave {
+            background: #3b82f6;
+            color: #ffffff;
+            font-weight: 800;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+        }
+
+        .cal-cell.future {
+            color: #cbd5e1;
+            background: transparent;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon" style="font-size: 24px; color: var(--primary); margin-right: 12px;">✦</div>
+            <div>
+                <div class="brand-name" style="line-height: 1.1;">Srijes<br><span
+                        style="font-size: 11px; font-weight: normal; color: var(--muted);">the beauty destination</span>
+                </div>
+            </div>
+            <button class="close-btn" id="closeSidebar" onclick="closeSidebar()">
+                ✕
+            </button>
+        </div>
+
+        <div class="staff-badge">
+            <div class="staff-avatar-sm" id="sidebarAvatar">PS</div>
+            <div class="staff-badge-info">
+                <div class="staff-badge-name" id="sidebarName">Priya Sharma</div>
+                <div class="staff-badge-role" id="sidebarRole">
+                    Senior Stylist · 9AM–6PM
+                </div>
+            </div>
+            <div class="status-dot active" id="sidebarDot"></div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item ripple active" onclick="setSection('dashboard', this)">
+                <span class="nav-icon">⊞</span> My Dashboard
+                <span class="nav-dot"></span>
+            </button>
+            <button class="nav-item ripple" onclick="setSection('schedule', this)">
+                <span class="nav-icon">📅</span> My Schedule
+            </button>
+            <button class="nav-item ripple" onclick="setSection('attendance', this)">
+                <span class="nav-icon">🕐</span> Attendance
+            </button>
+            <button class="nav-item ripple" onclick="setSection('clients', this)">
+                <span class="nav-icon">👥</span> Client Records
+            </button>
+            <button class="nav-item ripple" onclick="setSection('services', this)">
+                <span class="nav-icon">✂️</span> Services
+            </button>
+            <button class="nav-item ripple" onclick="setSection('analytics', this)">
+                <span class="nav-icon">📊</span> Analytics
+            </button>
+            <button class="nav-item ripple" onclick="setSection('supplies', this)">
+                <span class="nav-icon">📦</span> Request Supplies
+            </button>
+            <button class="nav-item ripple" onclick="setSection('summary', this)">
+                <span class="nav-icon">📝</span> Staff Summary
+            </button>
+            <button class="nav-item ripple" onclick="setSection('settings', this)">
+                <span class="nav-icon">⚙️</span> Settings
+            </button>
+            <button class="nav-item ripple" onclick="setSection('walkin', this)">
+                <span class="nav-icon">🚶</span> Walk-in Services
+            </button>
+            <button class="nav-item ripple" onclick="setSection('preschedule', this)">
+                <span class="nav-icon">📋</span> Pre-Schedule
+            </button>
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border);">
+                <button class="nav-item ripple" onclick="handleStaffLogout()"
+                    style="color: #ef4444; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 10px; font-weight: 700; width: 100%;">
+                    <span class="nav-icon">🚪</span> Logout
+                </button>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- OVERLAY -->
+    <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+    <!-- MAIN -->
+    <div class="main-wrap">
+        <!-- HEADER -->
+        <header class="topbar">
+            <button class="menu-btn" onclick="openSidebar()">☰</button>
+            <div class="topbar-info">
+                <div class="topbar-title" id="topbarTitle">Staff Dashboard</div>
+                <div class="topbar-date" id="todayDate"></div>
+            </div>
+            <div class="topbar-actions">
+                <button class="status-badge active ripple" id="headerStatus" onclick="toggleBreak()"
+                    style="border: none; cursor: pointer" title="Click to start/end break">
+                    ● On Duty
+                </button>
+                <button class="icon-btn" onclick="toggleDark()" title="Toggle theme">
+                    🌙
+                </button>
+                <div style="position: relative">
+                    <button class="icon-btn notif-btn" onclick="toggleNotifPanel()">
+                        🔔<span class="notif-dot"></span>
+                    </button>
+                    <div class="notif-panel hidden" id="notifPanel">
+                        <div class="notif-head">
+                            <strong>Notifications</strong>
+                            <button class="btn-text" onclick="clearNotifs()">Clear all</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-item">
+                                <span class="notif-icon warning">📅</span>
+                                <div>
+                                    <strong>Next Client</strong><br />Divya is arriving in 15
+                                    mins.
+                                </div>
+                            </div>
+                            <div class="notif-item">
+                                <span class="notif-icon primary">⭐</span>
+                                <div>
+                                    <strong>New Review</strong><br />Anika left you a 5-star
+                                    review!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-profile">
+                    <div class="staff-avatar-sm" id="headerAvatar">PS</div>
+                    <div class="header-profile-info">
+                        <div class="hp-name" id="headerName">Priya Sharma</div>
+                        <div class="hp-role"><span id="headerRole">Senior Stylist</span></div>
+                    </div>
+                </div>
+                <button class="btn-logout-header ripple" onclick="handleStaffLogout()" title="Logout"
+                    style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 7px 14px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s ease;">
+                    <span>🚪</span> Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENT -->
+        <main class="content">
+            <!-- PAGE HEADING -->
+            <div class="page-heading">
+                <div>
+                    <h1 class="greeting" id="greeting">Good afternoon, Priya ✨</h1>
+                    <p class="shift-line">
+                        Your shift today:
+                        <strong id="shiftLine">9:00 AM – 6:00 PM</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 1. DASHBOARD SECTION -->
+            <div id="dashboardSection" class="content-section">
+                <!-- QUICK ACTIONS -->
+                <div class="quick-actions">
+                    <button class="btn-action ripple"
+                        onclick="setSection('walkin', document.querySelectorAll('.nav-item')[9])">
+                        <span class="action-icon">🚶</span> Walk-in Services
+                    </button>
+                    <button class="btn-action ripple"
+                        onclick="setSection('preschedule', document.querySelectorAll('.nav-item')[10])">
+                        <span class="action-icon">📅</span> Pre-schedule
+                    </button>
+                    <button class="btn-action ripple"
+                        onclick="setSection('supplies', document.querySelectorAll('.nav-item')[6])">
+                        <span class="action-icon">📦</span> Request Supplies
+                    </button>
+                    <button class="btn-action ripple"
+                        onclick="setSection('clients', document.querySelectorAll('.nav-item')[3])">
+                        <span class="action-icon">👥</span> View Clients
+                    </button>
+                </div>
+
+                <!-- STATS CARDS -->
+                <div class="stats-grid" id="statsGrid"></div>
+
+                <!-- MAIN DASHBOARD GRID -->
+                <div class="main-grid">
+                    <!-- LEFT COLUMN: FOCUS & SCHEDULE -->
+                    <div class="left-col">
+                        <!-- NEXT CLIENT FOCUS -->
+                        <div class="card next-client-card" id="nextClientCard">
+                            <div class="card-head">
+                                <div class="card-title">Next Up</div>
+                                <span class="badge badge-primary">Starts in 15 mins</span>
+                            </div>
+                            <div class="next-client-body">
+                                <div class="nc-info">
+                                    <div class="nc-avatar" id="ncAvatar">AS</div>
+                                    <div>
+                                        <div class="nc-name" id="ncName">Ananya Sharma</div>
+                                        <div class="nc-service" id="ncService">Balayage + Cut</div>
+                                    </div>
+                                </div>
+                                <div class="nc-meta">
+                                    <div class="nc-meta-item">
+                                        <span class="nc-meta-label">Time</span>
+                                        <span class="nc-meta-val" id="ncTime">04:30 PM</span>
+                                    </div>
+                                    <div class="nc-meta-item">
+                                        <span class="nc-meta-label">Duration</span>
+                                        <span class="nc-meta-val" id="ncDuration">120 min</span>
+                                    </div>
+                                    <div class="nc-meta-item">
+                                        <span class="nc-meta-label">Total</span>
+                                        <span class="nc-meta-val" id="ncPrice">₹4,200</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 10px; margin-top: 16px;" id="ncActionButtons">
+                                    <button class="btn-primary ripple" style="flex: 2; height: 44px; font-weight: 600;"
+                                        onclick="startNextApt()">
+                                        ▶ Start Service
+                                    </button>
+                                    <button class="btn-secondary ripple" id="ncWhatsAppBtn"
+                                        style="flex: 1; height: 44px; display: flex; align-items: center; justify-content: center; background: #25D366; color: white; border: none;"
+                                        title="Send WhatsApp Reminder">
+                                        <span style="font-size: 18px;">💬</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SCHEDULE PREVIEW -->
+                        <div class="card">
+                            <div class="card-head">
+                                <div class="card-title">Today's Timeline</div>
+                                <button class="btn-text"
+                                    onclick="setSection('schedule', document.querySelectorAll('.nav-item')[1])">View
+                                    Full ↗</button>
+                            </div>
+                            <div class="timeline" id="dashboardTimeline">
+                                <!-- Mini timeline populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT COLUMN: ALERTS & NEWS -->
+                    <div class="right-col">
+                        <!-- ANNOUNCEMENTS -->
+                        <div class="card">
+                            <div class="card-head">
+                                <div class="card-title">Salon Updates</div>
+                                <span class="notif-badge">2 New</span>
+                            </div>
+                            <div class="card-body p-0" id="announcementsList">
+                                <div class="announcement-item">
+                                    <div class="ann-icon success">📢</div>
+                                    <div class="ann-content">
+                                        <div class="ann-title">Staff Meeting</div>
+                                        <div class="ann-desc">Today at 5:30 PM in the lounge.</div>
+                                    </div>
+                                </div>
+                                <div class="announcement-item">
+                                    <div class="ann-icon warning">📦</div>
+                                    <div class="ann-content">
+                                        <div class="ann-title">Stock Refill</div>
+                                        <div class="ann-desc">New L'Oréal professional kits arrived.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CLIENT MOOD SECTION -->
+                        <div class="card" style="margin-top: 20px;">
+                            <div class="card-head">
+                                <div class="card-title">Client Mood</div>
+                            </div>
+                            <div class="card-body p-0" id="clientMoodList">
+                                <!-- Populated dynamically by app.js -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. SCHEDULE SECTION -->
+            <div id="scheduleSection" class="content-section hidden">
+                <div class="card" style="padding: 24px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2
+                            style="font-size: 18px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                            <span>📅</span> My Shift & Appointment Schedule
+                        </h2>
+                        <button class="btn-primary ripple" onclick="openPrescheduleModal()">+ New Booking</button>
+                    </div>
+                    <div id="staff-schedule-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div class="card"
+                            style="padding: 16px; background: var(--muted-bg); border-left: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 style="font-weight: 700; margin-bottom: 4px;">Priya Sharma - Senior Stylist Shift
+                                </h4>
+                                <p style="font-size: 12px; color: var(--muted); margin: 0;">Today · 09:00 AM - 06:00 PM
+                                    · Main Styling Station</p>
+                            </div>
+                            <span class="badge"
+                                style="background: #dcfce7; color: #16a34a; padding: 4px 10px; border-radius: 12px; font-weight: 700; font-size: 11px;">ACTIVE
+                                SHIFT</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. ATTENDANCE SECTION -->
+            <div id="attendanceSection" class="content-section hidden">
+                <!-- ATTENDANCE SUMMARY -->
+                <div class="att-summary-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    <div class="card att-stat-card"
+                        style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+                        <div class="stat-icon"
+                            style="background: var(--present-bg, #dcfce7); color: var(--present, #16a34a); padding: 10px; border-radius: 10px; font-size: 20px;">
+                            📅</div>
+                        <div class="stat-info">
+                            <div class="stat-label" style="font-size: 12px; color: var(--muted);">Present</div>
+                            <div class="stat-value" id="summaryPresent" style="font-size: 20px; font-weight: 700;">0
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card att-stat-card"
+                        style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+                        <div class="stat-icon"
+                            style="background: #F3E5F5; color: #8E24AA; padding: 10px; border-radius: 10px; font-size: 20px;">
+                            ✖</div>
+                        <div class="stat-info">
+                            <div class="stat-label" style="font-size: 12px; color: var(--muted);">Absent</div>
+                            <div class="stat-value" id="summaryAbsent" style="font-size: 20px; font-weight: 700;">0
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card att-stat-card"
+                        style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+                        <div class="stat-icon"
+                            style="background: var(--warning-bg, #fffbeb); color: var(--warning, #f59e0b); padding: 10px; border-radius: 10px; font-size: 20px;">
+                            🕒</div>
+                        <div class="stat-info">
+                            <div class="stat-label" style="font-size: 12px; color: var(--muted);">Late</div>
+                            <div class="stat-value" id="summaryLate" style="font-size: 20px; font-weight: 700;">0</div>
+                        </div>
+                    </div>
+                    <div class="card att-stat-card"
+                        style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+                        <div class="stat-icon"
+                            style="background: #e0f2fe; color: #0284c7; padding: 10px; border-radius: 10px; font-size: 20px;">
+                            🏛</div>
+                        <div class="stat-info">
+                            <div class="stat-label" style="font-size: 12px; color: var(--muted);">Govt Holiday</div>
+                            <div class="stat-value" id="summaryHoliday" style="font-size: 20px; font-weight: 700;">0
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card att-stat-card"
+                        style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+                        <div class="stat-icon"
+                            style="background: #fef3c7; color: #d97706; padding: 10px; border-radius: 10px; font-size: 20px;">
+                            📝</div>
+                        <div class="stat-info">
+                            <div class="stat-label" style="font-size: 12px; color: var(--muted);">Permission</div>
+                            <div class="stat-value" id="summaryPermission" style="font-size: 20px; font-weight: 700;">0
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card att-stat-card"
+                        style="padding: 16px; display: flex; align-items: center; gap: 12px;">
+                        <div class="stat-icon"
+                            style="background: #f3f4f6; color: #4b5563; padding: 10px; border-radius: 10px; font-size: 20px;">
+                            💤</div>
+                        <div class="stat-info">
+                            <div class="stat-label" style="font-size: 12px; color: var(--muted);">Weekly Off</div>
+                            <div class="stat-value" id="summaryWeeklyOff" style="font-size: 20px; font-weight: 700;">0
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAIN ATTENDANCE GRID -->
+                <div class="main-grid">
+                    <div class="left-col">
+                        <div class="card">
+                            <div class="card-head">
+                                <div style="flex: 1;">
+                                    <div class="card-title">Attendance History</div>
+                                    <div class="card-sub">Select month and year to view records</div>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
+                                    <select id="calMonth" class="btn-action" style="padding: 4px 8px; font-size: 13px;"
+                                        onchange="renderFullCalendar()">
+                                        <option value="0">January</option>
+                                        <option value="1">February</option>
+                                        <option value="2">March</option>
+                                        <option value="3">April</option>
+                                        <option value="4">May</option>
+                                        <option value="5" selected="">June</option>
+                                        <option value="6">July</option>
+                                        <option value="7">August</option>
+                                        <option value="8">September</option>
+                                        <option value="9">October</option>
+                                        <option value="10">November</option>
+                                        <option value="11">December</option>
+                                    </select>
+                                    <select id="calYear" class="btn-action" style="padding: 4px 8px; font-size: 13px;"
+                                        onchange="renderFullCalendar()">
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2026" selected="">2026</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div
+                                style="padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; justify-content: space-around; gap: 10px; background: var(--muted-bg); font-size: 11px; margin-bottom: 10px;">
+                                <div style="display: flex; align-items: center; gap: 5px;"><span
+                                        style="width: 8px; height: 8px; border-radius: 50%; background: #00897b; display: inline-block;"></span>
+                                    Present</div>
+                                <div style="display: flex; align-items: center; gap: 5px;"><span
+                                        style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+                                    Late</div>
+                                <div style="display: flex; align-items: center; gap: 5px;"><span
+                                        style="width: 8px; height: 8px; border-radius: 50%; background: #8e24aa; display: inline-block;"></span>
+                                    Absent (Peak / Normal)</div>
+                                <div style="display: flex; align-items: center; gap: 5px;"><span
+                                        style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444; display: inline-block;"></span>
+                                    Govt Holiday</div>
+                                <div style="display: flex; align-items: center; gap: 5px;"><span
+                                        style="width: 8px; height: 8px; border-radius: 50%; background: #0284c7; display: inline-block;"></span>
+                                    Permission</div>
+                                <div style="display: flex; align-items: center; gap: 5px;"><span
+                                        style="width: 8px; height: 8px; border-radius: 50%; background: #475569; display: inline-block;"></span>
+                                    Weekly Off</div>
+                                <div style="display: flex; align-items: center; gap: 5px;"><span
+                                        style="width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; display: inline-block;"></span>
+                                    Planned Leave</div>
+                            </div>
+                            <div class="cal-days-header"
+                                style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 12px; padding: 10px 0; color: var(--muted); font-weight: 600;">
+                                <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+                            </div>
+                            <div class="cal-grid" id="calGrid"></div>
+
+                            <div class="att-bar-wrap"
+                                style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border);">
+                                <div class="att-bar-label"
+                                    style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 8px;">
+                                    <span>Monthly Attendance Rate</span>
+                                    <span id="attRate" style="color: var(--text-main); font-weight: 800;">100%</span>
+                                </div>
+                                <div class="att-bar"
+                                    style="height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; display: flex;">
+                                    <div class="att-bar-seg present" id="attPresent"
+                                        style="width: 80%; background: #00897b;"></div>
+                                    <div class="att-bar-seg late" id="attLate" style="width: 10%; background: #f59e0b;">
+                                    </div>
+                                    <div class="att-bar-seg absent" id="attAbsent"
+                                        style="width: 0%; background: #8e24aa;"></div>
+                                    <div class="att-bar-seg permission" id="attPermission"
+                                        style="width: 0%; background: #0284c7;"></div>
+                                    <div class="att-bar-seg holiday" id="attHoliday"
+                                        style="width: 0%; background: #ef4444;"></div>
+                                    <div class="att-bar-seg weekly-off" id="attWeeklyOff"
+                                        style="width: 10%; background: #475569;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="right-col">
+                        <div class="card" id="leaveCard">
+                            <div class="card-head">
+                                <div>
+                                    <div class="card-title">Leave Requests</div>
+                                    <div class="card-sub">Manage your time off</div>
+                                </div>
+                                <button class="btn-primary btn-sm" onclick="toggleLeaveForm()">+ Apply</button>
+                            </div>
+                            <div id="leaveForm" class="leave-form hidden"
+                                style="padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+                                <div class="leave-type-row" style="display: flex; gap: 8px;">
+                                    <button class="leave-type active" data-type="casual"
+                                        onclick="setLeaveType('casual', this)">Casual</button>
+                                    <button class="leave-type" data-type="sick"
+                                        onclick="setLeaveType('sick', this)">Sick</button>
+                                    <button class="leave-type" data-type="emergency"
+                                        onclick="setLeaveType('emergency', this)">Emergency</button>
+                                </div>
+                                <div class="date-row" style="display: flex; gap: 12px;">
+                                    <div class="date-field" style="flex: 1;"><label
+                                            style="font-size: 12px;">From</label><input type="date" id="leaveFrom"
+                                            class="form-input" style="width:100%;"></div>
+                                    <div class="date-field" style="flex: 1;"><label
+                                            style="font-size: 12px;">To</label><input type="date" id="leaveTo"
+                                            class="form-input" style="width:100%;"></div>
+                                </div>
+                                <textarea id="leaveReason" class="form-input" placeholder="Reason for leave..."
+                                    rows="2"></textarea>
+                                <div class="form-actions" style="display: flex; gap: 8px;">
+                                    <button class="btn-primary" onclick="submitLeave()">Submit Request</button>
+                                    <button class="btn-outline" onclick="toggleLeaveForm()">Cancel</button>
+                                </div>
+                            </div>
+                            <div class="leave-list" id="leaveList"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. CLIENT RECORDS SECTION -->
+            <div id="clientsSection" class="content-section hidden">
+                <div class="card" style="padding: 24px;">
+                    <h2
+                        style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                        <span>👥</span> Client Records & Treatment History
+                    </h2>
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                        <input type="text" placeholder="Search client by name or phone..." class="form-input"
+                            style="flex: 1;" onkeyup="filterClientRecords(this.value)">
+                    </div>
+                    <div id="client-records-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <div class="card"
+                            style="padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div
+                                    style="width: 40px; height: 40px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+                                    AK</div>
+                                <div>
+                                    <h4 style="font-weight: 700; margin-bottom: 2px;">Anika Kapoor</h4>
+                                    <p style="font-size: 12px; color: var(--muted); margin: 0;">Last visit: 2 days ago ·
+                                        Keratin Treatment · Preferred Stylist: Priya</p>
+                                </div>
+                            </div>
+                            <button class="btn-outline ripple" style="padding: 6px 12px; font-size: 12px;"
+                                onclick="showToast('Viewing Anika Kapoor History', 'info')">View Profile</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. SERVICES SECTION -->
+            <div id="servicesSection" class="content-section hidden">
+                <div class="card" style="padding: 24px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin: 0;">Services
+                                Catalog ✂️</h2>
+                            <p style="font-size: 13px; color: var(--muted); margin: 4px 0 0;">All offered services and
+                                pricing at Srijes Salon</p>
+                        </div>
+                        <input type="text" id="svcSearch" placeholder="🔍 Search services..." class="form-input"
+                            style="width: 220px; padding: 8px 12px;" oninput="filterServices()">
+                    </div>
+                    <div id="catPills" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;"></div>
+                    <div id="servicesGrid"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6. ANALYTICS SECTION -->
+            <div id="analyticsSection" class="content-section hidden">
+                <div class="card" style="padding: 24px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="font-size: 18px; font-weight: 800; color: var(--text-main); margin: 0;">Analytics
+                                & Insights 📊</h2>
+                            <p style="font-size: 13px; color: var(--muted); margin: 4px 0 0;">Your performance overview
+                                and insights</p>
+                        </div>
+                        <select id="periodSelect" class="form-input" style="width: 150px; padding: 8px 12px;"
+                            onchange="buildAnalytics()">
+                            <option value="week">This Week</option>
+                            <option value="month" selected>This Month</option>
+                            <option value="quarter">This Quarter</option>
+                        </select>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;"
+                        id="analyticsKPIs"></div>
+                    <div class="row" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div style="flex: 2; min-width: 300px;">
+                            <div class="card" style="margin-bottom: 24px; padding: 20px;">
+                                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">Revenue Trend</h3>
+                                <div id="revenueChart"
+                                    style="display: flex; align-items: flex-end; gap: 6px; height: 160px; padding: 0 4px;">
+                                </div>
+                                <div id="revenueChartLabels" style="display: flex; gap: 6px; margin-top: 8px;"></div>
+                            </div>
+                            <div class="card" style="padding: 20px;">
+                                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">Service Mix</h3>
+                                <div id="serviceMixBars" style="display: flex; flex-direction: column; gap: 10px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div style="flex: 1; min-width: 250px;">
+                            <div class="card" style="margin-bottom: 20px; padding: 20px;">
+                                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">🏆 Top Services</h3>
+                                <div id="topServicesList" style="display: flex; flex-direction: column; gap: 8px;">
+                                </div>
+                            </div>
+                            <div class="card" style="padding: 20px;">
+                                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 12px;">👥 Client Stats</h3>
+                                <div id="clientStats" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7. REQUEST SUPPLIES SECTION -->
+            <div id="suppliesSection" class="content-section hidden">
+                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px; align-items: start;">
+                    <div class="card" style="padding: 24px;">
+                        <h2 style="font-size: 18px; margin-bottom: 20px; color: var(--text-main);">New Supply Request
+                        </h2>
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <div>
+                                <label
+                                    style="font-size: 13px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px;">Select
+                                    Item</label>
+                                <select id="invItem" class="form-input"
+                                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--muted-bg); color: var(--fg);"></select>
+                            </div>
+                            <div>
+                                <label
+                                    style="font-size: 13px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px;">Quantity
+                                    Needed</label>
+                                <input type="number" id="invQty" class="form-input" value="1" min="1"
+                                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--muted-bg); color: var(--fg);">
+                            </div>
+                            <div>
+                                <label
+                                    style="font-size: 13px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px;">Station
+                                    / Room</label>
+                                <input type="text" id="invStation" class="form-input" placeholder="e.g., Station 4"
+                                    style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--muted-bg); color: var(--fg);">
+                            </div>
+                            <button class="btn-primary ripple"
+                                style="width: 100%; padding: 12px; font-size: 15px; margin-top: 8px;"
+                                onclick="submitInventoryRequest()">Send Request</button>
+                        </div>
+                    </div>
+                    <div class="card" style="padding: 24px; min-height: 400px;">
+                        <h2 style="font-size: 18px; margin-bottom: 20px; color: var(--text-main);">My Requests History
+                        </h2>
+                        <div id="suppliesHistoryList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8. STAFF SUMMARY SECTION -->
+            <div id="summarySection" class="content-section hidden">
+                <div class="card" style="padding: 30px; max-width: 800px; margin: 0 auto;">
+                    <h2
+                        style="margin-bottom: 20px; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 24px;">
+                        Professional Summary</h2>
+                    <div id="summaryContent"
+                        style="font-size: 15px; line-height: 1.8; color: var(--fg); background: var(--muted-bg); padding: 24px; border-radius: 12px; border-left: 4px solid var(--primary); white-space: pre-wrap;">
+                        Loading summary...</div>
+                </div>
+                <div class="card"
+                    style="margin-top: 30px; max-width: 800px; margin-left: auto; margin-right: auto; padding: 24px;">
+                    <h2
+                        style="margin-bottom: 16px; color: var(--primary); font-family: 'Playfair Display', serif; font-size: 22px;">
+                        Overall Staff Performance</h2>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                        <div class="card" style="padding: 16px; text-align: center;">
+                            <div style="font-size: 12px; color: var(--muted);">Total Active Staff</div>
+                            <div style="font-size: 24px; font-weight: 700;" id="kpiTotalStaff">0</div>
+                        </div>
+                        <div class="card" style="padding: 16px; text-align: center;">
+                            <div style="font-size: 12px; color: var(--muted);">Combined Revenue</div>
+                            <div style="font-size: 24px; font-weight: 700; color: var(--primary);" id="kpiTotalRevenue">
+                                ₹0</div>
+                        </div>
+                        <div class="card" style="padding: 16px; text-align: center;">
+                            <div style="font-size: 12px; color: var(--muted);">Total Appts Today</div>
+                            <div style="font-size: 24px; font-weight: 700; color: #f59e0b;" id="kpiTotalAppts">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 9. SETTINGS SECTION -->
+            <div id="settingsSection" class="content-section hidden">
+                <div class="card" style="max-width: 800px; margin: 0 auto; padding: 40px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 35px;">
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <div class="avatar-wrapper"
+                                style="position: relative; cursor: pointer; width: 80px; height: 80px;"
+                                onclick="if(typeof isEditMode !== 'undefined' && isEditMode) document.getElementById('avatarUpload').click()">
+                                <div class="staff-avatar-lg" id="settingsAvatar"
+                                    style="width: 100%; height: 100%; font-size: 28px; border-radius: 20px; background: linear-gradient(135deg, #1a6b8a, #4a90e2); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+                                    PS</div>
+                            </div>
+                            <div>
+                                <h2 style="font-family: 'Playfair Display', serif; margin: 0; font-size: 24px; color: var(--fg);"
+                                    id="settingsDisplayName">Priya Sharma</h2>
+                                <p style="color: var(--muted); margin-top: 4px; font-size: 14px;"
+                                    id="settingsDisplayRole">Senior Stylist</p>
+                            </div>
+                        </div>
+                        <button type="button" id="editToggleBtn" class="btn-outline ripple" onclick="toggleEditMode()"
+                            style="padding: 8px 20px; font-size: 13px;">✏️ Edit Profile</button>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 16px;">
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">Full
+                                Name</label>
+                            <input type="text" id="setFullName" class="form-input" value="Priya Sharma"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; font-weight: 700; margin-bottom: 6px; display: block;">Phone
+                                Number</label>
+                            <input type="text" id="setPhone" class="form-input" value="9876543210"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <button class="btn-primary ripple" style="height: 44px; font-weight: 700;"
+                            onclick="showToast('Profile updated successfully!', 'success')">Save Settings</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 10. WALKIN SERVICES SECTION -->
+            <div id="walkinSection" class="content-section hidden">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
+                    <div class="card" style="padding: 24px; min-height: 500px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div style="font-weight: 600; font-size: 16px;">Available Walk-in Services</div>
+                            <input type="text" id="indoorSearch" placeholder="Search services..."
+                                onkeyup="filterIndoorServices()" class="form-input"
+                                style="width: 200px; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);">
+                        </div>
+                        <div id="indoorCategoryTabs"
+                            style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;"></div>
+                        <div id="stServicesGrid"
+                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-height: 600px; overflow-y: auto;">
+                        </div>
+                    </div>
+                    <div class="card" style="padding: 24px; position: sticky; top: 24px;">
+                        <h2 style="font-size: 18px; margin-bottom: 20px; color: var(--text-main);">Walk-in Intake</h2>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Client
+                                Name *</label>
+                            <input type="text" id="walkinClientName" class="form-input" placeholder="e.g. Rahul Kumar"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 24px;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Phone
+                                Number</label>
+                            <input type="tel" id="walkinClientPhone" class="form-input" placeholder="Optional"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <button class="btn-primary ripple" style="width: 100%; height: 44px; font-weight: 600;"
+                            onclick="submitWalkinAppointment()">Create Appointment Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 11. PRE-SCHEDULE SECTION -->
+            <div id="prescheduleSection" class="content-section hidden">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
+                    <div class="card" style="padding: 24px; min-height: 500px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div style="font-weight: 600; font-size: 16px;">Services Catalog for Pre-scheduling</div>
+                        </div>
+                        <div id="stServicesGrid"
+                            style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-height: 600px; overflow-y: auto;">
+                        </div>
+                    </div>
+                    <div class="card" style="padding: 24px; position: sticky; top: 24px;">
+                        <h2 style="font-size: 18px; margin-bottom: 20px; color: var(--text-main);">Booking Details</h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                            <div><label style="font-size: 12px; font-weight: 600;">Date *</label><input type="date"
+                                    id="prescheduleDate" class="form-input" style="width: 100%; padding: 8px;"></div>
+                            <div><label style="font-size: 12px; font-weight: 600;">Time *</label><input type="time"
+                                    id="prescheduleTime" class="form-input" style="width: 100%; padding: 8px;"></div>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Client
+                                Name *</label>
+                            <input type="text" id="prescheduleClientName" class="form-input"
+                                placeholder="e.g. Rahul Kumar"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 24px;">
+                            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px;">Phone
+                                Number</label>
+                            <input type="tel" id="prescheduleClientPhone" class="form-input" placeholder="Optional"
+                                style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px;">
+                        </div>
+                        <button class="btn-primary ripple" style="width: 100%; height: 44px; font-weight: 600;"
+                            onclick="submitPrescheduleAppointment()">Schedule Appointment</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ALL SHARED MODALS -->
+    <div class="modal-overlay hidden" id="calModalOverlay" onclick="closeCalModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-head">
+                <h3 id="calModalTitle">Attendance Details</h3>
+                <button class="close-btn" style="display: block" onclick="closeCalModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="calModalContent"></div>
+                <button class="btn-outline ripple" style="width: 100%; margin-top: 16px"
+                    onclick="showToast('Dispute raised successfully!', 'warning', '✋')">Raise a Dispute</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="addAptModalOverlay" onclick="closeAddAptModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-head">
+                <h3>Add Appointment</h3>
+                <button class="close-btn" style="display: block" onclick="closeAddAptModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: flex; flex-direction: column; gap: 12px">
+                    <div>
+                        <label style="font-size: 12px; color: var(--muted); font-weight: 600">Client Name</label>
+                        <input type="text" id="newAptClient" class="form-input" placeholder="E.g. Aditi Sharma"
+                            style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--muted); font-weight: 600">Phone Number</label>
+                        <input type="text" id="newAptPhone" class="form-input" placeholder="10-digit number"
+                            style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div>
+                        <label style="font-size: 12px; color: var(--muted); font-weight: 600">Service</label>
+                        <input type="text" id="newAptService" class="form-input" placeholder="E.g. Haircut"
+                            style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; margin-top: 4px;" />
+                    </div>
+                    <div style="display: flex; gap: 12px">
+                        <div style="flex: 1">
+                            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Time</label>
+                            <input type="time" id="newAptTime" class="form-input"
+                                style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; margin-top: 4px;" />
+                        </div>
+                        <div style="flex: 1">
+                            <label style="font-size: 12px; color: var(--muted); font-weight: 600">Duration (min)</label>
+                            <input type="number" id="newAptDuration" class="form-input" value="60"
+                                style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; margin-top: 4px;" />
+                        </div>
+                    </div>
+                    <button class="btn-primary ripple" style="width: 100%; margin-top: 12px; padding: 10px"
+                        onclick="submitNewAppointment()">Save Appointment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="breakModalOverlay" onclick="closeBreakModal()">
+        <div class="modal-box" onclick="event.stopPropagation()" style="max-width: 300px">
+            <div class="modal-head">
+                <h3>Start Break</h3>
+                <button class="close-btn" style="display: block" onclick="closeBreakModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <label style="font-size: 12px; color: var(--muted); font-weight: 600">Break Duration (mins)</label>
+                <input type="number" id="breakDurationInput" class="form-input" value="15"
+                    style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; margin-top: 4px; margin-bottom: 12px;" />
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                    <button class="btn-outline btn-sm ripple" style="flex: 1"
+                        onclick="document.getElementById('breakDurationInput').value=15; startBreak()">15m</button>
+                    <button class="btn-outline btn-sm ripple" style="flex: 1"
+                        onclick="document.getElementById('breakDurationInput').value=30; startBreak()">30m</button>
+                    <button class="btn-outline btn-sm ripple" style="flex: 1"
+                        onclick="document.getElementById('breakDurationInput').value=45; startBreak()">45m</button>
+                </div>
+                <button class="btn-primary ripple" style="width: 100%; padding: 10px" onclick="startBreak()">Start
+                    Custom Timer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+    <button class="chat-fab ripple" onclick="toggleStaffChat()">💬</button>
+    <div class="chat-window hidden" id="staffChatWindow">
+        <div class="chat-header">
+            <div style="font-weight: 600">Reception Desk</div>
+            <button class="close-btn" style="display: block" onclick="toggleStaffChat()">✕</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-msg received">Hi! Let us know if you need anything.</div>
+        </div>
+        <div class="chat-quick-replies">
+            <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Running 10 mins late')">10 mins
+                late</button>
+            <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Client arrived?')">Client
+                arrived?</button>
+            <button class="btn-outline btn-sm ripple" onclick="sendChatMessage('Need help at station')">Need
+                help</button>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Type message..."
+                onkeypress="if (event.key === 'Enter') sendChatMessage(this.value);" />
+            <button class="btn-primary ripple"
+                onclick="sendChatMessage(document.getElementById('chatInput').value)">➤</button>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js?v=2"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => { });
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Srijes, the beauty destination</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a6b8a;
+            --primary-light: #e6f1f5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            color: var(--text-main);
+            padding: 20px;
+        }
+
+        .reg-container {
+            width: 100%;
+            max-width: 520px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .reg-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--border);
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin: 0 auto 12px;
+        }
+
+        .brand-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: #8B0000;
+            margin-bottom: 2px;
+        }
+
+        .brand-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 4px;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 14px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 107, 138, 0.08);
+        }
+
+        /* Custom Dropdown UI */
+        .custom-select-wrapper {
+            position: relative;
+        }
+
+        .select-display {
+            min-height: 42px;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 6px 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            cursor: pointer;
+            align-items: center;
+        }
+
+        .select-display:after {
+            content: '▾';
+            position: absolute;
+            right: 14px;
+            color: var(--text-muted);
+        }
+
+        .tag {
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            width: 100%;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg);
+        }
+
+        .dropdown-item.selected {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .submit-section {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .reg-btn {
+            flex: 1.5;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reg-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .back-link {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .back-link:hover {
+            background: var(--bg);
+            color: var(--text-main);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .full-width { grid-column: span 1; }
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .toast {
+            background: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="reg-container">
+        <div class="reg-card">
+            <div class="brand-header">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                        <path
+                            d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8s8,3.59,8,8 C20,16.41,16.41,20,12,20z M12,6c-1.94,0-3.5,1.56-3.5,3.5S10.06,13,12,13s3.5-1.56,3.5-3.5S13.94,6,12,6z M12,17 c-2.33,0-4.31-1.46-5.11-3.5c0.02-0.01,0.06-0.03,0.09-0.05C7.55,13.19,8.45,13,9.5,13h5c1.05,0,1.95,0.19,2.51,0.45 c0.03,0.02,0.07,0.04,0.09,0.05C16.31,15.54,14.33,17,12,17z" />
+                    </svg>
+                </div>
+                <h1 class="brand-name">Srijes</h1>
+                <p class="brand-sub">the beauty destination</p>
+            </div>
+
+            <form id="registrationForm" onsubmit="event.preventDefault(); handleRegister();">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="regName" class="form-input" placeholder="Priya Sharma" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Designation</label>
+                        <select id="regRole" class="form-input">
+                            <option value="Senior Stylist">Senior Stylist</option>
+                            <option value="Junior Stylist">Junior Stylist</option>
+                            <option value="Makeup Artist">Makeup Artist</option>
+                            <option value="Nail Artist">Nail Artist</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" id="regPhone" class="form-input" placeholder="98765 XXXXX" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Staff Unique ID</label>
+                        <input type="text" id="regUniqueId" class="form-input" placeholder="Auto-generated" readonly style="background-color: var(--bg); cursor: not-allowed;">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Specialties</label>
+                        <div class="custom-select-wrapper">
+                            <div class="select-display" id="specialtyDisplay" onclick="toggleDropdown()">
+                                <span style="color: var(--text-muted); font-size: 14px;">Select specialties...</span>
+                            </div>
+                            <div class="dropdown-menu" id="dropdownMenu">
+                                <div class="dropdown-item" onclick="selectItem('Haircut')">Haircut</div>
+                                <div class="dropdown-item" onclick="selectItem('Hair Color')">Hair Color</div>
+                                <div class="dropdown-item" onclick="selectItem('Bridal Makeup')">Bridal Makeup</div>
+                                <div class="dropdown-item" onclick="selectItem('Nail Art')">Nail Art</div>
+                                <div class="dropdown-item" onclick="selectItem('Facial')">Facial</div>
+                                <div class="dropdown-item" onclick="selectItem('Waxing')">Waxing</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label class="form-label">Staff Summary <span style="color:red">*</span></label>
+                        <textarea id="regSummary" class="form-input" placeholder="Write a brief professional summary..." rows="3" required></textarea>
+                    </div>
+                </div>
+
+                <div class="submit-section">
+                    <button type="submit" class="reg-btn">Continue</button>
+                    <a href="staff-login.html" class="back-link">Log In</a>
+                </div>
+            </form>
+
+            <form id="otpForm" style="display: none;" onsubmit="event.preventDefault(); verifyOtp();">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label class="form-label" style="text-align: center;">Enter OTP sent to your phone</label>
+                        <input type="text" id="otpInput" class="form-input" placeholder="----" required maxlength="4" style="text-align: center; font-size: 24px; letter-spacing: 12px; font-weight: 700;">
+                    </div>
+                </div>
+                <div class="submit-section">
+                    <button type="button" class="back-link" onclick="backToRegister()">Back</button>
+                    <button type="submit" class="reg-btn">Verify OTP</button>
+                </div>
+                <p style="text-align: center; margin-top: 15px; font-size: 13px; color: var(--text-muted);">
+                    An OTP has been sent to your mobile number.
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        let selectedSpecialties = [];
+
+        function toggleDropdown() {
+            document.getElementById('dropdownMenu').classList.toggle('show');
+        }
+
+        function selectItem(item) {
+            if (!selectedSpecialties.includes(item)) {
+                selectedSpecialties.push(item);
+                updateDisplay();
+            }
+            document.getElementById('dropdownMenu').classList.remove('show');
+        }
+
+        function removeItem(item, event) {
+            event.stopPropagation();
+            selectedSpecialties = selectedSpecialties.filter(i => i !== item);
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const display = document.getElementById('specialtyDisplay');
+            if (selectedSpecialties.length === 0) {
+                display.innerHTML = '<span style="color: var(--text-muted); font-size: 14px;">Select specialties...</span>';
+                return;
+            }
+            display.innerHTML = selectedSpecialties.map(item => `
+                <div class="tag">
+                    ${item}
+                    <span class="tag-remove" onclick="removeItem('${item}', event)">×</span>
+                </div>
+            `).join('');
+        }
+
+        // Close dropdown when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.closest('.custom-select-wrapper')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+            }
+        }
+
+        let pendingRegistration = null;
+
+        async function handleRegister() {
+            const name = document.getElementById('regName').value;
+            const role = document.getElementById('regRole').value;
+            const phone = document.getElementById('regPhone').value;
+            const uniqueId = document.getElementById('regUniqueId').value;
+            const summary = document.getElementById('regSummary').value;
+
+            if (phone.length < 10) {
+                showToast('Please enter a valid phone number', 'warning', '⚠️');
+                return;
+            }
+
+            pendingRegistration = { name, role, phone, uniqueId, summary, specialties: selectedSpecialties };
+            
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+            const API_URL = isLocal ? 'http://localhost:5000' : '';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('registrationForm').style.display = 'none';
+                    document.getElementById('otpForm').style.display = 'block';
+                    showToast('OTP sent to ' + phone, 'success', '📱');
+                    
+                    if (data.mock) {
+                        setTimeout(() => {
+                            alert(`[Backend Mock SMS to ${phone}]\n\nYour Srijes Salon verification OTP is: ${data.otp}\n\n(Update Twilio credentials in .env to send real SMS)`);
+                        }, 800);
+                    }
+                } else {
+                    showToast(data.error || 'Failed to send OTP', 'error', '❌');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Error connecting to backend server', 'error', '❌');
+            }
+        }
+
+        function backToRegister() {
+            document.getElementById('otpForm').style.display = 'none';
+            document.getElementById('registrationForm').style.display = 'block';
+        }
+
+        async function verifyOtp() {
+            const otp = document.getElementById('otpInput').value;
+            if (!pendingRegistration || !otp) return;
+
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+            const API_URL = isLocal ? 'http://localhost:5000' : '';
+
+            try {
+                const response = await fetch(`${API_URL}/api/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: pendingRegistration.phone, otp })
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const { name, role, phone, uniqueId, summary, specialties } = pendingRegistration;
+
+                    // Save details for personalization across the app
+                    localStorage.setItem('loggedInUser', name);
+                    localStorage.setItem('loggedInRole', role);
+                    localStorage.setItem('loggedInPhone', phone);
+                    localStorage.setItem('loggedInUniqueId', uniqueId);
+                    localStorage.setItem('loggedInSummary', summary);
+                    localStorage.setItem('loggedInSpecialties', JSON.stringify(specialties));
+
+                    if (window.confetti) {
+                        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#1a6b8a', '#22d3ee'] });
+                    }
+                    showToast(`Registration Successful! Welcome ${name}`, 'success', '🎊');
+                    setTimeout(() => {
+                        window.location.href = 'staff.html';
+                    }, 1500);
+                } else {
+                    showToast(data.error || 'Invalid OTP', 'error', '❌');
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Error verifying OTP', 'error', '❌');
+            }
+        }
+
+        function generateUniqueId() {
+            const nameStr = document.getElementById('regName').value.trim();
+            const phoneStr = document.getElementById('regPhone').value.trim().replace(/\D/g, '');
+            if (!nameStr) {
+                document.getElementById('regUniqueId').value = '';
+                return;
+            }
+            const namePart = nameStr.split(' ')[0].toUpperCase();
+            const phonePart = phoneStr.length >= 4 ? phoneStr.slice(-4) : phoneStr;
+            document.getElementById('regUniqueId').value = `${namePart}${phonePart}`;
+        }
+
+        document.getElementById('regName').addEventListener('input', generateUniqueId);
+        document.getElementById('regPhone').addEventListener('input', generateUniqueId);
+
+        function showToast(msg, type, icon) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

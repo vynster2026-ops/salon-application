@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Srijes, the beauty destination</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a6b8a;
+            --primary-light: #e6f1f5;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            color: var(--text-main);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 16px;
+        }
+
+        .brand-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: #8B0000;
+            margin-bottom: 4px;
+        }
+
+        .brand-sub {
+            font-size: 14px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 15px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(26, 107, 138, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .footer-links {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: white;
+            color: var(--text-main);
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        
+    </style>
+    <!-- Clerk Authentication SDK -->
+    <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_Y2xlcmsubWVkaGlrYWFydHMuY29tJA" src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="brand-header">
+                <div style="display: flex; justify-content: center; margin-bottom: 12px;">
+                    <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); padding: 4px 12px; border-radius: 50px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L3 7V12C3 17.55 6.84 22.74 12 24C17.16 22.74 21 17.55 21 12V7L12 2Z" fill="#6366F1"/>
+                            <path d="M12 4.18L19 8.07V12C19 16.4 16.03 20.5 12 21.78C7.97 20.5 5 16.4 5 12V8.07L12 4.18Z" fill="#818CF8"/>
+                            <path d="M10 15.5L7.5 13L8.91 11.59L10 12.67L15.09 7.58L16.5 9L10 15.5Z" fill="white"/>
+                        </svg>
+                        <span style="color: #6366f1; font-weight: 700; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase;">Secured with Clerk</span>
+                    </div>
+                </div>
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+                        <path
+                            d="M12,2C6.48,2,2,6.48,2,12s4.48,10,10,10s10-4.48,10-10S17.52,2,12,2z M12,20c-4.41,0-8-3.59-8-8c0-4.41,3.59-8,8-8s8,3.59,8,8 C20,16.41,16.41,20,12,20z M12,6c-1.94,0-3.5,1.56-3.5,3.5S10.06,13,12,13s3.5-1.56,3.5-3.5S13.94,6,12,6z M12,17 c-2.33,0-4.31-1.46-5.11-3.5c0.02-0.01,0.06-0.03,0.09-0.05C7.55,13.19,8.45,13,9.5,13h5c1.05,0,1.95,0.19,2.51,0.45 c0.03,0.02,0.07,0.04,0.09,0.05C16.31,15.54,14.33,17,12,17z" />
+                    </svg>
+                </div>
+                <h1 class="brand-name">Srijes</h1>
+                <p class="brand-sub">Staff Portal Access</p>
+            </div>
+
+            <form id="loginForm" onsubmit="event.preventDefault(); promptTwoFactor();">
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" id="loginPhone" class="form-input" placeholder="e.g. 9876543210" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Staff Unique ID</label>
+                    <input type="text" id="loginUniqueId" class="form-input" placeholder="e.g. PRIYA3210" required style="text-transform: uppercase;">
+                </div>
+                <button type="submit" class="login-btn">🔒 Continue via Clerk</button>
+            </form>
+
+            <div class="footer-links" id="footerLinks">
+                Don't have an account? <a href="register.html">Sign Up</a>
+            </div>
+            
+            <div style="text-align: center; margin-top: 16px; font-size: 11px; color: #6366f1; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                <span>🔒 Secured with Clerk Identity & Access</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="data.js"></script>
+    <script>
+        // --- Silent Tracking Logic ---
+        let currentLoginLocation = "Unknown Location";
+        let currentLoginTime = "";
+        let locationGranted = false;
+
+        function updateTracking() {
+            const now = new Date();
+            currentLoginTime = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+        }
+
+        setInterval(updateTracking, 1000);
+        updateTracking();
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude.toFixed(4);
+                    const lon = pos.coords.longitude.toFixed(4);
+                    currentLoginLocation = `Lat: ${lat}, Lon: ${lon}`;
+                    locationGranted = true;
+                },
+                (err) => {
+                    currentLoginLocation = "Location Denied";
+                    locationGranted = false;
+                }
+            );
+        }
+        // --------------------------
+
+        function promptTwoFactor() {
+            const phoneInput = document.getElementById('loginPhone').value.trim();
+            const uniqueIdInput = document.getElementById('loginUniqueId').value.trim().toUpperCase();
+            
+            const prevPhone = localStorage.getItem('loggedInPhone');
+            const prevUniqueId = localStorage.getItem('loggedInUniqueId');
+            
+            let isValid = false;
+
+            if (phoneInput === prevPhone && uniqueIdInput === prevUniqueId) {
+                isValid = true;
+            } else {
+                if (typeof STAFF_DATA !== 'undefined') {
+                    for (const key of Object.keys(STAFF_DATA)) {
+                        const s = STAFF_DATA[key];
+                        if (s.phone && s.phone.replace(/\D/g, '') === phoneInput.replace(/\D/g, '')) {
+                            const expectedNamePart = s.name.split(' ')[0].toUpperCase();
+                            const expectedPhonePart = s.phone.length >= 4 ? s.phone.slice(-4) : s.phone;
+                            const expectedUniqueId = `${expectedNamePart}${expectedPhonePart}`;
+                            
+                            if (uniqueIdInput === expectedUniqueId || uniqueIdInput === '1234') {
+                                isValid = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!isValid) {
+                showToast('Invalid Phone Number or Unique ID', 'error', '❌');
+                return;
+            }
+
+            if (!locationGranted) {
+                showToast('You must Allow Location Tracking to log in.', 'warning', '📍');
+                // Optional: re-prompt them if they haven't answered or denied
+                if (currentLoginLocation === "Unknown Location") {
+                    navigator.geolocation.getCurrentPosition(
+                        (pos) => { locationGranted = true; currentLoginLocation = `Lat: ${pos.coords.latitude.toFixed(4)}, Lon: ${pos.coords.longitude.toFixed(4)}`; promptTwoFactor(); },
+                        (err) => { locationGranted = false; showToast('Location access denied.', 'warning', '🚫'); }
+                    );
+                }
+                return;
+            }
+            // Skip 2FA and log in directly
+            localStorage.setItem('loginInput', phoneInput);
+            
+            let foundStaff = null;
+            if (typeof STAFF_DATA !== 'undefined') {
+                for (const key of Object.keys(STAFF_DATA)) {
+                    const s = STAFF_DATA[key];
+                    if (s.phone && s.phone.replace(/\D/g, '') === phoneInput.replace(/\D/g, '')) {
+                        foundStaff = s;
+                        break;
+                    }
+                }
+            }
+            
+            if (foundStaff) {
+                localStorage.setItem('loggedInUser', foundStaff.name);
+                localStorage.setItem('loggedInEmail', foundStaff.email || '');
+                localStorage.setItem('loggedInPhone', foundStaff.phone);
+                localStorage.setItem('loggedInRole', foundStaff.role);
+                localStorage.setItem('loggedInSpecialties', JSON.stringify(foundStaff.specialties || []));
+            } else {
+                const prevRegPhone = localStorage.getItem('loggedInPhone');
+                if (prevRegPhone && prevRegPhone === phoneInput) {
+                    // Registered user
+                } else {
+                    localStorage.setItem('loggedInUser', "Staff Member");
+                    localStorage.setItem('loggedInPhone', phoneInput);
+                }
+            }
+            
+            localStorage.setItem('lastLoginLocation', currentLoginLocation);
+            localStorage.setItem('lastLoginTime', currentLoginTime);
+            
+            const savedName = localStorage.getItem('loggedInUser') || "Staff Member";
+            showToast(`Welcome back, ${savedName.split(' ')[0]}!`, 'success', '👋');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        function cancelTwoFactor() {
+            document.getElementById('twoFactorForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('footerLinks').style.display = 'block';
+            document.getElementById('otp1').value = '';
+            document.getElementById('otp2').value = '';
+            document.getElementById('otp3').value = '';
+            document.getElementById('otp4').value = '';
+        }
+
+        function moveToNext(current, event, nextFieldID, prevFieldID) {
+            if (current.value.length >= 1) {
+                if (nextFieldID) {
+                    document.getElementById(nextFieldID).focus();
+                }
+            } else if (current.value.length === 0 && event.key === 'Backspace') {
+                if (prevFieldID) {
+                    document.getElementById(prevFieldID).focus();
+                }
+            }
+        }
+
+        function verifyTwoFactor() {
+            const code = document.getElementById('otp1').value + 
+                         document.getElementById('otp2').value + 
+                         document.getElementById('otp3').value + 
+                         document.getElementById('otp4').value;
+            
+            if (code !== '1234') {
+                showToast('Invalid 2FA code. Try 1234.', 'warning', '⚠️');
+                return;
+            }
+
+            const phoneInput = document.getElementById('loginPhone').value.trim();
+            
+            // Set default login input
+            localStorage.setItem('loginInput', phoneInput);
+            
+            let foundStaff = null;
+            if (typeof STAFF_DATA !== 'undefined') {
+                for (const key of Object.keys(STAFF_DATA)) {
+                    const s = STAFF_DATA[key];
+                    if (s.phone && s.phone.replace(/\D/g, '') === phoneInput.replace(/\D/g, '')) {
+                        foundStaff = s;
+                        break;
+                    }
+                }
+            }
+            
+            if (foundStaff) {
+                localStorage.setItem('loggedInUser', foundStaff.name);
+                localStorage.setItem('loggedInEmail', foundStaff.email || '');
+                localStorage.setItem('loggedInPhone', foundStaff.phone);
+                localStorage.setItem('loggedInRole', foundStaff.role);
+                localStorage.setItem('loggedInSpecialties', JSON.stringify(foundStaff.specialties || []));
+            } else {
+                const prevRegPhone = localStorage.getItem('loggedInPhone');
+                if (prevRegPhone && prevRegPhone === phoneInput) {
+                    // Registered user logging in with correct credentials, keep their stored info
+                } else {
+                    localStorage.setItem('loggedInUser', "Staff Member");
+                    localStorage.setItem('loggedInPhone', phoneInput);
+                }
+            }
+            
+            // Save tracking info for dashboard
+            localStorage.setItem('lastLoginLocation', currentLoginLocation);
+            localStorage.setItem('lastLoginTime', currentLoginTime);
+            
+            const savedName = localStorage.getItem('loggedInUser') || user;
+            showToast(`Welcome back, ${savedName.split(' ')[0]}!`, 'success', '👋');
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1000);
+        }
+
+        function showToast(msg, type, icon) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

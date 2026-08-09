@@ -34,6 +34,27 @@ app.use(cors()); // Permissive CORS for local development
 app.use(express.json({ limit: '50mb' }));
 app.use(express.static(__dirname));
 
+// --- FRONTEND DASHBOARD ROUTE ALIASES ---
+app.get(['/', '/salon', '/owner'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get(['/staff', '/staff-dashboard'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'MedhikaArts_complete_module.html'));
+});
+
+app.get('/staff-login', (req, res) => {
+    res.sendFile(path.join(__dirname, 'staff-login.html'));
+});
+
+app.get(['/reception', '/booking'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'MedhikaArts_booking_module.html'));
+});
+
+app.get(['/matrix', '/superadmin'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'matrix.html'));
+});
+
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });

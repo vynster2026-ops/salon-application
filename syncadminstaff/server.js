@@ -3293,4 +3293,8 @@ async function sendBookingWhatsAppNotificationServer(booking) {
     }
 }
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log('[SERVER STARTUP] Auto-initializing WhatsApp Client background automation...');
+    initWhatsAppClient();
+});

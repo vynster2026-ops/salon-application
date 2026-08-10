@@ -1052,8 +1052,16 @@
                         if (connDisconnected) connDisconnected.classList.remove('hidden');
                         
                         if (qrImg) {
-                            const qrText = data.qr || data.qrCode || `Srijes-WhatsApp-Connect-${Math.floor(Date.now()/30000)}`;
-                            qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrText)}`;
+                            if (data.qrCodeDataUrl) {
+                                qrImg.src = data.qrCodeDataUrl;
+                            } else if (data.qr && data.qr.startsWith('data:image')) {
+                                qrImg.src = data.qr;
+                            } else if (data.qr || data.qrCode) {
+                                const qrRaw = data.qr || data.qrCode;
+                                qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrRaw)}`;
+                            } else {
+                                qrImg.src = `https://placehold.co/200x200/f8fafc/64748b?text=Generating+QR...`;
+                            }
                         }
                     }
                 }

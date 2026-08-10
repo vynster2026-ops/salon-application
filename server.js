@@ -2447,7 +2447,7 @@ function initWhatsAppClient() {
             '--no-zygote',
             '--disable-gpu',
             '--disable-blink-features=AutomationControlled',
-            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+            '--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
         ]
     };
     if (executablePath) {
@@ -2525,25 +2525,35 @@ function initWhatsAppClient() {
     });
 }
 
-// 0. Logout Endpoint
-app.post('/api/whatsapp/logout', async (req, res) => {
-    if (!whatsappClient) return res.status(400).json({ error: 'WhatsApp client not running' });
+// 0. Logout / Reset Endpoint
+app.post(['/api/whatsapp/logout', '/whatsapp/logout', '/api/whatsapp/reset', '/whatsapp/reset'], async (req, res) => {
+    console.log('[WHATSAPP LOGOUT/RESET] Destroying session...');
     try {
-        await whatsappClient.logout();
-        whatsappReady = false;
-        latestQr = null;
-        
-        // Wait a brief moment before re-initializing
-        setTimeout(() => {
-            whatsappClient.destroy().catch(() => {});
-            initWhatsAppClient();
-        }, 1000);
-        
-        res.json({ success: true, message: 'Logged out and re-initializing session' });
-    } catch (e) {
-        console.error('[WHATSAPP] Logout Error:', e);
-        res.status(500).json({ error: 'Failed to logout', details: e.message });
+        if (whatsappClient) {
+            try { await whatsappClient.logout(); } catch(e) {}
+            try { await whatsappClient.destroy(); } catch(e) {}
+        }
+    } catch(e) {}
+    
+    whatsappReady = false;
+    whatsappAuthenticated = false;
+    whatsappClient = null;
+    latestQr = null;
+    qrCodeDataUrl = null;
+
+    const authDir = path.join(__dirname, '.wwebjs_auth');
+    if (fs.existsSync(authDir)) {
+        try {
+            fs.rmSync(authDir, { recursive: true, force: true });
+            console.log('[WHATSAPP LOGOUT] .wwebjs_auth deleted.');
+        } catch(e) {}
     }
+
+    setTimeout(() => {
+        initWhatsAppClient();
+    }, 1500);
+
+    return res.json({ success: true, message: 'WhatsApp session reset. Re-initializing fresh client...' });
 });
 
 // 1. Media Upload Endpoint

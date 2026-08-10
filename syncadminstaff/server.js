@@ -312,7 +312,7 @@ mongoose.set('bufferCommands', false);
 
 let isConnected = false;
 if (MONGODB_URI) {
-    mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
+    mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 30000 })
       .then(() => { console.log('Successfully connected to MongoDB database'); isConnected = true; })
       .catch(err => { console.error('MongoDB connection error:', err.message, '- Falling back to local storage (db.json)'); isConnected = false; });
 } else {

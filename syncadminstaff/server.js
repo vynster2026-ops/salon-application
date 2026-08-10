@@ -2232,6 +2232,10 @@ function findChromeExecutableSync(dir) {
 
 function initWhatsAppClient() {
     if (activeProvider !== 'local') return;
+    if (whatsappClient) {
+        console.log('[WHATSAPP] Client already initialized or starting. Skipping duplicate initialization.');
+        return;
+    }
 
     try {
         let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
@@ -2342,10 +2346,6 @@ function initWhatsAppClient() {
         whatsappReady = false;
         latestQr = null;
     }
-}
-
-if (activeProvider === 'local') {
-    initWhatsAppClient();
 }
 
 // 0. Logout Endpoint

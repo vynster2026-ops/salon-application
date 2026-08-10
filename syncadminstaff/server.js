@@ -2561,14 +2561,32 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
 
         if (!whatsappClient) {
             initWhatsAppClient();
-            await new Promise(r => setTimeout(r, 4000));
+            await new Promise(r => setTimeout(r, 5000));
         }
 
         if (!whatsappClient) {
             return res.status(500).json({ error: 'WhatsApp client is initializing. Please try again in 5 seconds.' });
         }
 
-        const rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+        // Wait until initial page/QR loads on web.whatsapp.com
+        if (!latestQr && !whatsappReady) {
+            console.log('[WHATSAPP PAIRING CODE] Waiting for web.whatsapp.com page load...');
+            let waited = 0;
+            while (!latestQr && !whatsappReady && waited < 15) {
+                await new Promise(r => setTimeout(r, 1000));
+                waited++;
+            }
+        }
+
+        let rawCode = null;
+        try {
+            rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+        } catch (e1) {
+            console.warn('[WHATSAPP PAIRING CODE RETRY] First attempt failed, retrying in 2 seconds:', e1.message || e1);
+            await new Promise(r => setTimeout(r, 2000));
+            rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+        }
+
         console.log(`[WHATSAPP PAIRING CODE GENERATED SUCCESS] Code: ${rawCode}`);
 
         return res.json({
@@ -2580,8 +2598,8 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
     } catch (err) {
         console.error('[WHATSAPP PAIRING CODE ERROR]', err.message || err);
         return res.status(500).json({
-            error: 'Failed to generate pairing code. Please ensure client is ready and try again.',
-            details: err.message || err
+            error: 'Failed to generate pairing code.',
+            details: err.message || String(err)
         });
     }
 });

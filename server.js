@@ -154,13 +154,20 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
         try {
             rawCode = await whatsappClient.requestPairingCode(cleanPhone);
         } catch (e1) {
-            console.warn('[WHATSAPP PAIRING CODE ERROR]', e1.message);
+            console.warn('[WHATSAPP PAIRING CODE TRY 1]', e1.message);
+            // Wait 3 seconds for QR/DOM readiness and try again
+            await new Promise(r => setTimeout(r, 3000));
+            try {
+                rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+            } catch (e2) {
+                console.warn('[WHATSAPP PAIRING CODE TRY 2]', e2.message);
+            }
         }
 
         if (!rawCode) {
             return res.status(200).json({
                 success: false,
-                error: 'Pairing code could not be generated yet. Please click Reset Session below, wait 5 seconds, and click Get Code again.'
+                error: 'Pairing code generating... Please click Reset Session below, wait 5 seconds, and click Get Code again.'
             });
         }
 

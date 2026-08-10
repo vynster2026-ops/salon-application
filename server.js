@@ -116,56 +116,48 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
     res.setHeader('Content-Type', 'application/json');
     try {
         const { phone } = req.body || {};
-        let cleanPhone = String(phone || '').replace(/\D/g, '');
-        if (!cleanPhone) cleanPhone = '917396269877';
+        if (!phone) {
+            return res.status(400).json({ error: 'WhatsApp phone number is required.' });
+        }
+        let cleanPhone = String(phone).replace(/\D/g, '');
         if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-        console.log(`[WHATSAPP PAIRING CODE] Requesting code for phone: ${cleanPhone}...`);
+        console.log(`[WHATSAPP PAIRING CODE] Requesting OFFICIAL code for phone: ${cleanPhone}...`);
 
         if (!whatsappClient) {
+            console.log('[WHATSAPP PAIRING CODE] Initializing WhatsApp client on server...');
             try { initWhatsAppClient(); } catch(e) {}
-            await new Promise(r => setTimeout(r, 1500));
         }
 
-        if (whatsappClient && whatsappClient.requestPairingCode) {
-            try {
-                const rawCode = await whatsappClient.requestPairingCode(cleanPhone);
-                if (rawCode) {
-                    console.log(`[WHATSAPP PAIRING CODE GENERATED SUCCESS] Code: ${rawCode}`);
-                    return res.json({
-                        success: true,
-                        pairingCode: String(rawCode),
-                        phone: cleanPhone,
-                        message: 'Pairing code generated successfully!'
-                    });
-                }
-            } catch(e1) {
-                console.warn('[WHATSAPP PAIRING CODE DIRECT CALL WARNING]', e1.message || e1);
-            }
+        // Wait up to 10 seconds for whatsappClient.pupPage to load web.whatsapp.com
+        let waited = 0;
+        while ((!whatsappClient || !whatsappClient.pupPage) && waited < 10) {
+            await new Promise(r => setTimeout(r, 1000));
+            waited++;
         }
 
-        // Guaranteed Fallback 8-character Pairing Code
-        const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
-        let customCode = '';
-        for (let i = 0; i < 8; i++) {
-            customCode += chars.charAt(Math.floor(Math.random() * chars.length));
+        if (!whatsappClient || !whatsappClient.pupPage) {
+            return res.status(500).json({
+                error: 'WhatsApp browser is launching on Render. Please wait 10 seconds and click Get Code again.'
+            });
         }
-        customCode = customCode.substring(0, 4) + '-' + customCode.substring(4);
 
-        console.log(`[WHATSAPP PAIRING CODE FALLBACK GENERATED] Code: ${customCode}`);
+        // Call OFFICIAL WhatsApp Web pairing code generator from live page context
+        const rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+        console.log(`[WHATSAPP OFFICIAL PAIRING CODE SUCCESS] Code: ${rawCode}`);
+
         return res.json({
             success: true,
-            pairingCode: customCode,
+            pairingCode: String(rawCode),
             phone: cleanPhone,
-            message: 'Pairing code generated.'
+            message: 'Official WhatsApp pairing code generated successfully!'
         });
+
     } catch (err) {
-        console.error('[WHATSAPP PAIRING CODE FATAL ERROR]', err);
-        return res.status(200).json({
-            success: true,
-            pairingCode: 'W8P2-9X4M',
-            phone: '917396269877',
-            message: 'Pairing code generated.'
+        console.error('[WHATSAPP PAIRING CODE ERROR]', err.message || err);
+        return res.status(500).json({
+            error: 'Failed to generate official pairing code: ' + (err.message || err),
+            details: String(err.stack || err)
         });
     }
 });

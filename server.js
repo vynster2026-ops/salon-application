@@ -2758,11 +2758,19 @@ async function sendWhatsAppMessage(phone, message, mediaUrl = null) {
 // --- WhatsApp Bulk Marketing API ---
 // ==========================================
 
-const { Client: WAClient, LocalAuth, MessageMedia } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
+let WAClient, LocalAuth, MessageMedia, qrcode;
+try {
+    const wa = require('whatsapp-web.js');
+    WAClient = wa.Client;
+    LocalAuth = wa.LocalAuth;
+    MessageMedia = wa.MessageMedia;
+    qrcode = require('qrcode-terminal');
+} catch (e) {
+    console.log('[WHATSAPP] whatsapp-web.js optional import skipped (Using Direct 1-Tap wa.me Links)');
+}
 
 // Initialize native automation client if provider is 'local' or default
-const activeProvider = process.env.WHATSAPP_PROVIDER || 'local';
+const activeProvider = process.env.WHATSAPP_PROVIDER || 'direct';
 
 function findChromeExecutable(dir) {
     if (!fs.existsSync(dir)) return null;

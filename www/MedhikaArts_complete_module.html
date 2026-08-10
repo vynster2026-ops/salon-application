@@ -17263,8 +17263,12 @@
                         } else {
                             if (qrContainer) {
                                 qrContainer.style.display = 'block';
-                                if (statusData.qr) {
-                                    qrImg.src = `https://quickchart.io/qr?text=${encodeURIComponent(statusData.qr)}&size=250&margin=1`;
+                                if (statusData.qrCodeDataUrl) {
+                                    qrImg.src = statusData.qrCodeDataUrl;
+                                } else if (statusData.qr && statusData.qr.startsWith('data:image')) {
+                                    qrImg.src = statusData.qr;
+                                } else if (statusData.qr) {
+                                    qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(statusData.qr)}`;
                                 } else {
                                     qrImg.src = `https://placehold.co/250x250/f8fafc/64748b?text=Generating+QR...`;
                                 }

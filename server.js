@@ -72,6 +72,7 @@ app.use('/uploads', express.static(uploadsDir));
 var whatsappClient = null;
 var whatsappReady = false;
 var latestQr = null;
+var qrCodeDataUrl = null;
 var whatsappAuthenticated = false;
 
 app.get(['/api/whatsapp/status', '/whatsapp/status'], (req, res) => {

@@ -2458,7 +2458,7 @@ function initWhatsAppClient() {
             authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
             webVersionCache: {
                 type: 'remote',
-                remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
+                remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1018944834-alpha.html'
             },
             puppeteer: puppeteerOpts
         });
@@ -2478,7 +2478,7 @@ function initWhatsAppClient() {
         latestQr = qr; // Save raw QR code
         try {
             const QRCode = require('qrcode');
-            qrCodeDataUrl = await QRCode.toDataURL(qr);
+            qrCodeDataUrl = await QRCode.toDataURL(qr, { margin: 2, scale: 10 });
         } catch(e) {
             qrCodeDataUrl = null;
         }

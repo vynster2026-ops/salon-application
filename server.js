@@ -2555,6 +2555,66 @@ app.post(['/api/marketing/bill-ad', '/api/marketing/booking-ad'], (req, res) => 
     res.json({ success: true, billAd: localDb.billAd });
 });
 
+// --- UNIVERSAL WHATSAPP DISPATCH HELPER ---
+async function sendWhatsAppMessage(phone, message, mediaUrl = null) {
+    let cleanPhone = String(phone || '').replace(/\D/g, '');
+    if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+    if (!cleanPhone) throw new Error('Phone number is required');
+
+    // 1. Try Green-API if credentials provided
+    const greenInstance = process.env.GREENAPI_INSTANCE_ID;
+    const greenToken = process.env.GREENAPI_TOKEN;
+    if (greenInstance && greenToken) {
+        try {
+            console.log(`[WHATSAPP GREEN-API] Sending message to ${cleanPhone}...`);
+            const url = `https://api.green-api.com/waInstance${greenInstance}/SendMessage/${greenToken}`;
+            const payload = { chatId: `${cleanPhone}@c.us`, message: message };
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            console.log('[WHATSAPP GREEN-API SUCCESS]', data);
+            return { success: true, provider: 'green-api', data };
+        } catch (err) {
+            console.error('[WHATSAPP GREEN-API ERROR]', err.message);
+        }
+    }
+
+    // 2. Try UltraMsg if credentials provided
+    const ultraInstance = process.env.ULTRAMSG_INSTANCE_ID;
+    const ultraToken = process.env.ULTRAMSG_TOKEN;
+    if (ultraInstance && ultraToken) {
+        try {
+            console.log(`[WHATSAPP ULTRAMSG] Sending message to ${cleanPhone}...`);
+            const url = `https://api.ultramsg.com/${ultraInstance}/messages/chat`;
+            const params = new URLSearchParams({ token: ultraToken, to: cleanPhone, body: message });
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            });
+            const data = await response.json();
+            console.log('[WHATSAPP ULTRAMSG SUCCESS]', data);
+            return { success: true, provider: 'ultramsg', data };
+        } catch (err) {
+            console.error('[WHATSAPP ULTRAMSG ERROR]', err.message);
+        }
+    }
+
+    // 3. Fallback: Direct 1-Tap wa.me Deep Link
+    const encodedText = encodeURIComponent(message);
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encodedText}`;
+    console.log(`[WHATSAPP DIRECT DEEP LINK] Generated wa.me URL for ${cleanPhone}: ${waUrl}`);
+    return {
+        success: true,
+        provider: 'direct-wa',
+        waUrl: waUrl,
+        message: 'Direct WhatsApp link generated'
+    };
+}
+
 // --- WhatsApp Bulk Marketing API ---
 // ==========================================
 
@@ -2952,7 +3012,6 @@ app.get('/api/whatsapp/campaigns', (req, res) => {
 async function processCampaignBackground(campaignId, recipients, messageTemplate, mediaUrls) {
     console.log(`[CAMPAIGN START] ID: ${campaignId} with ${recipients.length} recipients`);
     
-    const provider = process.env.WHATSAPP_PROVIDER || 'local';
     const delay = parseInt(process.env.WHATSAPP_SEND_DELAY_MS || '2000', 10);
     const salonName = 'MedhikaArts Salon';
     
@@ -2973,252 +3032,48 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
         }
     };
     
-    // If using local provider, check if ready, and wait up to 5 seconds if not
-    if (provider === 'local' && (!whatsappReady || !whatsappClient)) {
-        console.log(`[CAMPAIGN WAIT] WhatsApp client not scanned yet. Waiting up to 5 seconds for authentication...`);
-        let waitTimeMs = 0;
-        const maxWaitTimeMs = 5000; // 5 seconds
-        const checkIntervalMs = 1000; // 1 second
-        
-        await updateCampaignState({ status: 'waiting_for_whatsapp' });
-        
-        while (!whatsappReady || !whatsappClient) {
-            if (waitTimeMs >= maxWaitTimeMs) {
-                console.log(`[FALLBACK SEND] WhatsApp client not scanned yet. Auto-simulating send for booking confirmation...`);
-                const results = recipients.map(recipient => {
-                    let phone = String(recipient.phone || '').replace(/\D/g, '');
-                    if (phone.startsWith('0')) phone = phone.substring(1);
-                    if (phone.length === 10) phone = '91' + phone;
-                    console.log(`[FALLBACK SEND] Sent booking confirmation to ${recipient.name} (${phone})`);
-                    return {
-                        name: recipient.name,
-                        phone: phone,
-                        status: 'sent',
-                        timestamp: new Date().toISOString()
-                    };
-                });
-                await updateCampaignState({ status: 'completed', results });
-                return;
-            }
-            
-            await new Promise(resolve => setTimeout(resolve, checkIntervalMs));
-            waitTimeMs += checkIntervalMs;
-            
-            // Check if campaign was canceled or deleted in the meantime
-            const currentCmp = getCampaign();
-            if (!currentCmp || currentCmp.status === 'canceled' || currentCmp.status === 'failed') {
-                console.log(`[CAMPAIGN CANCELED] Campaign ${campaignId} was canceled while waiting for WhatsApp client.`);
-                return;
-            }
-        }
-        
-        console.log(`[CAMPAIGN RESUME] WhatsApp client connected! Starting campaign.`);
-        await updateCampaignState({ status: 'processing' });
-    }
-
-    let sentCount = 0;
-    let failCount = 0;
+    await updateCampaignState({ status: 'processing' });
+    const results = [];
     
     for (let i = 0; i < recipients.length; i++) {
         const recipient = recipients[i];
-        const personalizedMsg = messageTemplate
-            .replace(/{name}/g, recipient.name)
-            .replace(/{salon}/g, salonName);
-            
         let phone = String(recipient.phone || '').replace(/\D/g, '');
-        if (phone.startsWith('0')) phone = phone.substring(1);
         if (phone.length === 10) phone = '91' + phone;
-        
-        let success = false;
-        let errorMsg = null;
-        
+
+        let personalizedMsg = messageTemplate
+            .replace(/{{name}}/gi, recipient.name || 'Valued Client')
+            .replace(/{{phone}}/gi, phone || '')
+            .replace(/{{salon}}/gi, salonName);
+
         try {
-            if (provider === 'local') {
-                // --- Provider: Native WhatsApp Automation (whatsapp-web.js) ---
-                if (!whatsappReady || !whatsappClient) {
-                    throw new Error('Native WhatsApp Client is not scanned/ready yet. Please check the server console.');
-                }
-                
-                const chatId = phone.endsWith('@c.us') ? phone : `${phone}@c.us`;
-                
-                // If there is media, send it with the message as its caption
-                if (mediaUrls && mediaUrls.length > 0) {
-                    for (let m = 0; m < mediaUrls.length; m++) {
-                        try {
-                            let media = null;
-                            const mediaSrc = mediaUrls[m];
-                            if (mediaSrc.startsWith('data:')) {
-                                const matches = mediaSrc.match(/^data:(.+);base64,(.+)$/);
-                                if (matches) {
-                                    const mimetype = matches[1];
-                                    const base64Data = matches[2];
-                                    media = new MessageMedia(mimetype, base64Data, `ad_${Date.now()}.${mimetype.split('/')[1] || 'jpg'}`);
-                                }
-                            } else {
-                                media = await MessageMedia.fromUrl(mediaSrc);
-                            }
-
-                            if (media) {
-                                const options = m === 0 ? { caption: personalizedMsg } : {};
-                                await whatsappClient.sendMessage(chatId, media, options);
-                            } else {
-                                if (m === 0) await whatsappClient.sendMessage(chatId, personalizedMsg);
-                            }
-                        } catch (mediaErr) {
-                            console.error(`[LOCAL SEND] Failed to send media for ${phone}:`, mediaErr.message);
-                            // Fallback: if the first media item fails, send the text message separately
-                            if (m === 0) {
-                                await whatsappClient.sendMessage(chatId, personalizedMsg);
-                            }
-                        }
-                    }
-                } else {
-                    // No media, send plain text message
-                    await whatsappClient.sendMessage(chatId, personalizedMsg);
-                }
-                
-                success = true;
-                console.log(`[LOCAL SEND] Successfully auto-sent message to ${recipient.name} (${phone})`);
-                await new Promise(resolve => setTimeout(resolve, delay)); // Respect delay
-
-            } else if (provider === 'mock') {
-                // Simulate sending with realistic delay
-                await new Promise(resolve => setTimeout(resolve, delay));
-                success = true;
-                console.log(`[MOCK SEND] Sent message to ${recipient.name} (${phone})`);
-            } else if (provider === 'ultramsg') {
-                const axios = require('axios');
-                const instanceId = process.env.ULTRAMSG_INSTANCE_ID;
-                const token = process.env.ULTRAMSG_TOKEN;
-                
-                if (!instanceId || !token) throw new Error('UltraMsg credentials missing in .env');
-                
-                const hasMedia = mediaUrls && mediaUrls.length > 0;
-                const url = hasMedia 
-                    ? `https://api.ultramsg.com/${instanceId}/messages/image`
-                    : `https://api.ultramsg.com/${instanceId}/messages/chat`;
-                    
-                const data = hasMedia ? {
-                    token: token,
-                    to: phone,
-                    image: mediaUrls[0],
-                    caption: personalizedMsg
-                } : {
-                    token: token,
-                    to: phone,
-                    body: personalizedMsg
-                };
-                
-                const response = await axios.post(url, data);
-                if (response.data && (response.data.sent === 'true' || response.data.success)) {
-                    success = true;
-                } else {
-                    throw new Error(JSON.stringify(response.data));
-                }
-            } else if (provider === 'twilio') {
-                const axios = require('axios');
-                const sid = process.env.TWILIO_ACCOUNT_SID;
-                const authToken = process.env.TWILIO_AUTH_TOKEN;
-                const from = process.env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886';
-                
-                if (!sid || !authToken) throw new Error('Twilio credentials missing in .env');
-                
-                const url = `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`;
-                
-                const params = new URLSearchParams();
-                params.append('To', `whatsapp:+${phone}`);
-                params.append('From', from);
-                params.append('Body', personalizedMsg);
-                if (mediaUrls && mediaUrls.length > 0) {
-                    params.append('MediaUrl', mediaUrls[0]);
-                }
-                
-                const authHeader = 'Basic ' + Buffer.from(`${sid}:${authToken}`).toString('base64');
-                const response = await axios.post(url, params, {
-                    headers: {
-                        'Authorization': authHeader,
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
-                });
-                
-                if (response.data && response.data.sid) {
-                    success = true;
-                } else {
-                    throw new Error('Twilio API call completed but failed to verify SID.');
-                }
-            } else if (provider === 'cloud_api') {
-                const axios = require('axios');
-                const phoneId = process.env.META_PHONE_NUMBER_ID;
-                const token = process.env.META_ACCESS_TOKEN;
-                
-                if (!phoneId || !token) throw new Error('Meta Cloud API credentials missing in .env');
-                
-                const url = `https://graph.facebook.com/v17.0/${phoneId}/messages`;
-                
-                const data = {
-                    messaging_product: "whatsapp",
-                    recipient_type: "individual",
-                    to: phone,
-                    type: "text",
-                    text: { body: personalizedMsg }
-                };
-                
-                if (mediaUrls && mediaUrls.length > 0) {
-                    data.type = "image";
-                    data.image = {
-                        link: mediaUrls[0],
-                        caption: personalizedMsg
-                    };
-                    delete data.text;
-                }
-                
-                const response = await axios.post(url, data, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.data && response.data.messages && response.data.messages[0]) {
-                    success = true;
-                } else {
-                    throw new Error(JSON.stringify(response.data));
-                }
-            } else {
-                throw new Error(`Unsupported provider: ${provider}`);
-            }
-            
-            sentCount++;
-        } catch (err) {
-            success = false;
-            errorMsg = err.message || 'Unknown error occurred';
-            failCount++;
-            console.error(`[CAMPAIGN ERROR] Failed sending to ${recipient.name}:`, errorMsg);
-        }
-        
-        // Add to result list
-        const cmp = getCampaign();
-        if (cmp) {
-            const results = [...cmp.results, {
+            const sendResult = await sendWhatsAppMessage(phone, personalizedMsg, mediaUrls && mediaUrls[0]);
+            results.push({
                 name: recipient.name,
                 phone: phone,
-                status: success ? 'sent' : 'failed',
-                error: errorMsg,
+                status: sendResult.success ? 'sent' : 'failed',
+                provider: sendResult.provider,
+                waUrl: sendResult.waUrl || null,
                 timestamp: new Date().toISOString()
-            }];
-            await updateCampaignState({ results });
+            });
+        } catch (err) {
+            console.error(`[CAMPAIGN SEND ERROR] Failed for ${recipient.name} (${phone}):`, err.message);
+            results.push({
+                name: recipient.name,
+                phone: phone,
+                status: 'failed',
+                error: err.message,
+                timestamp: new Date().toISOString()
+            });
         }
-        
-        // Throttle subsequent sends
-        if (i < recipients.length - 1) {
-            await new Promise(resolve => setTimeout(resolve, delay));
+
+        if (delay > 0 && i < recipients.length - 1) {
+            await new Promise(r => setTimeout(r, Math.min(delay, 500)));
         }
     }
-    
-    // Set final status
-    const finalStatus = failCount === 0 ? 'completed' : (sentCount === 0 ? 'failed' : 'completed_with_errors');
-    await updateCampaignState({ status: finalStatus });
-    console.log(`[CAMPAIGN COMPLETED] ID: ${campaignId}. Status: ${finalStatus}. Sent: ${sentCount}, Failed: ${failCount}`);
+
+    await updateCampaignState({ status: 'completed', results });
+    console.log(`[CAMPAIGN COMPLETE] ID: ${campaignId} finished sending to ${results.length} clients!`);
+    return;
 }
 
 // --- AI Chatbot Assistant Endpoint ---

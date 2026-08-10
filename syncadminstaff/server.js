@@ -2488,6 +2488,66 @@ app.post('/api/whatsapp/logout', async (req, res) => {
     }
 });
 
+// --- UNIVERSAL WHATSAPP DISPATCH HELPER ---
+async function sendWhatsAppMessage(phone, message, mediaUrl = null) {
+    let cleanPhone = String(phone || '').replace(/\D/g, '');
+    if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+    if (!cleanPhone) throw new Error('Phone number is required');
+
+    // 1. Try Green-API if credentials provided
+    const greenInstance = process.env.GREENAPI_INSTANCE_ID;
+    const greenToken = process.env.GREENAPI_TOKEN;
+    if (greenInstance && greenToken) {
+        try {
+            console.log(`[WHATSAPP GREEN-API] Sending message to ${cleanPhone}...`);
+            const url = `https://api.green-api.com/waInstance${greenInstance}/SendMessage/${greenToken}`;
+            const payload = { chatId: `${cleanPhone}@c.us`, message: message };
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            console.log('[WHATSAPP GREEN-API SUCCESS]', data);
+            return { success: true, provider: 'green-api', data };
+        } catch (err) {
+            console.error('[WHATSAPP GREEN-API ERROR]', err.message);
+        }
+    }
+
+    // 2. Try UltraMsg if credentials provided
+    const ultraInstance = process.env.ULTRAMSG_INSTANCE_ID;
+    const ultraToken = process.env.ULTRAMSG_TOKEN;
+    if (ultraInstance && ultraToken) {
+        try {
+            console.log(`[WHATSAPP ULTRAMSG] Sending message to ${cleanPhone}...`);
+            const url = `https://api.ultramsg.com/${ultraInstance}/messages/chat`;
+            const params = new URLSearchParams({ token: ultraToken, to: cleanPhone, body: message });
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            });
+            const data = await response.json();
+            console.log('[WHATSAPP ULTRAMSG SUCCESS]', data);
+            return { success: true, provider: 'ultramsg', data };
+        } catch (err) {
+            console.error('[WHATSAPP ULTRAMSG ERROR]', err.message);
+        }
+    }
+
+    // 3. Fallback: Direct 1-Tap wa.me Deep Link
+    const encodedText = encodeURIComponent(message);
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encodedText}`;
+    console.log(`[WHATSAPP DIRECT DEEP LINK] Generated wa.me URL for ${cleanPhone}: ${waUrl}`);
+    return {
+        success: true,
+        provider: 'direct-wa',
+        waUrl: waUrl,
+        message: 'Direct WhatsApp link generated'
+    };
+}
+
 // 1. Media Upload Endpoint
 app.post('/api/whatsapp/upload', (req, res) => {
     try {

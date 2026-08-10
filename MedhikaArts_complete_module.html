@@ -7,6 +7,28 @@
     <title>Vynster Salon | Management Dashboard</title>
     <!-- Chart.js for reports -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Socket.IO for real-time live staff notifications & booking synchronization -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        var socket = null;
+        try {
+            socket = io();
+            socket.on('connect', function() {
+                console.log('[REALTIME SOCKET.IO] Connected to server in MedhikaArts Complete Module');
+            });
+            socket.on('new_booking', function(booking) {
+                console.log('[REALTIME BOOKING RECEIVED]', booking);
+                if (typeof showToast === 'function') {
+                    showToast(`New Live Booking: ${booking.clientName || 'Client'} (${booking.time || 'Today'})`, 'success');
+                }
+                if (typeof fetchAppointments === 'function') fetchAppointments();
+                if (typeof fetchBookings === 'function') fetchBookings();
+            });
+            socket.on('leave_update', function(leave) {
+                if (typeof fetchLeaves === 'function') fetchLeaves();
+            });
+        } catch(e) {}
+    </script>
     <!-- Clerk Authentication SDK -->
     <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_Y2xlcmsubWVkaGlrYWFydHMuY29tJA"
         src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>

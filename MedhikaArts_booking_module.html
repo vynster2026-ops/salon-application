@@ -5,6 +5,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vynster Salon | Online Client Booking</title>
+  <!-- Socket.IO for real-time live staff dashboard sync -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    var socket = null;
+    try { socket = io(); } catch(e) {}
+  </script>
   <!-- Clerk Authentication SDK -->
   <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_Y2xlcmsubWVkaGlrYWFydHMuY29tJA"
     src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>

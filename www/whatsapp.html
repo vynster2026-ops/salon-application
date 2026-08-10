@@ -1840,6 +1840,12 @@
                 });
 
                 const data = await res.json();
+                if (data.alreadyConnected) {
+                    alert(data.message || 'WhatsApp is ALREADY linked and connected! Click Reset Session if you want to re-pair.');
+                    if (typeof fetchWhatsAppStatus === 'function') fetchWhatsAppStatus();
+                    return;
+                }
+
                 if (res.ok && data.success && data.pairingCode) {
                     const resultBox = document.getElementById('pairing-code-result-box');
                     const codeSpan = document.getElementById('display-pairing-code');
@@ -1854,7 +1860,7 @@
                     if (instrSpan) instrSpan.innerText = formattedCode;
                     if (resultBox) resultBox.classList.remove('hidden');
                 } else {
-                    alert(data.error || data.details || 'Failed to generate official pairing code.');
+                    alert(data.error || data.details || 'Pairing code could not be generated. Please click Reset Session and try again.');
                 }
 
             } catch (err) {

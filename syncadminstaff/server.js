@@ -2576,28 +2576,53 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
         let cleanPhone = String(phone).replace(/\D/g, '');
         if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-        console.log(`[WHATSAPP PAIRING CODE] Requesting OFFICIAL code for phone: ${cleanPhone}...`);
+        console.log(`[WHATSAPP PAIRING CODE] Requesting code for phone: ${cleanPhone}...`);
+
+        if (whatsappReady) {
+            return res.json({
+                success: true,
+                alreadyConnected: true,
+                message: 'WhatsApp is ALREADY linked and connected! If you wish to re-pair a new number, please click Reset Session below.'
+            });
+        }
 
         if (!whatsappClient) {
             console.log('[WHATSAPP PAIRING CODE] Initializing WhatsApp client on server...');
             try { initWhatsAppClient(); } catch(e) {}
         }
 
-        // Wait up to 10 seconds for whatsappClient.pupPage to load web.whatsapp.com
+        // Wait up to 10 seconds for page/QR load
         let waited = 0;
-        while ((!whatsappClient || !whatsappClient.pupPage) && waited < 10) {
+        while (!latestQr && (!whatsappClient || !whatsappClient.pupPage) && waited < 10) {
             await new Promise(r => setTimeout(r, 1000));
             waited++;
         }
 
         if (!whatsappClient || !whatsappClient.pupPage) {
             return res.status(500).json({
-                error: 'WhatsApp browser is launching on Render. Please wait 10 seconds and click Get Code again.'
+                error: 'WhatsApp browser is launching on Render. Please click Reset Session below and try again in 5 seconds.'
             });
         }
 
-        // Call OFFICIAL WhatsApp Web pairing code generator from live page context
-        const rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+        let rawCode = null;
+        try {
+            rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+        } catch (e1) {
+            console.warn('[WHATSAPP PAIRING CODE FIRST TRY WARNING]', e1.message);
+            await new Promise(r => setTimeout(r, 2000));
+            try {
+                rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+            } catch(e2) {
+                console.error('[WHATSAPP PAIRING CODE RETRY ERROR]', e2.message);
+            }
+        }
+
+        if (!rawCode) {
+            return res.status(500).json({
+                error: 'Pairing code could not be generated. Please click Reset Session below to start a fresh pairing session.'
+            });
+        }
+
         console.log(`[WHATSAPP OFFICIAL PAIRING CODE SUCCESS] Code: ${rawCode}`);
 
         return res.json({
@@ -2610,7 +2635,7 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
     } catch (err) {
         console.error('[WHATSAPP PAIRING CODE ERROR]', err.message || err);
         return res.status(500).json({
-            error: 'Failed to generate official pairing code: ' + (err.message || err),
+            error: 'Failed to generate pairing code: ' + (err.message || err),
             details: String(err.stack || err)
         });
     }

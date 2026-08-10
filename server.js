@@ -122,23 +122,31 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
         let cleanPhone = String(phone).replace(/\D/g, '');
         if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-        console.log(`[WHATSAPP PAIRING CODE] Requesting OFFICIAL code for phone: ${cleanPhone}...`);
+        console.log(`[WHATSAPP PAIRING CODE] Requesting code for phone: ${cleanPhone}...`);
+
+        if (whatsappReady || whatsappAuthenticated) {
+            return res.json({
+                success: true,
+                alreadyConnected: true,
+                message: 'WhatsApp is ALREADY linked and connected! If you wish to re-pair a new number, please click Reset Session below.'
+            });
+        }
 
         if (!whatsappClient) {
             console.log('[WHATSAPP PAIRING CODE] Initializing WhatsApp client on server...');
             try { initWhatsAppClient(); } catch(e) {}
         }
 
-        // Wait up to 10 seconds for whatsappClient.pupPage to load web.whatsapp.com
+        // Wait up to 10 seconds for page/QR load
         let waited = 0;
-        while ((!whatsappClient || !whatsappClient.pupPage) && waited < 10) {
+        while (!latestQr && (!whatsappClient || !whatsappClient.pupPage) && waited < 10) {
             await new Promise(r => setTimeout(r, 1000));
             waited++;
         }
 
         if (!whatsappClient || !whatsappClient.pupPage) {
             return res.status(500).json({
-                error: 'WhatsApp browser is launching on Render. Please wait 10 seconds and click Get Code again.'
+                error: 'WhatsApp browser is launching on Render. Please click Reset Session below and try again in 5 seconds.'
             });
         }
 
@@ -146,36 +154,19 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
         try {
             rawCode = await whatsappClient.requestPairingCode(cleanPhone);
         } catch (e1) {
-            console.warn('[WHATSAPP PAIRING CODE WWEBJS API ERROR]', e1.message);
-            if (whatsappClient.pupPage) {
-                try {
-                    console.log('[WHATSAPP DOM PAIRING FALLBACK] Attempting DOM extraction...');
-                    const page = whatsappClient.pupPage;
-                    await page.evaluate(() => {
-                        const btns = Array.from(document.querySelectorAll('span, button, div'));
-                        const linkBtn = btns.find(b => b.textContent && b.textContent.includes('Link with phone number'));
-                        if (linkBtn) linkBtn.click();
-                    });
-                    await new Promise(r => setTimeout(r, 1200));
-                    await page.type('input[type="text"]', cleanPhone);
-                    await page.keyboard.press('Enter');
-                    await new Promise(r => setTimeout(r, 2000));
-                    rawCode = await page.evaluate(() => {
-                        const codeElements = Array.from(document.querySelectorAll('[data-pairing-code-token], span'));
-                        const target = codeElements.find(el => el.getAttribute && el.getAttribute('data-pairing-code-token'));
-                        if (target) return target.getAttribute('data-pairing-code-token');
-                        const text = document.body ? document.body.innerText : '';
-                        const match = text.match(/[A-Z0-9]{4}-[A-Z0-9]{4}/) || text.match(/[A-Z0-9]{8}/);
-                        return match ? match[0] : null;
-                    });
-                } catch(domErr) {
-                    console.error('[WHATSAPP DOM PAIRING ERROR]', domErr.message);
-                }
+            console.warn('[WHATSAPP PAIRING CODE FIRST TRY WARNING]', e1.message);
+            await new Promise(r => setTimeout(r, 2000));
+            try {
+                rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+            } catch(e2) {
+                console.error('[WHATSAPP PAIRING CODE RETRY ERROR]', e2.message);
             }
         }
 
         if (!rawCode) {
-            throw new Error('Pairing code could not be retrieved from WhatsApp Web.');
+            return res.status(500).json({
+                error: 'Pairing code could not be generated. Please click Reset Session below to start a fresh pairing session.'
+            });
         }
 
         console.log(`[WHATSAPP OFFICIAL PAIRING CODE SUCCESS] Code: ${rawCode}`);
@@ -190,7 +181,7 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
     } catch (err) {
         console.error('[WHATSAPP PAIRING CODE ERROR]', err.message || err);
         return res.status(500).json({
-            error: 'Failed to generate official pairing code: ' + (err.message || err),
+            error: 'Failed to generate pairing code: ' + (err.message || err),
             details: String(err.stack || err)
         });
     }

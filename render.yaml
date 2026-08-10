@@ -1,18 +1,22 @@
 services:
   - type: web
-    name: vynster-salon-application
-    runtime: docker
+    name: salon-application
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
     plan: free
     envVars:
-      - key: PUPPETEER_CACHE_DIR
-        value: ./.cache/puppeteer
       - key: MONGODB_URI
+        sync: false
+      - key: GREENAPI_INSTANCE_ID
+        sync: false
+      - key: GREENAPI_TOKEN
+        sync: false
+      - key: ULTRAMSG_INSTANCE_ID
+        sync: false
+      - key: ULTRAMSG_TOKEN
         sync: false
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET
-        sync: false
-      - key: EMAIL_USER
-        sync: false
-      - key: EMAIL_PASS
         sync: false

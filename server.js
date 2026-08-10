@@ -1,7 +1,7 @@
-require('dotenv').config();
-// Global error handler to prevent whatsapp-web.js background errors from crashing the server
+try { require('dotenv').config(); } catch(e) {}
+// Global error handler to prevent unexpected background errors from crashing the server
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('[CRITICAL] Unhandled Rejection (often WA file lock):', reason);
+    console.error('[CRITICAL] Unhandled Rejection:', reason);
 });
 
 const express = require('express');

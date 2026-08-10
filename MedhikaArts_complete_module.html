@@ -8479,10 +8479,17 @@
                 }
 
                 cachedBookings = newBookings;
-                cachedClients = newClients;
-                STAFF = await sRes.json();
-                cachedInventory = await iRes.json();
-                ALL_SERVICES = await svRes.json();
+                if (Array.isArray(newClients) && newClients.length > 0) cachedClients = newClients;
+
+                const fetchedStaff = await sRes.json();
+                if (Array.isArray(fetchedStaff) && fetchedStaff.length > 0) STAFF = fetchedStaff;
+
+                const fetchedInventory = await iRes.json();
+                if (Array.isArray(fetchedInventory) && fetchedInventory.length > 0) cachedInventory = fetchedInventory;
+
+                const fetchedServices = await svRes.json();
+                if (Array.isArray(fetchedServices) && fetchedServices.length > 0) ALL_SERVICES = fetchedServices;
+
                 cachedEvents = (await eRes.json()) || [];
                 cachedExpenses = (await exRes.json()) || [];
 

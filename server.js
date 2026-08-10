@@ -1161,6 +1161,119 @@ app.delete('/api/clients/:id', async (req, res) => {
     }
 });
 
+// --- STAFF DIRECTORY API ROUTES ---
+app.get('/api/staff', async (req, res) => {
+    try {
+        let staffList = [];
+        if (isConnected) {
+            try {
+                staffList = await Staff.find({}).lean();
+            } catch (e) {
+                console.error('[DATABASE] Error querying MongoDB Staff collection:', e.message);
+            }
+        }
+        if (!staffList || staffList.length === 0) {
+            staffList = localDb.staff || localDb.staffMembers || [];
+        }
+        if (!staffList || staffList.length === 0) {
+            staffList = [
+                { id: 'stf1', staffId: 'stf1', name: 'Ramesh Verma', role: 'Hair Stylist & Master Barber', spec: 'Hair Styling', rating: '4.9', av: 'av-t', status: 'Online', gender: 'male', services: ['all'] },
+                { id: 'stf2', staffId: 'stf2', name: 'Kavita Sharma', role: 'Senior Beauty Therapist', spec: 'Skincare & Facials', rating: '4.8', av: 'av-p', status: 'Online', gender: 'female', services: ['all'] },
+                { id: 'stf3', staffId: 'stf3', name: 'Ananya Rao', role: 'Nail Artist & Spa Specialist', spec: 'Manicure & Pedicure', rating: '4.9', av: 'av-b', status: 'Online', gender: 'female', services: ['all'] }
+            ];
+            localDb.staff = staffList;
+            saveLocal();
+        }
+        const { branch, branchId } = req.query;
+        const targetBranch = branch || branchId;
+        if (targetBranch && targetBranch !== 'all' && targetBranch !== 'Main Branch') {
+            staffList = staffList.filter(s => !s.branchId || s.branchId === targetBranch);
+        }
+        return res.json(staffList);
+    } catch (err) {
+        console.error('[STAFF API ERROR]', err);
+        return res.json(localDb.staff || []);
+    }
+});
+
+app.post('/api/staff', async (req, res) => {
+    try {
+        const staffData = req.body || {};
+        if (!staffData.id) staffData.id = 'stf_' + Date.now();
+        if (!localDb.staff) localDb.staff = [];
+        const existingIdx = localDb.staff.findIndex(s => s.id === staffData.id || s.staffId === staffData.staffId);
+        if (existingIdx !== -1) {
+            localDb.staff[existingIdx] = { ...localDb.staff[existingIdx], ...staffData };
+        } else {
+            localDb.staff.push(staffData);
+        }
+        saveLocal();
+        if (isConnected) {
+            try {
+                await Staff.updateOne({ id: staffData.id }, staffData, { upsert: true });
+            } catch (e) {}
+        }
+        return res.json({ success: true, staff: staffData });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+// --- SERVICES STATS API ROUTES ---
+app.get('/api/services', async (req, res) => {
+    try {
+        let servicesList = [];
+        if (isConnected) {
+            try {
+                servicesList = await Service.find({}).lean();
+            } catch (e) {}
+        }
+        if (!servicesList || servicesList.length === 0) {
+            servicesList = localDb.services || [];
+        }
+        if (!servicesList || servicesList.length === 0) {
+            servicesList = [
+                { id: 'svc1', name: 'Royal Hair Cut & Style', cat: 'Hair', duration: 45, price: 500, gender: 'both' },
+                { id: 'svc2', name: 'Signature Glow Facial', cat: 'Skincare', duration: 60, price: 1200, gender: 'both' },
+                { id: 'svc3', name: 'Keratin Hair Spa', cat: 'Hair', duration: 90, price: 2500, gender: 'female' },
+                { id: 'svc4', name: 'Deluxe Pedicure & Foot Spa', cat: 'Nails', duration: 45, price: 800, gender: 'both' }
+            ];
+            localDb.services = servicesList;
+            saveLocal();
+        }
+        return res.json(servicesList);
+    } catch (err) {
+        return res.json(localDb.services || []);
+    }
+});
+
+// --- INVENTORY CONTROL API ROUTES ---
+app.get('/api/inventory', async (req, res) => {
+    try {
+        let inventoryList = [];
+        if (isConnected) {
+            try {
+                inventoryList = await Inventory.find({}).lean();
+            } catch (e) {}
+        }
+        if (!inventoryList || inventoryList.length === 0) {
+            inventoryList = localDb.inventory || [];
+        }
+        if (!inventoryList || inventoryList.length === 0) {
+            inventoryList = [
+                { id: 'inv1', name: 'L\'Oréal Professional Shampoo 500ml', cat: 'Haircare', stock: 24, min: 5, unit: 'Bottles', cost: 650 },
+                { id: 'inv2', name: 'Organic Argan Hair Serum 100ml', cat: 'Haircare', stock: 15, min: 3, unit: 'Bottles', cost: 450 },
+                { id: 'inv3', name: 'Gold Radiance Facial Kit', cat: 'Skincare', stock: 10, min: 2, unit: 'Kits', cost: 1800 }
+            ];
+            localDb.inventory = inventoryList;
+            saveLocal();
+        }
+        return res.json(inventoryList);
+    } catch (err) {
+        return res.json(localDb.inventory || []);
+    }
+});
+
 app.get('/api/ads', (req, res) => {
     res.json(localDb.ads || []);
 });

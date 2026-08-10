@@ -153,8 +153,8 @@ const RENDER_APP_URL_SYNC = process.env.RENDER_EXTERNAL_URL || 'https://salon-ap
 setInterval(() => {
     try {
         const client = RENDER_APP_URL_SYNC.startsWith('https') ? require('https') : require('http');
-        client.get(`${RENDER_APP_URL_SYNC}/api/ping`, () => {}).on('error', () => {});
-    } catch (e) {}
+        client.get(`${RENDER_APP_URL_SYNC}/api/ping`, () => { }).on('error', () => { });
+    } catch (e) { }
 }, 9 * 60 * 1000);
 
 // New removal route
@@ -222,17 +222,17 @@ app.put('/api/bookings/:id', async (req, res) => {
         localDb.bookings[idx] = { ...localDb.bookings[idx], ...updatedData };
         saveLocal();
         console.log(`[SUCCESS] Booking ${id} updated in localDb.json`);
-        
+
         // Automated WhatsApp Message for Confirmed Bookings
         if (updatedData.status && updatedData.status.toLowerCase() === 'confirmed' && (!previousStatus || previousStatus.toLowerCase() !== 'confirmed')) {
             const booking = localDb.bookings[idx];
             const client = localDb.clients.find(c => c.id === booking.clientId);
             const phone = client ? client.phone : booking.clientPhone;
-            
+
             if (phone && whatsappReady && whatsappClient) {
                 // Parse date nicely if needed, but assuming booking.date is display-ready based on screenshot format
                 let msg = `*Srijes Booking*\n\nHello ${booking.clientName || 'there'},\n\nYour booking for *${booking.serviceName || 'your service'}* is confirmed!\n\n🗓️ Date: ${booking.date}\n⏰ Time: ${booking.time}\n🏷️ Booking ID: ${booking.id || id}\n\nThank you for choosing Srijes!`;
-                
+
                 // Add Welcome Ad / Promotional Offer Image
                 const billAd = localDb.settings?.billAd;
                 let media = null;
@@ -250,9 +250,9 @@ app.put('/api/bookings/:id', async (req, res) => {
                 let cleanPhone = String(phone).replace(/\D/g, '');
                 if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
                 if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
-                
+
                 const chatId = cleanPhone + "@c.us";
-                
+
                 try {
                     if (media) {
                         await whatsappClient.sendMessage(chatId, media, { caption: msg });
@@ -260,14 +260,14 @@ app.put('/api/bookings/:id', async (req, res) => {
                         await whatsappClient.sendMessage(chatId, msg);
                     }
                     console.log(`[WHATSAPP] Booking confirmation sent to ${booking.clientName} (${cleanPhone})`);
-                } catch(err) {
+                } catch (err) {
                     console.error("[WHATSAPP] Failed to send booking confirmation message:", err);
                 }
             } else {
                 console.log(`[WHATSAPP] Could not send confirmation. Missing phone number or WhatsApp client not ready. (Phone: ${phone})`);
             }
         }
-        
+
         return res.json({ success: true });
     }
 
@@ -327,8 +327,8 @@ mongoose.set('bufferCommands', false);
 let isConnected = false;
 if (MONGODB_URI) {
     mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 30000 })
-      .then(() => { console.log('Successfully connected to MongoDB database'); isConnected = true; })
-      .catch(err => { console.error('MongoDB connection error:', err.message, '- Falling back to local storage (db.json)'); isConnected = false; });
+        .then(() => { console.log('Successfully connected to MongoDB database'); isConnected = true; })
+        .catch(err => { console.error('MongoDB connection error:', err.message, '- Falling back to local storage (db.json)'); isConnected = false; });
 } else {
     console.log('[DATABASE] No MONGODB_URI environment variable set. Operating smoothly with local storage (db.json).');
     isConnected = false;
@@ -547,13 +547,13 @@ app.post('/api/auth/login', async (req, res) => {
         if (!branch) {
             branch = (localDb.branches || []).find(b => {
                 return (b.email && b.email.toLowerCase() === cleanEmail) ||
-                       (b.accessKey && b.accessKey.toLowerCase() === cleanEmail) ||
-                       (b.id && b.id.toLowerCase() === cleanEmail) ||
-                       (b.phone && b.phone === cleanEmail) ||
-                       (cleanEmail.includes('srij') && b.name && b.name.toLowerCase().includes('srij')) ||
-                       (cleanEmail.includes('main') && b.name && b.name.toLowerCase().includes('main')) ||
-                       (cleanEmail.includes('pavni') && b.name && b.name.toLowerCase().includes('pavni')) ||
-                       cleanEmail.startsWith('br-');
+                    (b.accessKey && b.accessKey.toLowerCase() === cleanEmail) ||
+                    (b.id && b.id.toLowerCase() === cleanEmail) ||
+                    (b.phone && b.phone === cleanEmail) ||
+                    (cleanEmail.includes('srij') && b.name && b.name.toLowerCase().includes('srij')) ||
+                    (cleanEmail.includes('main') && b.name && b.name.toLowerCase().includes('main')) ||
+                    (cleanEmail.includes('pavni') && b.name && b.name.toLowerCase().includes('pavni')) ||
+                    cleanEmail.startsWith('br-');
             });
 
             if (branch && isConnected) {
@@ -591,7 +591,7 @@ app.post('/api/auth/login', async (req, res) => {
                 type: '2fa',
                 expiresAt: Date.now() + 5 * 60 * 1000
             };
-            try { await sendOtpEmail(cleanEmail, otpCode, '2fa'); } catch(e){}
+            try { await sendOtpEmail(cleanEmail, otpCode, '2fa'); } catch (e) { }
 
             return res.json({
                 success: true,
@@ -1042,7 +1042,7 @@ app.post('/api/staff/login', async (req, res) => {
                 const matchPass = (inputPassStr === sPass || inputPassStr === sId || inputPassStr === '1234' || inputPassStr === 'admin');
                 return matchUser && matchPass;
             });
-        } catch (e) {}
+        } catch (e) { }
     }
     if (!staff && localDb.staff) {
         staff = localDb.staff.find(s => {
@@ -1183,7 +1183,7 @@ app.put('/api/clients/:id', async (req, res) => {
         if (isConnected) {
             try {
                 await Client.updateOne({ $or: [{ id: searchId }, { _id: searchId }] }, updateData);
-            } catch (e) {}
+            } catch (e) { }
         }
         return res.json({ success: true });
     } catch (err) {
@@ -1200,7 +1200,7 @@ app.delete('/api/clients/:id', async (req, res) => {
         if (isConnected) {
             try {
                 await Client.deleteOne({ $or: [{ id: searchId }, { _id: searchId }] });
-            } catch (e) {}
+            } catch (e) { }
         }
         return res.json({ success: true });
     } catch (err) {
@@ -1369,12 +1369,12 @@ app.get('/api/bookings', async (req, res) => {
 app.post('/api/bookings', async (req, res) => {
     let result = req.body;
     let saved = false;
-    
+
     if (isConnected) {
-        try { 
-            result = await new Booking(req.body).save(); 
+        try {
+            result = await new Booking(req.body).save();
             saved = true;
-            
+
             // Create notification and emit socket event for the assigned staff
             if (result.staffId) {
                 const message = `New appointment assigned for ${result.clientName || 'a client'}`;
@@ -1389,23 +1389,23 @@ app.post('/api/bookings', async (req, res) => {
                     io.emit("newNotification", { staffId: asId, message: msg });
                 }
             }
-        } catch(e) {
+        } catch (e) {
             console.error("MongoDB save failed for new booking:", e.message);
-        } 
+        }
     }
-    
+
     if (!saved) {
         // Fallback or duplicate to local JSON db
         localDb.bookings.push(result);
         saveLocal();
-        
+
         // Also emit socket events for local setup
         if (result.staffId) {
             io.emit("newAppointment", result);
             io.emit("newNotification", { staffId: result.staffId, message: `New appointment assigned for ${result.clientName || 'a client'}` });
         }
     }
-    
+
     // Auto-send WhatsApp Booking Confirmation to Client
     if (result.clientPhone && String(result.clientPhone).trim() !== '') {
         try {
@@ -1443,8 +1443,8 @@ app.get('/api/my-appointments', async (req, res) => {
             if (staffId) {
                 const sLower = String(staffId).toLowerCase();
                 list = list.filter(b => {
-                    const sId = Array.isArray(b.staffId) ? b.staffId.map(x=>String(x).toLowerCase()) : [String(b.staffId).toLowerCase()];
-                    const addId = Array.isArray(b.additionalStaff) ? b.additionalStaff.map(x=>String(x).toLowerCase()) : [String(b.additionalStaff).toLowerCase()];
+                    const sId = Array.isArray(b.staffId) ? b.staffId.map(x => String(x).toLowerCase()) : [String(b.staffId).toLowerCase()];
+                    const addId = Array.isArray(b.additionalStaff) ? b.additionalStaff.map(x => String(x).toLowerCase()) : [String(b.additionalStaff).toLowerCase()];
                     return sId.includes(sLower) || addId.includes(sLower);
                 });
             }
@@ -2108,17 +2108,17 @@ app.post('/api/leave-request', async (req, res) => {
     data._id = data._id || data.id || 'leave-' + Date.now();
     data.id = data.id || data._id;
     data.status = data.status || 'Pending';
-    
+
     if (isConnected) {
         try {
             const leave = new LeaveRequest(data);
             await leave.save();
             return res.json({ success: true, leave });
-        } catch(e) {
+        } catch (e) {
             console.error("MongoDB leave request save failed:", e.message);
         }
     }
-    
+
     if (!localDb.leaveRequests) localDb.leaveRequests = [];
     localDb.leaveRequests.push(data);
     saveLocal();
@@ -2130,7 +2130,7 @@ app.get('/api/leave-requests', async (req, res) => {
     if (isConnected) {
         try {
             list = await LeaveRequest.find().lean();
-        } catch(e) {}
+        } catch (e) { }
     }
     if (!list || list.length === 0) list = localDb.leaveRequests || [];
     res.json(list);
@@ -2139,7 +2139,7 @@ app.get('/api/leave-requests', async (req, res) => {
 const handleUpdateLeaveStatus = async (req, res) => {
     const id = req.params.leaveId || req.params.id;
     const { status } = req.body;
-    
+
     if (isConnected) {
         try {
             let updated = await LeaveRequest.findByIdAndUpdate(id, { status }, { new: true });
@@ -2147,9 +2147,9 @@ const handleUpdateLeaveStatus = async (req, res) => {
                 updated = await LeaveRequest.findOneAndUpdate({ $or: [{ id: id }, { _id: id }] }, { status }, { new: true });
             }
             if (updated) return res.json({ success: true, leave: updated });
-        } catch(e) {}
+        } catch (e) { }
     }
-    
+
     if (!localDb.leaveRequests) localDb.leaveRequests = [];
     const idx = localDb.leaveRequests.findIndex(l => String(l._id || l.id) === String(id) || String(l.id) === String(id));
     if (idx !== -1) {
@@ -2157,7 +2157,7 @@ const handleUpdateLeaveStatus = async (req, res) => {
         saveLocal();
         return res.json({ success: true, leave: localDb.leaveRequests[idx] });
     }
-    
+
     // If not found in array, push a fallback item
     const fallbackLeave = { id, status, staffName: 'Staff Member', reason: 'Leave Request', fromDate: new Date().toISOString().split('T')[0] };
     localDb.leaveRequests.push(fallbackLeave);
@@ -2178,7 +2178,7 @@ app.get('/api/my-leaves', async (req, res) => {
             } else {
                 list = await LeaveRequest.find().lean();
             }
-        } catch(e) {}
+        } catch (e) { }
     }
     if (!list || list.length === 0) {
         let leaves = localDb.leaveRequests || [];
@@ -2203,10 +2203,10 @@ app.get('/api/my-appointments', async (req, res) => {
                 ]
             });
             return res.json(bookings);
-        } catch(e) {}
+        } catch (e) { }
     }
-    const bookings = (localDb.bookings || []).filter(b => 
-        String(b.staffId) === String(staffId) || 
+    const bookings = (localDb.bookings || []).filter(b =>
+        String(b.staffId) === String(staffId) ||
         (b.additionalStaff && b.additionalStaff.includes(staffId))
     );
     res.json(bookings);
@@ -2218,11 +2218,11 @@ app.get('/api/notifications', async (req, res) => {
     if (isConnected) {
         try {
             return res.json(await Notification.find({ staffId }).sort({ timestamp: -1 }));
-        } catch(e) {}
+        } catch (e) { }
     }
     const notifications = (localDb.notifications || [])
         .filter(n => String(n.staffId) === String(staffId))
-        .sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     res.json(notifications);
 });
 
@@ -2232,7 +2232,7 @@ app.put('/api/notifications/:id/read', async (req, res) => {
         try {
             await Notification.findByIdAndUpdate(id, { read: true });
             return res.json({ success: true });
-        } catch(e) {}
+        } catch (e) { }
     }
     if (!localDb.notifications) localDb.notifications = [];
     const idx = localDb.notifications.findIndex(n => String(n._id || n.id) === String(id));
@@ -2338,7 +2338,7 @@ function findChromeExecutableSync(dir) {
                 return fullPath;
             }
         }
-    } catch(e) {}
+    } catch (e) { }
     return null;
 }
 
@@ -2352,79 +2352,79 @@ function initWhatsAppClient() {
     try {
         let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
 
-    const candidateSearchDirs = [
-        path.join(__dirname, '..', '.cache'),
-        path.join(__dirname, '.cache'),
-        '/opt/render/project/src/.cache',
-        '/opt/render/.cache',
-        '/root/.cache'
-    ];
-
-    if (!executablePath) {
-        for (const dir of candidateSearchDirs) {
-            const found = findChromeExecutableSync(dir);
-            if (found) {
-                executablePath = found;
-                break;
-            }
-        }
-    }
-
-    if (!executablePath) {
-        const systemPaths = [
-            '/usr/bin/google-chrome',
-            '/usr/bin/google-chrome-stable',
-            '/usr/bin/chromium-browser',
-            '/usr/bin/chromium'
+        const candidateSearchDirs = [
+            path.join(__dirname, '..', '.cache'),
+            path.join(__dirname, '.cache'),
+            '/opt/render/project/src/.cache',
+            '/opt/render/.cache',
+            '/root/.cache'
         ];
-        for (const sp of systemPaths) {
-            if (fs.existsSync(sp)) {
-                executablePath = sp;
-                break;
+
+        if (!executablePath) {
+            for (const dir of candidateSearchDirs) {
+                const found = findChromeExecutableSync(dir);
+                if (found) {
+                    executablePath = found;
+                    break;
+                }
             }
         }
-    }
 
-    const puppeteerOpts = {
-        headless: true,
-        args: [
-            '--no-sandbox', 
-            '--disable-setuid-sandbox',
-            '--disable-dev-shm-usage',
-            '--disable-accelerated-2d-canvas',
-            '--no-first-run',
-            '--no-zygote',
-            '--disable-gpu',
-            '--disable-blink-features=AutomationControlled',
-            '--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
-        ]
-    };
-    if (executablePath) {
-        console.log('[WHATSAPP] Using Chrome executable path:', executablePath);
-        puppeteerOpts.executablePath = executablePath;
-    }
+        if (!executablePath) {
+            const systemPaths = [
+                '/usr/bin/google-chrome',
+                '/usr/bin/google-chrome-stable',
+                '/usr/bin/chromium-browser',
+                '/usr/bin/chromium'
+            ];
+            for (const sp of systemPaths) {
+                if (fs.existsSync(sp)) {
+                    executablePath = sp;
+                    break;
+                }
+            }
+        }
 
-    try {
-        console.log('[WHATSAPP] Initializing LocalAuth client...');
-        whatsappClient = new WAClient({
-            authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
-            webVersionCache: {
-                type: 'remote',
-                remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1014587000-alpha.html'
-            },
-            puppeteer: puppeteerOpts
-        });
-    } catch(err) {
-        console.error('[WHATSAPP] Failed to construct client:', err.message);
-        return;
-    }
+        const puppeteerOpts = {
+            headless: true,
+            args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-accelerated-2d-canvas',
+                '--no-first-run',
+                '--no-zygote',
+                '--disable-gpu',
+                '--disable-blink-features=AutomationControlled',
+                '--user-agent=Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+            ]
+        };
+        if (executablePath) {
+            console.log('[WHATSAPP] Using Chrome executable path:', executablePath);
+            puppeteerOpts.executablePath = executablePath;
+        }
+
+        try {
+            console.log('[WHATSAPP] Initializing LocalAuth client...');
+            whatsappClient = new WAClient({
+                authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
+                webVersionCache: {
+                    type: 'remote',
+                    remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1014587000-alpha.html'
+                },
+                puppeteer: puppeteerOpts
+            });
+        } catch (err) {
+            console.error('[WHATSAPP] Failed to construct client:', err.message);
+            return;
+        }
 
         whatsappClient.on('qr', (qr) => {
             latestQr = qr; // Save QR code
             console.log('========================================================================');
             console.log('📱 SCAN THIS QR CODE IN YOUR WHATSAPP TO ENABLE BACKGROUND AUTOMATION:');
             console.log('========================================================================');
-            qrcode.generate(qr, {small: true});
+            qrcode.generate(qr, { small: true });
         });
 
         whatsappClient.on('ready', () => {
@@ -2474,13 +2474,13 @@ app.post('/api/whatsapp/logout', async (req, res) => {
         await whatsappClient.logout();
         whatsappReady = false;
         latestQr = null;
-        
+
         // Wait a brief moment before re-initializing
         setTimeout(() => {
-            whatsappClient.destroy().catch(() => {});
+            whatsappClient.destroy().catch(() => { });
             initWhatsAppClient();
         }, 1000);
-        
+
         res.json({ success: true, message: 'Logged out and re-initializing session' });
     } catch (e) {
         console.error('[WHATSAPP] Logout Error:', e);
@@ -2553,24 +2553,24 @@ app.post('/api/whatsapp/upload', (req, res) => {
     try {
         const { image } = req.body; // base64 string
         if (!image) return res.status(400).json({ error: 'No image data provided' });
-        
+
         const matches = image.match(/^data:image\/([a-zA-Z0-9\/\+]+);base64,(.+)$/) || image.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/);
         if (!matches) return res.status(400).json({ error: 'Invalid base64 image format' });
-        
+
         const ext = matches[1].split('/')[1] || matches[1];
         const data = Buffer.from(matches[2], 'base64');
         const fileName = `marketing_${Date.now()}.${ext}`;
         const filePath = path.join(uploadsDir, fileName);
-        
+
         fs.writeFileSync(filePath, data);
-        
+
         // Generate a public URL
         const host = req.headers.host || `localhost:${PORT}`;
         const protocol = req.headers['x-forwarded-proto'] || 'http';
-        const publicUrl = process.env.SERVER_PUBLIC_URL 
-            ? `${process.env.SERVER_PUBLIC_URL}/uploads/${fileName}` 
+        const publicUrl = process.env.SERVER_PUBLIC_URL
+            ? `${process.env.SERVER_PUBLIC_URL}/uploads/${fileName}`
             : `${protocol}://${host}/uploads/${fileName}`;
-            
+
         console.log(`[MEDIA UPLOAD] Saved base64 to ${filePath} -> Public URL: ${publicUrl}`);
         res.json({ success: true, url: publicUrl, fileName });
     } catch (err) {
@@ -2586,7 +2586,7 @@ app.post('/api/whatsapp/send-bulk', async (req, res) => {
         if (!name || !recipients || !Array.isArray(recipients) || !message) {
             return res.status(400).json({ error: 'Invalid campaign details. Required fields: name, recipients (array), message.' });
         }
-        
+
         const campaignId = `cmp-${Date.now()}`;
         const campaign = {
             id: campaignId,
@@ -2598,22 +2598,22 @@ app.post('/api/whatsapp/send-bulk', async (req, res) => {
             timestamp: new Date().toISOString(),
             results: []
         };
-        
+
         // Save initially to localDb
         localDb.campaigns.push(campaign);
         saveLocal();
-        
+
         if (isConnected) {
-            try { 
-                await new Campaign(campaign).save(); 
-            } catch (e) { 
-                console.error('[ERROR] MongoDB campaign save failed:', e); 
+            try {
+                await new Campaign(campaign).save();
+            } catch (e) {
+                console.error('[ERROR] MongoDB campaign save failed:', e);
             }
         }
-        
+
         // Respond immediately to front-end to prevent HTTP timeout
         res.json({ success: true, campaignId, message: 'Campaign started in background', recipientsCount: recipients.length });
-        
+
         // Start background worker
         processCampaignBackground(campaignId, recipients, message, mediaUrls);
     } catch (err) {
@@ -2635,8 +2635,8 @@ function saveBase64ToUploads(base64Str, req) {
         fs.writeFileSync(filePath, data);
         const host = (req && req.headers && req.headers.host) || `localhost:${PORT}`;
         const protocol = (req && req.headers && req.headers['x-forwarded-proto']) || 'http';
-        const publicUrl = process.env.SERVER_PUBLIC_URL 
-            ? `${process.env.SERVER_PUBLIC_URL}/uploads/${fileName}` 
+        const publicUrl = process.env.SERVER_PUBLIC_URL
+            ? `${process.env.SERVER_PUBLIC_URL}/uploads/${fileName}`
             : `${protocol}://${host}/uploads/${fileName}`;
         console.log(`[BASE64 SAVED] ${filePath} -> ${publicUrl}`);
         return publicUrl;
@@ -2650,7 +2650,7 @@ function saveBase64ToUploads(base64Str, req) {
 app.post('/api/whatsapp/send-direct-bulk', async (req, res) => {
     try {
         const { recipients, message, mediaUrl, mediaUrls, mediaBase64, delayMs } = req.body;
-        
+
         if (!recipients || !Array.isArray(recipients) || recipients.length === 0) {
             return res.status(400).json({ error: 'Recipients must be a non-empty array of objects or strings.' });
         }
@@ -2692,15 +2692,15 @@ app.post('/api/whatsapp/send-direct-bulk', async (req, res) => {
             timestamp: new Date().toISOString(),
             results: []
         };
-        
+
         localDb.campaigns.push(campaign);
         saveLocal();
-        
+
         if (isConnected) {
-            try { 
-                await new Campaign(campaign).save(); 
-            } catch (e) { 
-                console.error('[ERROR] MongoDB direct campaign save failed:', e); 
+            try {
+                await new Campaign(campaign).save();
+            } catch (e) {
+                console.error('[ERROR] MongoDB direct campaign save failed:', e);
             }
         }
 
@@ -2746,7 +2746,7 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
 
         if (!whatsappClient) {
             console.log('[WHATSAPP PAIRING CODE] Auto-starting WhatsApp client on server...');
-            try { initWhatsAppClient(); } catch(e) {}
+            try { initWhatsAppClient(); } catch (e) { }
             return res.status(200).json({
                 success: false,
                 initializing: true,
@@ -2830,13 +2830,13 @@ app.get('/api/whatsapp/campaigns', (req, res) => {
 // Background queue processor
 async function processCampaignBackground(campaignId, recipients, messageTemplate, mediaUrls) {
     console.log(`[CAMPAIGN START] ID: ${campaignId} with ${recipients.length} recipients`);
-    
+
     const provider = process.env.WHATSAPP_PROVIDER || 'local';
     const delay = parseInt(process.env.WHATSAPP_SEND_DELAY_MS || '2000', 10);
     const salonName = 'MedhikaArts Salon';
-    
+
     const getCampaign = () => localDb.campaigns.find(c => c.id === campaignId);
-    
+
     const updateCampaignState = async (updatedFields) => {
         const cmp = getCampaign();
         if (cmp) {
@@ -2851,16 +2851,16 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
             }
         }
     };
-    
+
     // If using local provider, check if ready, and wait up to 5 seconds if not
     if (provider === 'local' && (!whatsappReady || !whatsappClient)) {
         console.log(`[CAMPAIGN WAIT] WhatsApp client not scanned yet. Waiting up to 5 seconds for authentication...`);
         let waitTimeMs = 0;
         const maxWaitTimeMs = 5000; // 5 seconds
         const checkIntervalMs = 1000; // 1 second
-        
+
         await updateCampaignState({ status: 'waiting_for_whatsapp' });
-        
+
         while (!whatsappReady || !whatsappClient) {
             if (waitTimeMs >= maxWaitTimeMs) {
                 console.log(`[FALLBACK SEND] WhatsApp client not scanned yet. Auto-simulating send for booking confirmation...`);
@@ -2879,10 +2879,10 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                 await updateCampaignState({ status: 'completed', results });
                 return;
             }
-            
+
             await new Promise(resolve => setTimeout(resolve, checkIntervalMs));
             waitTimeMs += checkIntervalMs;
-            
+
             // Check if campaign was canceled or deleted in the meantime
             const currentCmp = getCampaign();
             if (!currentCmp || currentCmp.status === 'canceled' || currentCmp.status === 'failed') {
@@ -2890,36 +2890,36 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                 return;
             }
         }
-        
+
         console.log(`[CAMPAIGN RESUME] WhatsApp client connected! Starting campaign.`);
         await updateCampaignState({ status: 'processing' });
     }
 
     let sentCount = 0;
     let failCount = 0;
-    
+
     for (let i = 0; i < recipients.length; i++) {
         const recipient = recipients[i];
         const personalizedMsg = messageTemplate
             .replace(/{name}/g, recipient.name)
             .replace(/{salon}/g, salonName);
-            
+
         let phone = String(recipient.phone || '').replace(/\D/g, '');
         if (phone.startsWith('0')) phone = phone.substring(1);
         if (phone.length === 10) phone = '91' + phone;
-        
+
         let success = false;
         let errorMsg = null;
-        
+
         try {
             if (provider === 'local') {
                 // --- Provider: Native WhatsApp Automation (whatsapp-web.js) ---
                 if (!whatsappReady || !whatsappClient) {
                     throw new Error('Native WhatsApp Client is not scanned/ready yet. Please check the server console.');
                 }
-                
+
                 const chatId = phone.endsWith('@c.us') ? phone : `${phone}@c.us`;
-                
+
                 // If there is media, send it with the message as its caption
                 if (mediaUrls && mediaUrls.length > 0) {
                     for (let m = 0; m < mediaUrls.length; m++) {
@@ -2955,7 +2955,7 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                     // No media, send plain text message
                     await whatsappClient.sendMessage(chatId, personalizedMsg);
                 }
-                
+
                 success = true;
                 console.log(`[LOCAL SEND] Successfully auto-sent message to ${recipient.name} (${phone})`);
                 await new Promise(resolve => setTimeout(resolve, delay)); // Respect delay
@@ -2969,14 +2969,14 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                 const axios = require('axios');
                 const instanceId = process.env.ULTRAMSG_INSTANCE_ID;
                 const token = process.env.ULTRAMSG_TOKEN;
-                
+
                 if (!instanceId || !token) throw new Error('UltraMsg credentials missing in .env');
-                
+
                 const hasMedia = mediaUrls && mediaUrls.length > 0;
-                const url = hasMedia 
+                const url = hasMedia
                     ? `https://api.ultramsg.com/${instanceId}/messages/image`
                     : `https://api.ultramsg.com/${instanceId}/messages/chat`;
-                    
+
                 const data = hasMedia ? {
                     token: token,
                     to: phone,
@@ -2987,7 +2987,7 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                     to: phone,
                     body: personalizedMsg
                 };
-                
+
                 const response = await axios.post(url, data);
                 if (response.data && (response.data.sent === 'true' || response.data.success)) {
                     success = true;
@@ -2999,11 +2999,11 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                 const sid = process.env.TWILIO_ACCOUNT_SID;
                 const authToken = process.env.TWILIO_AUTH_TOKEN;
                 const from = process.env.TWILIO_WHATSAPP_FROM || 'whatsapp:+14155238886';
-                
+
                 if (!sid || !authToken) throw new Error('Twilio credentials missing in .env');
-                
+
                 const url = `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`;
-                
+
                 const params = new URLSearchParams();
                 params.append('To', `whatsapp:+${phone}`);
                 params.append('From', from);
@@ -3011,7 +3011,7 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                 if (mediaUrls && mediaUrls.length > 0) {
                     params.append('MediaUrl', mediaUrls[0]);
                 }
-                
+
                 const authHeader = 'Basic ' + Buffer.from(`${sid}:${authToken}`).toString('base64');
                 const response = await axios.post(url, params, {
                     headers: {
@@ -3019,7 +3019,7 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                         'Content-Type': 'application/x-www-form-urlencoded'
                     }
                 });
-                
+
                 if (response.data && response.data.sid) {
                     success = true;
                 } else {
@@ -3029,11 +3029,11 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                 const axios = require('axios');
                 const phoneId = process.env.META_PHONE_NUMBER_ID;
                 const token = process.env.META_ACCESS_TOKEN;
-                
+
                 if (!phoneId || !token) throw new Error('Meta Cloud API credentials missing in .env');
-                
+
                 const url = `https://graph.facebook.com/v17.0/${phoneId}/messages`;
-                
+
                 const data = {
                     messaging_product: "whatsapp",
                     recipient_type: "individual",
@@ -3041,7 +3041,7 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                     type: "text",
                     text: { body: personalizedMsg }
                 };
-                
+
                 if (mediaUrls && mediaUrls.length > 0) {
                     data.type = "image";
                     data.image = {
@@ -3050,14 +3050,14 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
                     };
                     delete data.text;
                 }
-                
+
                 const response = await axios.post(url, data, {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 });
-                
+
                 if (response.data && response.data.messages && response.data.messages[0]) {
                     success = true;
                 } else {
@@ -3066,7 +3066,7 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
             } else {
                 throw new Error(`Unsupported provider: ${provider}`);
             }
-            
+
             sentCount++;
         } catch (err) {
             success = false;
@@ -3074,7 +3074,7 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
             failCount++;
             console.error(`[CAMPAIGN ERROR] Failed sending to ${recipient.name}:`, errorMsg);
         }
-        
+
         // Add to result list
         const cmp = getCampaign();
         if (cmp) {
@@ -3087,13 +3087,13 @@ async function processCampaignBackground(campaignId, recipients, messageTemplate
             }];
             await updateCampaignState({ results });
         }
-        
+
         // Throttle subsequent sends
         if (i < recipients.length - 1) {
             await new Promise(resolve => setTimeout(resolve, delay));
         }
     }
-    
+
     // Set final status
     const finalStatus = failCount === 0 ? 'completed' : (sentCount === 0 ? 'failed' : 'completed_with_errors');
     await updateCampaignState({ status: finalStatus });
@@ -3119,17 +3119,17 @@ app.post('/api/ai/chat', async (req, res) => {
         if (geminiApiKey) {
             try {
                 const axios = require('axios');
-                
+
                 // --- RAG CONTEXT INJECTION BUILDER ---
                 const currentTime = new Intl.DateTimeFormat('en-US', { dateStyle: 'full', timeStyle: 'short' }).format(new Date());
-                
+
                 const appointmentsToday = (localDb.bookings || []).length;
                 const revenueToday = (localDb.bookings || []).reduce((sum, b) => sum + (b.total || 0), 0);
-                
+
                 const lowStockAlerts = (localDb.inventory || [])
                     .filter(i => (i.quantity || i.stock || 0) < 5)
                     .map(i => ({ name: i.name, current: (i.quantity || i.stock), unit: "units" }));
-                
+
                 // For demonstration, map actual staff statuses
                 const staffAvailability = {};
                 (localDb.staff || []).forEach(s => {
@@ -3212,185 +3212,185 @@ Follow these structural examples when dealing with negative data:
 
         // If Gemini is not set or failed to respond, run our high-fidelity rule-based processor:
         if (!reply) {
-        // 1. Navigation Commands
-        if (query.includes('go to marketing') || query.includes('switch to marketing') || query.includes('open marketing')) {
-            reply = "Certainly! I've switched your dashboard to the **Marketing Hub** tab where you can design templates, select target audiences, and queue broadcast campaigns.";
-            command = "switchView_marketing";
-        } else if (query.includes('go to staff') || query.includes('switch to staff') || query.includes('open staff') || query.includes('show staff')) {
-            reply = "Sure! Switching you over to the **Team Management** view to manage your stylists, configure commission rates, or track payouts.";
-            command = "switchView_staff";
-        } else if (query.includes('go to booking') || query.includes('switch to booking') || query.includes('open bookings') || query.includes('show bookings')) {
-            reply = "Right away. I've toggled the view to **Booking Management** where you can view live schedules, modify slots, and manage reception check-ins.";
-            command = "switchView_bookings";
-        } else if (query.includes('go to calendar') || query.includes('switch to calendar') || query.includes('open calendar') || query.includes('show calendar')) {
-            reply = "Switched to **Salon Calendar** tab. You can view all appointments mapped across interactive monthly/weekly grids.";
-            command = "switchView_calendar";
-        } else if (query.includes('go to client') || query.includes('switch to client') || query.includes('open clients') || query.includes('show clients')) {
-            reply = "Toggled to the **Client Directory** to search, audit, or register customer profiles.";
-            command = "switchView_clients";
-        } else if (query.includes('go to inventory') || query.includes('switch to inventory') || query.includes('open inventory') || query.includes('show inventory')) {
-            reply = "Switched to **Inventory Control** to oversee styling products, stock limits, and suppliers.";
-            command = "switchView_inventory";
-        } else if (query.includes('go to report') || query.includes('switch to report') || query.includes('open reports') || query.includes('show reports')) {
-            reply = "Opening **Business Reports** view for insights on revenue, staff stats, and top-selling services.";
-            command = "switchView_reports";
-        } else if (query.includes('go to setting') || query.includes('switch to setting') || query.includes('open settings') || query.includes('show settings')) {
-            reply = "Opening **System Settings** page to configure branch profiles, taxes, and system configurations.";
-            command = "switchView_settings";
-        }
-
-        // 2. Data Queries (Accessing localDb)
-        else if (query.includes('how many client') || query.includes('client count') || query.includes('number of clients')) {
-            const count = localDb.clients ? localDb.clients.length : 0;
-            const vipCount = localDb.clients ? localDb.clients.filter(c => c.category && c.category.toLowerCase().includes('vip')).length : 0;
-            reply = `📊 **Client Database Summary**:\n- Total registered clients: **${count}**\n- VIP clients: **${vipCount}**\n- Regular clients: **${count - vipCount}**\n\nYou can view details in the **Clients** tab.`;
-        } 
-        
-        else if (query.includes('sales') || query.includes('revenue') || query.includes('income') || query.includes('earnings') || query.includes('how much we made')) {
-            const bookings = localDb.bookings || [];
-            const count = bookings.length;
-            const total = bookings.reduce((sum, b) => sum + (b.total || 0), 0);
-            const formattedTotal = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(total);
-            reply = `💰 **Financial Intelligence Report**:\n- Total Recorded Bookings: **${count}**\n- Cumulative Sales Revenue: **${formattedTotal}**\n- Average Basket Value: **${count ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(total / count) : '₹0'}**`;
-        }
-
-        else if (query.includes('top spender') || query.includes('best customer') || query.includes('most spent')) {
-            const bookings = localDb.bookings || [];
-            const clients = localDb.clients || [];
-            
-            if (bookings.length === 0 || clients.length === 0) {
-                reply = "I audited the databases, but there are no historical bookings recorded yet to determine your top spender.";
-            } else {
-                // Calculate spends per client
-                const spends = {};
-                bookings.forEach(b => {
-                    const clientName = b.clientName || 'Unknown';
-                    spends[clientName] = (spends[clientName] || 0) + (b.total || 0);
-                });
-
-                let topClient = '';
-                let maxSpend = 0;
-                for (const [name, spend] of Object.entries(spends)) {
-                    if (spend > maxSpend) {
-                        maxSpend = spend;
-                        topClient = name;
-                    }
-                }
-
-                const clientDetails = clients.find(c => c.name.toLowerCase() === topClient.toLowerCase()) || {};
-                const formattedSpend = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(maxSpend);
-                
-                reply = `💎 **Top Customer Analysis**:\nOur top-spending client is **${topClient}** with a cumulative spend of **${formattedSpend}** across styling packages!\n\n**Client details**:\n- Phone: ${clientDetails.phone || 'N/A'}\n- Gender: ${clientDetails.gender || 'N/A'}\n- Segment Tag: ${clientDetails.category || 'Standard'}`;
-            }
-        }
-
-        else if (query.includes('top staff') || query.includes('best employee') || query.includes('stylist stats') || query.includes('staff sales')) {
-            const bookings = localDb.bookings || [];
-            const staff = localDb.staff || [];
-
-            if (bookings.length === 0 || staff.length === 0) {
-                reply = "I looked at the booking history, but there are no recorded employee metrics to display performance stats yet.";
-            } else {
-                const performances = {};
-                bookings.forEach(b => {
-                    if (b.staffId) {
-                        performances[b.staffId] = (performances[b.staffId] || 0) + (b.total || 0);
-                    }
-                });
-
-                let bestStaffId = null;
-                let maxSales = 0;
-                for (const [id, sales] of Object.entries(performances)) {
-                    if (sales > maxSales) {
-                        maxSales = sales;
-                        bestStaffId = id;
-                    }
-                }
-
-                const bestStylist = staff.find(s => s.id === bestStaffId) || {};
-                const stylistName = bestStylist.name || 'Unknown Stylist';
-                const formattedSales = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(maxSales);
-
-                reply = `💇 **Stylist Performance Leaderboard**:\nOur top styling artist is **${stylistName}** who drove **${formattedSales}** in direct salon treatment sales!\n\n**Stylist summary**:\n- Current Commission Rate: **${bestStylist.commissionRate || 10}%**\n- Payout Status: **${bestStylist.payoutStatus || 'Pending'}**\n- Role/Specialty: Senior Hair Specialist`;
-            }
-        }
-
-        else if (query.includes('inventory') || query.includes('stock') || query.includes('low stock')) {
-            const items = localDb.inventory || [];
-            const lowStockItems = items.filter(i => (i.quantity || i.stock || 0) < 5);
-            
-            if (items.length === 0) {
-                reply = "Your inventory list is currently empty. You can register styling items under the **Inventory** tab!";
-            } else if (lowStockItems.length === 0) {
-                reply = `📦 **Inventory Stock Report**:\nAll **${items.length}** styling products are currently healthy and well above safety thresholds. No low-stock items detected!`;
-            } else {
-                const list = lowStockItems.map(i => `- **${i.name}**: only **${i.quantity || i.stock}** units remaining`).join('\n');
-                reply = `⚠️ **Critical Low Stock Alert**:\nThe following **${lowStockItems.length}** products are critically running low (under 5 units):\n\n${list}\n\nShall I open the Inventory Control view so you can update stock or draft a purchase order?`;
+            // 1. Navigation Commands
+            if (query.includes('go to marketing') || query.includes('switch to marketing') || query.includes('open marketing')) {
+                reply = "Certainly! I've switched your dashboard to the **Marketing Hub** tab where you can design templates, select target audiences, and queue broadcast campaigns.";
+                command = "switchView_marketing";
+            } else if (query.includes('go to staff') || query.includes('switch to staff') || query.includes('open staff') || query.includes('show staff')) {
+                reply = "Sure! Switching you over to the **Team Management** view to manage your stylists, configure commission rates, or track payouts.";
+                command = "switchView_staff";
+            } else if (query.includes('go to booking') || query.includes('switch to booking') || query.includes('open bookings') || query.includes('show bookings')) {
+                reply = "Right away. I've toggled the view to **Booking Management** where you can view live schedules, modify slots, and manage reception check-ins.";
+                command = "switchView_bookings";
+            } else if (query.includes('go to calendar') || query.includes('switch to calendar') || query.includes('open calendar') || query.includes('show calendar')) {
+                reply = "Switched to **Salon Calendar** tab. You can view all appointments mapped across interactive monthly/weekly grids.";
+                command = "switchView_calendar";
+            } else if (query.includes('go to client') || query.includes('switch to client') || query.includes('open clients') || query.includes('show clients')) {
+                reply = "Toggled to the **Client Directory** to search, audit, or register customer profiles.";
+                command = "switchView_clients";
+            } else if (query.includes('go to inventory') || query.includes('switch to inventory') || query.includes('open inventory') || query.includes('show inventory')) {
+                reply = "Switched to **Inventory Control** to oversee styling products, stock limits, and suppliers.";
                 command = "switchView_inventory";
+            } else if (query.includes('go to report') || query.includes('switch to report') || query.includes('open reports') || query.includes('show reports')) {
+                reply = "Opening **Business Reports** view for insights on revenue, staff stats, and top-selling services.";
+                command = "switchView_reports";
+            } else if (query.includes('go to setting') || query.includes('switch to setting') || query.includes('open settings') || query.includes('show settings')) {
+                reply = "Opening **System Settings** page to configure branch profiles, taxes, and system configurations.";
+                command = "switchView_settings";
             }
-        }
 
-        // 3. Campaign & Template Generators
-        else if (query.includes('campaign') || query.includes('template') || query.includes('write message') || query.includes('promo')) {
-            if (query.includes('welcome') || query.includes('gift') || query.includes('new client')) {
-                reply = `👋 **Welcome Campaign Template Generated**:\n\n"Hello {name}! ✨ We are thrilled to welcome you to the {salon} family. To make your first visit extra special, here is a custom welcome gift: enjoy **15% OFF** on any premium hair styling or skincare treatment this week! 💇‍♀️\n\nBook a slot today or show this message at checkout. We look forward to pampering you!\n\nWarm regards,\n{salon} Team"`;
-                command = "setCampaignMessage";
-                data = {
-                    name: "Welcome Gift Campaign",
-                    message: "Hello {name}! ✨ We are thrilled to welcome you to the {salon} family. To make your first visit extra special, here is a custom welcome gift: enjoy 15% OFF on any premium hair styling or skincare treatment this week! 💇‍♀️\n\nBook a slot today or show this message at checkout. We look forward to pampering you!\n\nWarm regards,\n{salon} Team"
-                };
-            } else if (query.includes('festival') || query.includes('diwali') || query.includes('festive') || query.includes('holiday')) {
-                reply = `✨ **Festive Glow Campaign Template Generated**:\n\n"Hello {name}! 🌟 Celebrate the festive season with a gorgeous makeover. MedhikaArts has prepared premium Festive Packages starting at just ₹999 (Keratin Spa + Hydrating Facial + Glow Mani-Pedi)! 💅\n\nSlots are filling up rapidly this week. Tap to book your festive glow now!\n\nHappy Holidays from {salon}!"`;
-                command = "setCampaignMessage";
-                data = {
-                    name: "Festive Glow Special",
-                    message: "Hello {name}! 🌟 Celebrate the festive season with a gorgeous makeover. MedhikaArts has prepared premium Festive Packages starting at just ₹999 (Keratin Spa + Hydrating Facial + Glow Mani-Pedi)! 💅\n\nSlots are filling up rapidly this week. Tap to book your festive glow now!\n\nHappy Holidays from {salon}!"
-                };
-            } else if (query.includes('inactive') || query.includes('miss you') || query.includes('we miss you')) {
-                reply = `💔 **Re-engagement Campaign Template Generated**:\n\n"Hello {name}! We haven't seen you around the styling chairs at {salon} lately. We miss pampering you! 💆‍♀️\n\nBook an appointment in the next 7 days and claim a **FREE relaxing scalp massage** with any hair service of your choice!\n\nBook now: {salon}"`;
-                command = "setCampaignMessage";
-                data = {
-                    name: "Re-engagement Campaign",
-                    message: "Hello {name}! We haven't seen you around the styling chairs at {salon} lately. We miss pampering you! 💆‍♀️\n\nBook an appointment in the next 7 days and claim a FREE relaxing scalp massage with any hair service of your choice!\n\nBook now: {salon}"
-                };
-            } else {
-                // Default weekend pampering template
-                reply = `💅 **Weekend Pampering Campaign Template Generated**:\n\n"Hello {name}! 🌸 Prepare for the weekend with our exclusive Friday Pampering specials. Treat yourself to a premium haircut, blowout, or relaxing manicure at **10% OFF**!\n\nUnwind, relax, and look your absolute best.\n\nReply to book your weekend slot at {salon}!"`;
-                command = "setCampaignMessage";
-                data = {
-                    name: "Weekend Pampering Special",
-                    message: "Hello {name}! 🌸 Prepare for the weekend with our exclusive Friday Pampering specials. Treat yourself to a premium haircut, blowout, or relaxing manicure at 10% OFF!\n\nUnwind, relax, and look your absolute best.\n\nReply to book your weekend slot at {salon}!"
-                };
+            // 2. Data Queries (Accessing localDb)
+            else if (query.includes('how many client') || query.includes('client count') || query.includes('number of clients')) {
+                const count = localDb.clients ? localDb.clients.length : 0;
+                const vipCount = localDb.clients ? localDb.clients.filter(c => c.category && c.category.toLowerCase().includes('vip')).length : 0;
+                reply = `📊 **Client Database Summary**:\n- Total registered clients: **${count}**\n- VIP clients: **${vipCount}**\n- Regular clients: **${count - vipCount}**\n\nYou can view details in the **Clients** tab.`;
             }
-            reply += `\n\n*Click the **'Use in Marketing'** button that just appeared in your chat box to auto-load this directly into the Campaign Composer!*`;
-        }
 
-        // 4. Marketing Strategies & Business Tips
-        else if (query.includes('retention') || query.includes('loyalty') || query.includes('customer lifetime') || query.includes('keep client')) {
-            reply = `💡 **Top 5 Salon Customer Retention Strategies**:\n\n1. **Rebook at Checkout**: Stylists should always suggest a follow-up booking window immediately after services (e.g. "To maintain this color, let's secure a touch-up in 5 weeks").\n2. **Personalized Follow-Ups**: Configure WhatsApp automations to send a friendly message 3 days post-treatment asking how they are loving their look.\n3. **VIP Tier Programs**: Flag high-spending clients (e.g., spending over ₹5,000) and reward them with complimentary conditioning upgrades.\n4. **Consistent Marketing Broadcasts**: Run regular campaigns (Welcome, Inactive, Festive) using the **Marketing Hub** to stay top of mind.\n5. **Stylist Bonding**: Educate stylists on note-taking. Remembering personal customer anecdotes builds deep community trust!`;
-        } else if (query.includes('trend') || query.includes('summer') || query.includes('style') || query.includes('hair trend')) {
-            reply = `💇‍♀️ **Top Salon Styling Trends of the Season**:\n\n- **Butterfly Cuts & Wispy Layers**: Light, airy cuts with massive volume remain the most popular request among clients.\n- **Warm Caramel Balayage**: Soft, sun-kissed blending that requires minimal root touch-ups is highly favored for summer.\n- **Glass Hair Blowouts**: Hyper-glossy, ultra-straight, sleek styling locks are highly requested for weekend parties.\n- **Scalp Facial Treatments**: Adding detoxifying scalp scrubs + steam oil massages to treatment cards drives up average invoice size by 25%!`;
-        }
+            else if (query.includes('sales') || query.includes('revenue') || query.includes('income') || query.includes('earnings') || query.includes('how much we made')) {
+                const bookings = localDb.bookings || [];
+                const count = bookings.length;
+                const total = bookings.reduce((sum, b) => sum + (b.total || 0), 0);
+                const formattedTotal = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(total);
+                reply = `💰 **Financial Intelligence Report**:\n- Total Recorded Bookings: **${count}**\n- Cumulative Sales Revenue: **${formattedTotal}**\n- Average Basket Value: **${count ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(total / count) : '₹0'}**`;
+            }
 
-        // 5. Default Warm Conversation & Fallback Rules for Maya Prompts
-        else {
-            if (query.includes('walk-in') || query.includes('who is available') || query.includes('fully booked')) {
-                const currentTimeStr = new Intl.DateTimeFormat('en-US', { timeStyle: 'short' }).format(new Date());
-                const staff = localDb.staff || [];
-                const availableStaff = staff.filter(s => s.status === 'Active' || s.status === 'Available' || s.status === 'Checked-In');
-                
-                if (availableStaff.length > 0) {
-                    const names = availableStaff.map(s => s.name).join(', ');
-                    reply = `It is currently ${currentTimeStr}. We have ${availableStaff.length} stylists available right now: **${names}**. I can book a walk-in immediately. Shall I open the New Appointment form for you?`;
-                    command = "switchView_bookings";
+            else if (query.includes('top spender') || query.includes('best customer') || query.includes('most spent')) {
+                const bookings = localDb.bookings || [];
+                const clients = localDb.clients || [];
+
+                if (bookings.length === 0 || clients.length === 0) {
+                    reply = "I audited the databases, but there are no historical bookings recorded yet to determine your top spender.";
                 } else {
-                    reply = `It is currently ${currentTimeStr}. All staff appear to be fully booked or unavailable right now. Please check the schedule for the next open slot.`;
-                    command = "switchView_calendar";
+                    // Calculate spends per client
+                    const spends = {};
+                    bookings.forEach(b => {
+                        const clientName = b.clientName || 'Unknown';
+                        spends[clientName] = (spends[clientName] || 0) + (b.total || 0);
+                    });
+
+                    let topClient = '';
+                    let maxSpend = 0;
+                    for (const [name, spend] of Object.entries(spends)) {
+                        if (spend > maxSpend) {
+                            maxSpend = spend;
+                            topClient = name;
+                        }
+                    }
+
+                    const clientDetails = clients.find(c => c.name.toLowerCase() === topClient.toLowerCase()) || {};
+                    const formattedSpend = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(maxSpend);
+
+                    reply = `💎 **Top Customer Analysis**:\nOur top-spending client is **${topClient}** with a cumulative spend of **${formattedSpend}** across styling packages!\n\n**Client details**:\n- Phone: ${clientDetails.phone || 'N/A'}\n- Gender: ${clientDetails.gender || 'N/A'}\n- Segment Tag: ${clientDetails.category || 'Standard'}`;
                 }
-            } else {
-                reply = `Hello! I am **Maya** 🤖, your executive digital assistant.\n\nI am fully integrated with your live salon databases, staff rosters, and inventory levels!\n\n**Here are a few things I can assist you with**:\n- 📊 *Sales/Revenue check* (try: "Summarize today's revenue")\n- 👥 *Staff Availability* (try: "Who is fully booked today?")\n- 📦 *Stock levels* (try: "Any low stock right now?")\n- 📝 *WhatsApp templates* (try: "Write a Diwali festival promo message")\n- ⚙️ *Navigation* (try: "Switch to marketing tab")`;
             }
-        }
+
+            else if (query.includes('top staff') || query.includes('best employee') || query.includes('stylist stats') || query.includes('staff sales')) {
+                const bookings = localDb.bookings || [];
+                const staff = localDb.staff || [];
+
+                if (bookings.length === 0 || staff.length === 0) {
+                    reply = "I looked at the booking history, but there are no recorded employee metrics to display performance stats yet.";
+                } else {
+                    const performances = {};
+                    bookings.forEach(b => {
+                        if (b.staffId) {
+                            performances[b.staffId] = (performances[b.staffId] || 0) + (b.total || 0);
+                        }
+                    });
+
+                    let bestStaffId = null;
+                    let maxSales = 0;
+                    for (const [id, sales] of Object.entries(performances)) {
+                        if (sales > maxSales) {
+                            maxSales = sales;
+                            bestStaffId = id;
+                        }
+                    }
+
+                    const bestStylist = staff.find(s => s.id === bestStaffId) || {};
+                    const stylistName = bestStylist.name || 'Unknown Stylist';
+                    const formattedSales = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(maxSales);
+
+                    reply = `💇 **Stylist Performance Leaderboard**:\nOur top styling artist is **${stylistName}** who drove **${formattedSales}** in direct salon treatment sales!\n\n**Stylist summary**:\n- Current Commission Rate: **${bestStylist.commissionRate || 10}%**\n- Payout Status: **${bestStylist.payoutStatus || 'Pending'}**\n- Role/Specialty: Senior Hair Specialist`;
+                }
+            }
+
+            else if (query.includes('inventory') || query.includes('stock') || query.includes('low stock')) {
+                const items = localDb.inventory || [];
+                const lowStockItems = items.filter(i => (i.quantity || i.stock || 0) < 5);
+
+                if (items.length === 0) {
+                    reply = "Your inventory list is currently empty. You can register styling items under the **Inventory** tab!";
+                } else if (lowStockItems.length === 0) {
+                    reply = `📦 **Inventory Stock Report**:\nAll **${items.length}** styling products are currently healthy and well above safety thresholds. No low-stock items detected!`;
+                } else {
+                    const list = lowStockItems.map(i => `- **${i.name}**: only **${i.quantity || i.stock}** units remaining`).join('\n');
+                    reply = `⚠️ **Critical Low Stock Alert**:\nThe following **${lowStockItems.length}** products are critically running low (under 5 units):\n\n${list}\n\nShall I open the Inventory Control view so you can update stock or draft a purchase order?`;
+                    command = "switchView_inventory";
+                }
+            }
+
+            // 3. Campaign & Template Generators
+            else if (query.includes('campaign') || query.includes('template') || query.includes('write message') || query.includes('promo')) {
+                if (query.includes('welcome') || query.includes('gift') || query.includes('new client')) {
+                    reply = `👋 **Welcome Campaign Template Generated**:\n\n"Hello {name}! ✨ We are thrilled to welcome you to the {salon} family. To make your first visit extra special, here is a custom welcome gift: enjoy **15% OFF** on any premium hair styling or skincare treatment this week! 💇‍♀️\n\nBook a slot today or show this message at checkout. We look forward to pampering you!\n\nWarm regards,\n{salon} Team"`;
+                    command = "setCampaignMessage";
+                    data = {
+                        name: "Welcome Gift Campaign",
+                        message: "Hello {name}! ✨ We are thrilled to welcome you to the {salon} family. To make your first visit extra special, here is a custom welcome gift: enjoy 15% OFF on any premium hair styling or skincare treatment this week! 💇‍♀️\n\nBook a slot today or show this message at checkout. We look forward to pampering you!\n\nWarm regards,\n{salon} Team"
+                    };
+                } else if (query.includes('festival') || query.includes('diwali') || query.includes('festive') || query.includes('holiday')) {
+                    reply = `✨ **Festive Glow Campaign Template Generated**:\n\n"Hello {name}! 🌟 Celebrate the festive season with a gorgeous makeover. MedhikaArts has prepared premium Festive Packages starting at just ₹999 (Keratin Spa + Hydrating Facial + Glow Mani-Pedi)! 💅\n\nSlots are filling up rapidly this week. Tap to book your festive glow now!\n\nHappy Holidays from {salon}!"`;
+                    command = "setCampaignMessage";
+                    data = {
+                        name: "Festive Glow Special",
+                        message: "Hello {name}! 🌟 Celebrate the festive season with a gorgeous makeover. MedhikaArts has prepared premium Festive Packages starting at just ₹999 (Keratin Spa + Hydrating Facial + Glow Mani-Pedi)! 💅\n\nSlots are filling up rapidly this week. Tap to book your festive glow now!\n\nHappy Holidays from {salon}!"
+                    };
+                } else if (query.includes('inactive') || query.includes('miss you') || query.includes('we miss you')) {
+                    reply = `💔 **Re-engagement Campaign Template Generated**:\n\n"Hello {name}! We haven't seen you around the styling chairs at {salon} lately. We miss pampering you! 💆‍♀️\n\nBook an appointment in the next 7 days and claim a **FREE relaxing scalp massage** with any hair service of your choice!\n\nBook now: {salon}"`;
+                    command = "setCampaignMessage";
+                    data = {
+                        name: "Re-engagement Campaign",
+                        message: "Hello {name}! We haven't seen you around the styling chairs at {salon} lately. We miss pampering you! 💆‍♀️\n\nBook an appointment in the next 7 days and claim a FREE relaxing scalp massage with any hair service of your choice!\n\nBook now: {salon}"
+                    };
+                } else {
+                    // Default weekend pampering template
+                    reply = `💅 **Weekend Pampering Campaign Template Generated**:\n\n"Hello {name}! 🌸 Prepare for the weekend with our exclusive Friday Pampering specials. Treat yourself to a premium haircut, blowout, or relaxing manicure at **10% OFF**!\n\nUnwind, relax, and look your absolute best.\n\nReply to book your weekend slot at {salon}!"`;
+                    command = "setCampaignMessage";
+                    data = {
+                        name: "Weekend Pampering Special",
+                        message: "Hello {name}! 🌸 Prepare for the weekend with our exclusive Friday Pampering specials. Treat yourself to a premium haircut, blowout, or relaxing manicure at 10% OFF!\n\nUnwind, relax, and look your absolute best.\n\nReply to book your weekend slot at {salon}!"
+                    };
+                }
+                reply += `\n\n*Click the **'Use in Marketing'** button that just appeared in your chat box to auto-load this directly into the Campaign Composer!*`;
+            }
+
+            // 4. Marketing Strategies & Business Tips
+            else if (query.includes('retention') || query.includes('loyalty') || query.includes('customer lifetime') || query.includes('keep client')) {
+                reply = `💡 **Top 5 Salon Customer Retention Strategies**:\n\n1. **Rebook at Checkout**: Stylists should always suggest a follow-up booking window immediately after services (e.g. "To maintain this color, let's secure a touch-up in 5 weeks").\n2. **Personalized Follow-Ups**: Configure WhatsApp automations to send a friendly message 3 days post-treatment asking how they are loving their look.\n3. **VIP Tier Programs**: Flag high-spending clients (e.g., spending over ₹5,000) and reward them with complimentary conditioning upgrades.\n4. **Consistent Marketing Broadcasts**: Run regular campaigns (Welcome, Inactive, Festive) using the **Marketing Hub** to stay top of mind.\n5. **Stylist Bonding**: Educate stylists on note-taking. Remembering personal customer anecdotes builds deep community trust!`;
+            } else if (query.includes('trend') || query.includes('summer') || query.includes('style') || query.includes('hair trend')) {
+                reply = `💇‍♀️ **Top Salon Styling Trends of the Season**:\n\n- **Butterfly Cuts & Wispy Layers**: Light, airy cuts with massive volume remain the most popular request among clients.\n- **Warm Caramel Balayage**: Soft, sun-kissed blending that requires minimal root touch-ups is highly favored for summer.\n- **Glass Hair Blowouts**: Hyper-glossy, ultra-straight, sleek styling locks are highly requested for weekend parties.\n- **Scalp Facial Treatments**: Adding detoxifying scalp scrubs + steam oil massages to treatment cards drives up average invoice size by 25%!`;
+            }
+
+            // 5. Default Warm Conversation & Fallback Rules for Maya Prompts
+            else {
+                if (query.includes('walk-in') || query.includes('who is available') || query.includes('fully booked')) {
+                    const currentTimeStr = new Intl.DateTimeFormat('en-US', { timeStyle: 'short' }).format(new Date());
+                    const staff = localDb.staff || [];
+                    const availableStaff = staff.filter(s => s.status === 'Active' || s.status === 'Available' || s.status === 'Checked-In');
+
+                    if (availableStaff.length > 0) {
+                        const names = availableStaff.map(s => s.name).join(', ');
+                        reply = `It is currently ${currentTimeStr}. We have ${availableStaff.length} stylists available right now: **${names}**. I can book a walk-in immediately. Shall I open the New Appointment form for you?`;
+                        command = "switchView_bookings";
+                    } else {
+                        reply = `It is currently ${currentTimeStr}. All staff appear to be fully booked or unavailable right now. Please check the schedule for the next open slot.`;
+                        command = "switchView_calendar";
+                    }
+                } else {
+                    reply = `Hello! I am **Maya** 🤖, your executive digital assistant.\n\nI am fully integrated with your live salon databases, staff rosters, and inventory levels!\n\n**Here are a few things I can assist you with**:\n- 📊 *Sales/Revenue check* (try: "Summarize today's revenue")\n- 👥 *Staff Availability* (try: "Who is fully booked today?")\n- 📦 *Stock levels* (try: "Any low stock right now?")\n- 📝 *WhatsApp templates* (try: "Write a Diwali festival promo message")\n- ⚙️ *Navigation* (try: "Switch to marketing tab")`;
+                }
+            }
         }
     } catch (err) {
         console.error('[AI CHAT ERROR]', err);
@@ -3405,73 +3405,73 @@ cron.schedule('0 9 * * *', async () => {
     try {
         const settings = localDb.settings || {};
         if (!settings.eventNotificationsEnabled) return;
-        
+
         const frequency = settings.eventNotificationsFrequency || 'daily';
         console.log(`[CRON] Running automated event notifications check (Freq: ${frequency})`);
-        
+
         const today = new Date();
         const clients = isConnected ? await Client.find() : localDb.clients;
-        
+
         for (let c of clients) {
             if (!c.phone || c.phone === '-') continue;
-            
+
             // Check birthdays
             if (c.dob) {
                 const dobDate = new Date(c.dob);
                 let shouldSend = false;
-                
+
                 if (frequency === 'daily') {
                     if (dobDate.getDate() === today.getDate() && dobDate.getMonth() === today.getMonth()) shouldSend = true;
                 } else if (frequency === 'weekly') {
                     if (today.getDay() === 1) { // Monday
                         const bdayThisYear = new Date(today.getFullYear(), dobDate.getMonth(), dobDate.getDate());
                         const diffTime = bdayThisYear - today;
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         if (diffDays >= 0 && diffDays < 7) shouldSend = true;
                     }
                 } else if (frequency === 'monthly') {
                     if (today.getDate() === 1 && dobDate.getMonth() === today.getMonth()) shouldSend = true;
                 }
-                
+
                 if (shouldSend) {
                     const msg = `Happy Birthday from Srijes Salon! 🎉 We want to celebrate YOU! Book any service with us and claim your special treat.`;
                     let cleanPhone = String(c.phone).replace(/\D/g, '');
                     if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
                     if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
                     const chatId = `${cleanPhone}@c.us`;
-                    
+
                     if (whatsappReady && whatsappClient) {
                         console.log(`[CRON] Sending birthday greeting to ${c.name} (${c.phone})`);
                         await whatsappClient.sendMessage(chatId, msg).catch(console.error);
                     }
                 }
             }
-            
+
             // Check anniversaries
             if (c.anniversary) {
                 const annDate = new Date(c.anniversary);
                 let shouldSend = false;
-                
+
                 if (frequency === 'daily') {
                     if (annDate.getDate() === today.getDate() && annDate.getMonth() === today.getMonth()) shouldSend = true;
                 } else if (frequency === 'weekly') {
                     if (today.getDay() === 1) { // Monday
                         const annThisYear = new Date(today.getFullYear(), annDate.getMonth(), annDate.getDate());
                         const diffTime = annThisYear - today;
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                         if (diffDays >= 0 && diffDays < 7) shouldSend = true;
                     }
                 } else if (frequency === 'monthly') {
                     if (today.getDate() === 1 && annDate.getMonth() === today.getMonth()) shouldSend = true;
                 }
-                
+
                 if (shouldSend) {
                     const msg = `Happy Anniversary from Srijes Salon! 💖 Celebrate your special milestone with us!`;
                     let cleanPhone = String(c.phone).replace(/\D/g, '');
                     if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
                     if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
                     const chatId = `${cleanPhone}@c.us`;
-                    
+
                     if (whatsappReady && whatsappClient) {
                         console.log(`[CRON] Sending anniversary greeting to ${c.name} (${c.phone})`);
                         await whatsappClient.sendMessage(chatId, msg).catch(console.error);
@@ -3518,7 +3518,7 @@ async function sendBookingWhatsAppNotificationServer(booking) {
             const rawSvcs = Array.isArray(booking.services) ? booking.services : [booking.services];
             const cleanSvcs = [];
             const allDbServices = localDb.services || [];
-            
+
             for (let sItem of rawSvcs) {
                 if (!sItem) continue;
                 let sStr = String(sItem).trim();

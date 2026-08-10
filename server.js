@@ -142,8 +142,42 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
             });
         }
 
-        // Call OFFICIAL WhatsApp Web pairing code generator from live page context
-        const rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+        let rawCode = null;
+        try {
+            rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+        } catch (e1) {
+            console.warn('[WHATSAPP PAIRING CODE WWEBJS API ERROR]', e1.message);
+            if (whatsappClient.pupPage) {
+                try {
+                    console.log('[WHATSAPP DOM PAIRING FALLBACK] Attempting DOM extraction...');
+                    const page = whatsappClient.pupPage;
+                    await page.evaluate(() => {
+                        const btns = Array.from(document.querySelectorAll('span, button, div'));
+                        const linkBtn = btns.find(b => b.textContent && b.textContent.includes('Link with phone number'));
+                        if (linkBtn) linkBtn.click();
+                    });
+                    await new Promise(r => setTimeout(r, 1200));
+                    await page.type('input[type="text"]', cleanPhone);
+                    await page.keyboard.press('Enter');
+                    await new Promise(r => setTimeout(r, 2000));
+                    rawCode = await page.evaluate(() => {
+                        const codeElements = Array.from(document.querySelectorAll('[data-pairing-code-token], span'));
+                        const target = codeElements.find(el => el.getAttribute && el.getAttribute('data-pairing-code-token'));
+                        if (target) return target.getAttribute('data-pairing-code-token');
+                        const text = document.body ? document.body.innerText : '';
+                        const match = text.match(/[A-Z0-9]{4}-[A-Z0-9]{4}/) || text.match(/[A-Z0-9]{8}/);
+                        return match ? match[0] : null;
+                    });
+                } catch(domErr) {
+                    console.error('[WHATSAPP DOM PAIRING ERROR]', domErr.message);
+                }
+            }
+        }
+
+        if (!rawCode) {
+            throw new Error('Pairing code could not be retrieved from WhatsApp Web.');
+        }
+
         console.log(`[WHATSAPP OFFICIAL PAIRING CODE SUCCESS] Code: ${rawCode}`);
 
         return res.json({
@@ -2526,6 +2560,10 @@ function initWhatsAppClient() {
         console.log('[WHATSAPP] Initializing LocalAuth client...');
         whatsappClient = new WAClient({
             authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
+            webVersionCache: {
+                type: 'remote',
+                remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1014587000-alpha.html'
+            },
             puppeteer: puppeteerOpts
         });
     } catch(err) {

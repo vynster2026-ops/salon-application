@@ -2310,6 +2310,10 @@ function initWhatsAppClient() {
         console.log('[WHATSAPP] Initializing LocalAuth client...');
         whatsappClient = new WAClient({
             authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
+            webVersionCache: {
+                type: 'remote',
+                remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1014587000-alpha.html'
+            },
             puppeteer: puppeteerOpts
         });
     } catch(err) {

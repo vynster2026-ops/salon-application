@@ -353,7 +353,7 @@ app.put('/api/bookings/:id', async (req, res) => {
     res.status(404).json({ error: 'Booking not found' });
 });
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/medika';
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL;
 const DB_FILE = 'db.json';
 
 let localDb = {
@@ -403,9 +403,14 @@ const saveLocal = () => fs.writeFileSync(DB_FILE, JSON.stringify(localDb, null, 
 mongoose.set('bufferCommands', false);
 
 let isConnected = false;
-mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
-  .then(() => { console.log('Connected to MongoDB'); isConnected = true; })
-  .catch(err => { console.error('MongoDB connection failed. Falling back to local storage.'); isConnected = false; });
+if (MONGODB_URI) {
+    mongoose.connect(MONGODB_URI, { serverSelectionTimeoutMS: 5000 })
+      .then(() => { console.log('Successfully connected to MongoDB database'); isConnected = true; })
+      .catch(err => { console.error('MongoDB connection error:', err.message, '- Falling back to local storage (db.json)'); isConnected = false; });
+} else {
+    console.log('[DATABASE] No MONGODB_URI environment variable set. Operating smoothly with local storage (db.json).');
+    isConnected = false;
+}
 
 const clientSchema = new mongoose.Schema({ id: String, name: String, phone: String, email: String, location: String, pts: Number, ltv: String, av: String, branchId: String }, { bufferCommands: false });
 const staffSchema = new mongoose.Schema({ id: String, staffId: String, name: String, gender: String, spec: String, role: String, rating: String, av: String, services: [String], status: String, phone: String, password: String, specialties: [String], summary: String, branchId: String }, { bufferCommands: false, strict: false });

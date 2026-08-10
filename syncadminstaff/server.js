@@ -520,7 +520,9 @@ app.post('/api/auth/login', async (req, res) => {
                     password: cleanPassword
                 }).lean();
             } catch (e) { }
-        } else {
+        }
+
+        if (!branch) {
             branch = (localDb.branches || []).find(b => {
                 const matchEmail = (b.email && b.email.toLowerCase() === cleanEmail) ||
                                    (b.accessKey && b.accessKey.toLowerCase() === cleanEmail) ||
@@ -531,6 +533,9 @@ app.post('/api/auth/login', async (req, res) => {
                 const matchPass = (b.password === cleanPassword || !b.password);
                 return matchEmail && matchPass;
             });
+            if (branch && isConnected) {
+                try { await Branch.create(branch); } catch (e) { }
+            }
         }
         if (branch) {
             if (branch.verificationStatus === 'Pending') {

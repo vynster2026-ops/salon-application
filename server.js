@@ -68,6 +68,20 @@ if (!fs.existsSync(uploadsDir)) {
 }
 app.use('/uploads', express.static(uploadsDir));
 
+// --- 24/7 RENDER KEEP-ALIVE HEARTBEAT ROUTE ---
+app.get(['/api/ping', '/ping'], (req, res) => {
+    res.status(200).json({ status: 'online', time: new Date().toISOString() });
+});
+
+// Self-ping every 9 minutes to keep Render Free tier awake 24/7
+const RENDER_APP_URL = process.env.RENDER_EXTERNAL_URL || 'https://salon-application.onrender.com';
+setInterval(() => {
+    try {
+        const client = RENDER_APP_URL.startsWith('https') ? require('https') : require('http');
+        client.get(`${RENDER_APP_URL}/api/ping`, () => {}).on('error', () => {});
+    } catch (e) {}
+}, 9 * 60 * 1000);
+
 // --- WHATSAPP SESSION STATE VARIABLES ---
 var whatsappClient = null;
 var whatsappReady = false;

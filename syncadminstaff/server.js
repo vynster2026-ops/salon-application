@@ -143,6 +143,20 @@ app.use((req, res, next) => {
     next();
 });
 
+// --- 24/7 RENDER KEEP-ALIVE HEARTBEAT ROUTE ---
+app.get(['/api/ping', '/ping'], (req, res) => {
+    res.status(200).json({ status: 'online', time: new Date().toISOString() });
+});
+
+// Self-ping every 9 minutes to keep Render Free tier awake 24/7
+const RENDER_APP_URL_SYNC = process.env.RENDER_EXTERNAL_URL || 'https://salon-application.onrender.com';
+setInterval(() => {
+    try {
+        const client = RENDER_APP_URL_SYNC.startsWith('https') ? require('https') : require('http');
+        client.get(`${RENDER_APP_URL_SYNC}/api/ping`, () => {}).on('error', () => {});
+    } catch (e) {}
+}, 9 * 60 * 1000);
+
 // New removal route
 app.post('/api/bookings/remove/:id', async (req, res) => {
     const id = req.params.id;

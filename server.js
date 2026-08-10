@@ -2368,45 +2368,57 @@ const qrcode = require('qrcode-terminal');
 // Initialize native automation client if provider is 'local' or default
 const activeProvider = process.env.WHATSAPP_PROVIDER || 'local';
 
+function findChromeExecutable(dir) {
+    if (!fs.existsSync(dir)) return null;
+    try {
+        const items = fs.readdirSync(dir, { withFileTypes: true });
+        for (const item of items) {
+            const fullPath = path.join(dir, item.name);
+            if (item.isDirectory()) {
+                const res = findChromeExecutable(fullPath);
+                if (res) return res;
+            } else if (item.isFile() && (item.name === 'chrome' || item.name === 'chrome.exe')) {
+                return fullPath;
+            }
+        }
+    } catch(e) {}
+    return null;
+}
+
 function initWhatsAppClient() {
     if (activeProvider !== 'local') return;
 
     let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
-    const systemPaths = [
-        '/usr/bin/google-chrome',
-        '/usr/bin/chromium-browser',
-        '/usr/bin/chromium'
+
+    const candidateSearchDirs = [
+        path.join(__dirname, '.cache'),
+        '/opt/render/project/src/.cache',
+        '/opt/render/.cache',
+        '/root/.cache'
     ];
-    for (const sp of systemPaths) {
-        if (!executablePath && fs.existsSync(sp)) executablePath = sp;
+
+    if (!executablePath) {
+        for (const dir of candidateSearchDirs) {
+            const found = findChromeExecutable(dir);
+            if (found) {
+                executablePath = found;
+                break;
+            }
+        }
     }
 
-    const candidatePaths = [
-        path.join(__dirname, '.cache', 'puppeteer', 'chrome'),
-        '/opt/render/project/src/.cache/puppeteer/chrome',
-        '/opt/render/.cache/puppeteer/chrome'
-    ];
-    for (const baseDir of candidatePaths) {
-        try {
-            if (!executablePath && fs.existsSync(baseDir)) {
-                const dirs = fs.readdirSync(baseDir);
-                for (const d of dirs) {
-                    const subDir = path.join(baseDir, d);
-                    if (fs.statSync(subDir).isDirectory()) {
-                        const buildDirs = fs.readdirSync(subDir);
-                        for (const bd of buildDirs) {
-                            const candidate = path.join(subDir, bd, 'chrome');
-                            if (fs.existsSync(candidate)) {
-                                executablePath = candidate;
-                                break;
-                            }
-                        }
-                    }
-                    if (executablePath) break;
-                }
+    if (!executablePath) {
+        const systemPaths = [
+            '/usr/bin/google-chrome',
+            '/usr/bin/google-chrome-stable',
+            '/usr/bin/chromium-browser',
+            '/usr/bin/chromium'
+        ];
+        for (const sp of systemPaths) {
+            if (fs.existsSync(sp)) {
+                executablePath = sp;
+                break;
             }
-        } catch(e) {
-            console.log('[WHATSAPP] Chrome search warning:', e.message);
         }
     }
 
@@ -2423,6 +2435,8 @@ function initWhatsAppClient() {
     if (executablePath) {
         console.log('[WHATSAPP] Using Chrome executable path:', executablePath);
         puppeteerOpts.executablePath = executablePath;
+    } else {
+        console.log('[WHATSAPP] Executable path not found explicitly, allowing Puppeteer default launcher.');
     }
 
     try {

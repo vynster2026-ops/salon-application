@@ -2203,60 +2203,125 @@ let latestQr = null; // Store the latest QR code string globally
 // Initialize native automation client if provider is 'local' or default
 const activeProvider = process.env.WHATSAPP_PROVIDER || 'local';
 
+function findChromeExecutableSync(dir) {
+    if (!fs.existsSync(dir)) return null;
+    try {
+        const items = fs.readdirSync(dir, { withFileTypes: true });
+        for (const item of items) {
+            const fullPath = path.join(dir, item.name);
+            if (item.isDirectory()) {
+                const res = findChromeExecutableSync(fullPath);
+                if (res) return res;
+            } else if (item.isFile() && (item.name === 'chrome' || item.name === 'chrome.exe')) {
+                return fullPath;
+            }
+        }
+    } catch(e) {}
+    return null;
+}
+
 function initWhatsAppClient() {
     if (activeProvider !== 'local') return;
 
-    whatsappClient = new WAClient({
-        authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
-        puppeteer: {
-            headless: true,
-            args: [
-                '--no-sandbox', 
-                '--disable-setuid-sandbox',
-                '--disable-blink-features=AutomationControlled',
-                '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
-            ]
+    let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+
+    const candidateSearchDirs = [
+        path.join(__dirname, '..', '.cache'),
+        path.join(__dirname, '.cache'),
+        '/opt/render/project/src/.cache',
+        '/opt/render/.cache',
+        '/root/.cache'
+    ];
+
+    if (!executablePath) {
+        for (const dir of candidateSearchDirs) {
+            const found = findChromeExecutableSync(dir);
+            if (found) {
+                executablePath = found;
+                break;
+            }
         }
-    });
+    }
 
-    whatsappClient.on('qr', (qr) => {
-        latestQr = qr; // Save QR code
-        console.log('========================================================================');
-        console.log('📱 SCAN THIS QR CODE IN YOUR WHATSAPP TO ENABLE BACKGROUND AUTOMATION:');
-        console.log('========================================================================');
-        qrcode.generate(qr, {small: true});
-    });
+    if (!executablePath) {
+        const systemPaths = [
+            '/usr/bin/google-chrome',
+            '/usr/bin/google-chrome-stable',
+            '/usr/bin/chromium-browser',
+            '/usr/bin/chromium'
+        ];
+        for (const sp of systemPaths) {
+            if (fs.existsSync(sp)) {
+                executablePath = sp;
+                break;
+            }
+        }
+    }
 
-    whatsappClient.on('ready', () => {
-        latestQr = null; // Clear QR code when connected
-        console.log('========================================================================');
-        console.log('🚀 WhatsApp Server API is READY! Automated messages will now send instantly.');
-        console.log('========================================================================');
-        whatsappReady = true;
-    });
+    const puppeteerOpts = {
+        headless: true,
+        args: [
+            '--no-sandbox', 
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-blink-features=AutomationControlled',
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+        ]
+    };
+    if (executablePath) {
+        console.log('[WHATSAPP] Using Chrome executable path:', executablePath);
+        puppeteerOpts.executablePath = executablePath;
+    }
 
-    whatsappClient.on('authenticated', () => {
-        console.log('[WHATSAPP] Authenticated successfully!');
-        latestQr = null;
-    });
+    try {
+        whatsappClient = new WAClient({
+            authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
+            puppeteer: puppeteerOpts
+        });
 
-    whatsappClient.on('auth_failure', (msg) => {
-        console.error('[WHATSAPP] Authentication failure:', msg);
+        whatsappClient.on('qr', (qr) => {
+            latestQr = qr; // Save QR code
+            console.log('========================================================================');
+            console.log('📱 SCAN THIS QR CODE IN YOUR WHATSAPP TO ENABLE BACKGROUND AUTOMATION:');
+            console.log('========================================================================');
+            qrcode.generate(qr, {small: true});
+        });
+
+        whatsappClient.on('ready', () => {
+            latestQr = null; // Clear QR code when connected
+            console.log('========================================================================');
+            console.log('🚀 WhatsApp Server API is READY! Automated messages will now send instantly.');
+            console.log('========================================================================');
+            whatsappReady = true;
+        });
+
+        whatsappClient.on('authenticated', () => {
+            console.log('[WHATSAPP] Authenticated successfully!');
+            latestQr = null;
+        });
+
+        whatsappClient.on('auth_failure', (msg) => {
+            console.error('[WHATSAPP] Authentication failure:', msg);
+            whatsappReady = false;
+            latestQr = null;
+        });
+
+        whatsappClient.on('disconnected', (reason) => {
+            console.log('[WHATSAPP] Client disconnected or logged out:', reason);
+            whatsappReady = false;
+            latestQr = null;
+        });
+
+        whatsappClient.initialize().catch(err => {
+            console.error('[WHATSAPP] Non-fatal initialization error:', err.message || err);
+            whatsappReady = false;
+            latestQr = null;
+        });
+    } catch (e) {
+        console.error('[WHATSAPP] Exception in initWhatsAppClient:', e.message || e);
         whatsappReady = false;
         latestQr = null;
-    });
-
-    whatsappClient.on('disconnected', (reason) => {
-        console.log('[WHATSAPP] Client disconnected or logged out:', reason);
-        whatsappReady = false;
-        latestQr = null;
-    });
-
-    whatsappClient.initialize().catch(err => {
-        console.error('[WHATSAPP] Fatal error during initialization:', err);
-        whatsappReady = false;
-        latestQr = null;
-    });
+    }
 }
 
 if (activeProvider === 'local') {

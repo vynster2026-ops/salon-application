@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "build": "npm install",
-    "postinstall": "npx puppeteer browsers install chrome || true",
+    "postinstall": "PUPPETEER_CACHE_DIR=./.cache/puppeteer npx puppeteer browsers install chrome || true",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

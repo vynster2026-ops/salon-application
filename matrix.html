@@ -8,6 +8,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Socket.IO for real-time live synchronization across all 4 dashboards -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        var socket = null;
+        try {
+            socket = io();
+            socket.on('connect', function() {
+                console.log('[REALTIME SOCKET.IO] Connected in Superadmin Dashboard (matrix.html)');
+            });
+            socket.on('sync_refresh', function(event) {
+                console.log('[REALTIME SYNC EVENT RECEIVE]', event);
+                if (typeof loadAllData === 'function') loadAllData();
+                if (typeof renderGlobalOverview === 'function') renderGlobalOverview();
+            });
+        } catch(e) {}
+    </script>
     <!-- Three.js for 3D Visuals & Chart.js for Analytics -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

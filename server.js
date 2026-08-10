@@ -25,9 +25,36 @@ const io = new Server(server, {
 });
 
 io.on('connection', (socket) => {
-    console.log('a user connected to socket.io');
+    console.log('[SOCKET.IO] Real-time Dashboard Sync Client Connected:', socket.id);
+
+    // Broadcast synchronization events across all 4 dashboards
+    socket.on('new_booking', (data) => {
+        io.emit('new_booking', data);
+        io.emit('sync_refresh', { type: 'booking', data });
+    });
+    socket.on('booking_update', (data) => {
+        io.emit('booking_update', data);
+        io.emit('sync_refresh', { type: 'booking', data });
+    });
+    socket.on('staff_update', (data) => {
+        io.emit('staff_update', data);
+        io.emit('sync_refresh', { type: 'staff', data });
+    });
+    socket.on('leave_update', (data) => {
+        io.emit('leave_update', data);
+        io.emit('sync_refresh', { type: 'leave', data });
+    });
+    socket.on('inventory_update', (data) => {
+        io.emit('inventory_update', data);
+        io.emit('sync_refresh', { type: 'inventory', data });
+    });
+    socket.on('service_update', (data) => {
+        io.emit('service_update', data);
+        io.emit('sync_refresh', { type: 'service', data });
+    });
+
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+        console.log('[SOCKET.IO] Client disconnected:', socket.id);
     });
 });
 app.use(cors()); // Permissive CORS for local development

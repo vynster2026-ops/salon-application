@@ -2438,8 +2438,12 @@ function initWhatsAppClient() {
             '--no-sandbox', 
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu',
             '--disable-blink-features=AutomationControlled',
-            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
         ]
     };
     if (executablePath) {
@@ -2452,11 +2456,22 @@ function initWhatsAppClient() {
     try {
         whatsappClient = new WAClient({
             authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
+            webVersionCache: {
+                type: 'remote',
+                remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
+            },
             puppeteer: puppeteerOpts
         });
     } catch(err) {
-        console.error('[WHATSAPP] Failed to construct client:', err.message);
-        return;
+        try {
+            whatsappClient = new WAClient({
+                authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
+                puppeteer: puppeteerOpts
+            });
+        } catch(e) {
+            console.error('[WHATSAPP] Failed to construct client:', e.message);
+            return;
+        }
     }
 
     whatsappClient.on('qr', async (qr) => {

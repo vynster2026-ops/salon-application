@@ -1846,6 +1846,14 @@
                     return;
                 }
 
+                if (data.initializing) {
+                    console.log('WhatsApp client initializing... Auto-retrying in 3 seconds.');
+                    setTimeout(() => {
+                        requestWhatsAppPairingCode();
+                    }, 3000);
+                    return;
+                }
+
                 if (res.ok && data.success && data.pairingCode) {
                     const resultBox = document.getElementById('pairing-code-result-box');
                     const codeSpan = document.getElementById('display-pairing-code');

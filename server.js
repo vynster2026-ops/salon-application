@@ -72,19 +72,19 @@ app.use('/uploads', express.static(uploadsDir));
 var whatsappClient = null;
 var whatsappReady = false;
 var latestQr = null;
-var qrCodeDataUrl = null;
-
-// --- WHATSAPP SESSION CONTROLLER ROUTES ---
+var whatsappAuthenticated = false;
 
 app.get(['/api/whatsapp/status', '/whatsapp/status'], (req, res) => {
-    const activeQr = qrCodeDataUrl || latestQr || null;
+    const isConnected = !!(whatsappReady || whatsappAuthenticated);
+    const activeQr = isConnected ? null : (qrCodeDataUrl || latestQr || null);
     res.json({
-        ready: !!whatsappReady,
-        connected: !!whatsappReady,
+        ready: isConnected,
+        connected: isConnected,
+        authenticated: isConnected,
         qrCode: activeQr,
         qr: activeQr,
-        qrCodeDataUrl: qrCodeDataUrl,
-        message: whatsappReady ? 'WhatsApp Client Active and Authenticated' : (activeQr ? 'Awaiting QR Code Scan' : 'WhatsApp Client Offline / Initializing Browser')
+        qrCodeDataUrl: activeQr,
+        message: isConnected ? 'WhatsApp Client Active and Authenticated' : (activeQr ? 'Awaiting QR Code Scan' : 'WhatsApp Client Offline / Initializing Browser')
     });
 });
 
@@ -2483,28 +2483,39 @@ function initWhatsAppClient() {
     });
 
     whatsappClient.on('ready', () => {
-        latestQr = null; // Clear QR code when connected
+        whatsappReady = true;
+        whatsappAuthenticated = true;
+        latestQr = null;
+        qrCodeDataUrl = null;
         console.log('========================================================================');
         console.log('🚀 WhatsApp Server API is READY! Automated messages will now send instantly.');
         console.log('========================================================================');
-        whatsappReady = true;
     });
 
     whatsappClient.on('authenticated', () => {
-        console.log('[WHATSAPP] Authenticated successfully!');
+        console.log('========================================================================');
+        console.log('🎉 WHATSAPP AUTHENTICATED SUCCESSFULLY! Phone is linked.');
+        console.log('========================================================================');
+        whatsappReady = true;
+        whatsappAuthenticated = true;
         latestQr = null;
+        qrCodeDataUrl = null;
     });
 
     whatsappClient.on('auth_failure', (msg) => {
         console.error('[WHATSAPP] Authentication failure:', msg);
         whatsappReady = false;
+        whatsappAuthenticated = false;
         latestQr = null;
+        qrCodeDataUrl = null;
     });
 
     whatsappClient.on('disconnected', (reason) => {
         console.log('[WHATSAPP] Client disconnected or logged out:', reason);
         whatsappReady = false;
+        whatsappAuthenticated = false;
         latestQr = null;
+        qrCodeDataUrl = null;
     });
 
     whatsappClient.initialize().catch(err => {

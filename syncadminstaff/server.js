@@ -2312,15 +2312,18 @@ function initWhatsAppClient() {
         });
 
         whatsappClient.on('ready', () => {
-            latestQr = null; // Clear QR code when connected
+            whatsappReady = true;
+            latestQr = null;
             console.log('========================================================================');
             console.log('🚀 WhatsApp Server API is READY! Automated messages will now send instantly.');
             console.log('========================================================================');
-            whatsappReady = true;
         });
 
         whatsappClient.on('authenticated', () => {
-            console.log('[WHATSAPP] Authenticated successfully!');
+            console.log('========================================================================');
+            console.log('🎉 WHATSAPP AUTHENTICATED SUCCESSFULLY! Phone is linked.');
+            console.log('========================================================================');
+            whatsappReady = true;
             latestQr = null;
         });
 

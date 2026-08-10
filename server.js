@@ -61,21 +61,28 @@ if (!fs.existsSync(uploadsDir)) {
 }
 app.use('/uploads', express.static(uploadsDir));
 
+// --- WHATSAPP SESSION STATE VARIABLES ---
+var whatsappClient = null;
+var whatsappReady = false;
+var latestQr = null;
+var qrCodeDataUrl = null;
+
 // --- WHATSAPP SESSION CONTROLLER ROUTES ---
 
 app.get(['/api/whatsapp/status', '/whatsapp/status'], (req, res) => {
-    const activeQr = (typeof latestQr !== 'undefined' && latestQr) ? latestQr : (typeof qrCodeDataUrl !== 'undefined' ? qrCodeDataUrl : null);
+    const activeQr = qrCodeDataUrl || latestQr || null;
     res.json({
         ready: !!whatsappReady,
         connected: !!whatsappReady,
         qrCode: activeQr,
         qr: activeQr,
-        message: whatsappReady ? 'WhatsApp Client Active and Authenticated' : 'WhatsApp Client Offline / Awaiting QR Scan'
+        qrCodeDataUrl: qrCodeDataUrl,
+        message: whatsappReady ? 'WhatsApp Client Active and Authenticated' : (activeQr ? 'Awaiting QR Code Scan' : 'WhatsApp Client Offline / Initializing Browser')
     });
 });
 
 app.get(['/api/whatsapp/qr', '/whatsapp/qr'], (req, res) => {
-    const activeQr = (typeof latestQr !== 'undefined' && latestQr) ? latestQr : (typeof qrCodeDataUrl !== 'undefined' ? qrCodeDataUrl : null);
+    const activeQr = qrCodeDataUrl || latestQr || null;
     res.json({
         qrCode: activeQr,
         qr: activeQr,
@@ -2346,14 +2353,8 @@ app.post(['/api/marketing/bill-ad', '/api/marketing/booking-ad'], (req, res) => 
 const { Client: WAClient, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 
-let whatsappClient = null;
-let whatsappReady = false;
-let latestQr = null; // Store the latest QR code string globally
-
 // Initialize native automation client if provider is 'local' or default
 const activeProvider = process.env.WHATSAPP_PROVIDER || 'local';
-
-let qrCodeDataUrl = null;
 
 function initWhatsAppClient() {
     if (activeProvider !== 'local') return;

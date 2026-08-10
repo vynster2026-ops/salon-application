@@ -2454,24 +2454,14 @@ function initWhatsAppClient() {
     }
 
     try {
+        console.log('[WHATSAPP] Initializing LocalAuth client...');
         whatsappClient = new WAClient({
             authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
-            webVersionCache: {
-                type: 'remote',
-                remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1018944834-alpha.html'
-            },
             puppeteer: puppeteerOpts
         });
     } catch(err) {
-        try {
-            whatsappClient = new WAClient({
-                authStrategy: new LocalAuth({ clientId: 'srijes-salon-master' }),
-                puppeteer: puppeteerOpts
-            });
-        } catch(e) {
-            console.error('[WHATSAPP] Failed to construct client:', e.message);
-            return;
-        }
+        console.error('[WHATSAPP] Failed to construct client:', err.message);
+        return;
     }
 
     whatsappClient.on('qr', async (qr) => {

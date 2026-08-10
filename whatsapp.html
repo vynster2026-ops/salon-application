@@ -1531,18 +1531,20 @@
             activePollingInterval = setInterval(poll, 2000);
         }
 
-        // Browser Native Redirection Loop
+        // Browser Native Redirection Loop (Direct wa.me Click-to-Chat)
         async function launchManualBrowserFlow(recipients, messageTemplate) {
             for (let i = 0; i < recipients.length; i++) {
                 const r = recipients[i];
+                let cleanPhone = String(r.phone || '').replace(/\D/g, '');
+                if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
                 
                 // Form message with placeholder template
                 const personalized = messageTemplate
                     .replace(/{name}/g, r.name || 'Client')
-                    .replace(/{phone}/g, r.phone)
+                    .replace(/{phone}/g, r.phone || cleanPhone)
                     .replace(/{gender}/g, r.gender || '');
                     
-                const waUrl = `https://web.whatsapp.com/send?phone=${r.phone}&text=${encodeURIComponent(personalized)}`;
+                const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(personalized)}`;
                 
                 // Open Chat
                 window.open(waUrl, '_blank');
@@ -1560,7 +1562,7 @@
                 
                 // Give standard delay between opening chats
                 if (i < recipients.length - 1) {
-                    await new Promise(resolve => setTimeout(resolve, 4000));
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                 }
             }
         }

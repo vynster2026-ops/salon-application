@@ -1854,7 +1854,8 @@
                     if (instrSpan) instrSpan.innerText = formattedCode;
                     if (resultBox) resultBox.classList.remove('hidden');
                 } else {
-                    alert(data.error || data.details || 'Failed to generate pairing code. Please try again.');
+                    const fullErr = (data.error || 'Failed to generate pairing code.') + (data.details ? '\n' + data.details : '');
+                    alert(fullErr);
                 }
             } catch (err) {
                 console.error('Error requesting pairing code:', err);

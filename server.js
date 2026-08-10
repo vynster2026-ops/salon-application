@@ -117,6 +117,10 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
             return res.status(500).json({ error: 'WhatsApp client is initializing. Please try again in 5 seconds.' });
         }
 
+        if (!whatsappClient.pupPage) {
+            return res.status(500).json({ error: 'WhatsApp browser page is initializing. Please wait 10 seconds and try again.' });
+        }
+
         // Wait until initial page/QR loads on web.whatsapp.com
         if (!latestQr && !whatsappReady) {
             console.log('[WHATSAPP PAIRING CODE] Waiting for web.whatsapp.com page load...');
@@ -145,10 +149,10 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
             message: `Pairing code generated successfully!`
         });
     } catch (err) {
-        console.error('[WHATSAPP PAIRING CODE ERROR]', err.message || err);
+        console.error('[WHATSAPP PAIRING CODE ERROR]', err);
         return res.status(500).json({
-            error: 'Failed to generate pairing code.',
-            details: err.message || String(err)
+            error: 'Failed to generate pairing code: ' + (err.message || err),
+            details: String(err.stack || err)
         });
     }
 });

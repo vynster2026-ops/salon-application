@@ -2548,6 +2548,44 @@ app.post('/api/whatsapp/send-direct-bulk', async (req, res) => {
     }
 });
 
+app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'], async (req, res) => {
+    try {
+        const { phone } = req.body;
+        if (!phone) {
+            return res.status(400).json({ error: 'WhatsApp phone number is required.' });
+        }
+        let cleanPhone = String(phone).replace(/\D/g, '');
+        if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+
+        console.log(`[WHATSAPP PAIRING CODE] Requesting code for phone: ${cleanPhone}...`);
+
+        if (!whatsappClient) {
+            initWhatsAppClient();
+            await new Promise(r => setTimeout(r, 4000));
+        }
+
+        if (!whatsappClient) {
+            return res.status(500).json({ error: 'WhatsApp client is initializing. Please try again in 5 seconds.' });
+        }
+
+        const rawCode = await whatsappClient.requestPairingCode(cleanPhone);
+        console.log(`[WHATSAPP PAIRING CODE GENERATED SUCCESS] Code: ${rawCode}`);
+
+        return res.json({
+            success: true,
+            pairingCode: rawCode,
+            phone: cleanPhone,
+            message: `Pairing code generated successfully!`
+        });
+    } catch (err) {
+        console.error('[WHATSAPP PAIRING CODE ERROR]', err.message || err);
+        return res.status(500).json({
+            error: 'Failed to generate pairing code. Please ensure client is ready and try again.',
+            details: err.message || err
+        });
+    }
+});
+
 // New: WhatsApp Status & QR Code Endpoint
 app.get('/api/whatsapp/status', (req, res) => {
     res.json({

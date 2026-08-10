@@ -55,6 +55,13 @@ app.get(['/matrix', '/superadmin'], (req, res) => {
     res.sendFile(path.join(__dirname, 'matrix.html'));
 });
 
+app.post(['/api/whatsapp/log', '/whatsapp/log'], (req, res) => {
+    if (req.body && req.body.log) {
+        console.log('[WHATSAPP FRONTEND LOG]', req.body.log);
+    }
+    res.json({ success: true });
+});
+
 const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });

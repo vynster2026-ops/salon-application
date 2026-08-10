@@ -7855,7 +7855,7 @@
 
         window.currentBranch = localStorage.getItem("selectedBranch") || "Main Branch";
         const API_URL = localStorage.getItem('CUSTOM_API_URL') || (
-            (window.location.protocol === 'file:' || window.location.port === '5500' || window.location.port === '5503' || window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' || window.location.hostname.includes('loca.lt'))
+            (window.location.protocol === 'file:' || (['localhost', '127.0.0.1'].includes(window.location.hostname) && window.location.port !== '5000' && window.location.port !== ''))
                 ? 'http://localhost:5000/api'
                 : '/api'
         );

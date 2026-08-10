@@ -903,11 +903,13 @@
 
     <!-- CORE MARKETING JAVASCRIPT CONTROLLER -->
     <script>
-        const API_URL = (window.location.port === '5000')
-            ? '/api'
-            : (window.location.protocol === 'file:')
-                ? 'http://localhost:5000/api'
-                : `${window.location.protocol}//${window.location.hostname}:5000/api`;
+        const API_URL = (typeof window !== 'undefined' && localStorage.getItem('CUSTOM_API_URL'))
+            ? localStorage.getItem('CUSTOM_API_URL')
+            : (
+                (window.location.protocol === 'file:' || (['localhost', '127.0.0.1'].includes(window.location.hostname) && window.location.port !== '5000' && window.location.port !== ''))
+                    ? 'http://localhost:5000/api'
+                    : '/api'
+            );
         
         let clientDatabase = [];
         let campaignLogs = [];

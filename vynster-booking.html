@@ -2906,12 +2906,14 @@ ${buildCategoryModal()}`;
       const ssi = document.getElementById('serviceSearchInput');
       if (ssi) {
         ssi.addEventListener('input', e => {
+          const currentScrollY = window.scrollY || document.documentElement.scrollTop;
           state.serviceQuery = e.target.value;
           render();
+          window.scrollTo(0, currentScrollY);
           const newSsi = document.getElementById('serviceSearchInput');
           if (newSsi) {
-            newSsi.focus();
-            newSsi.selectionStart = newSsi.selectionEnd = newSsi.value.length;
+            newSsi.focus({ preventScroll: true });
+            try { newSsi.selectionStart = newSsi.selectionEnd = newSsi.value.length; } catch(err){}
           }
         });
       }

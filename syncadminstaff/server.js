@@ -1110,6 +1110,104 @@ app.delete('/api/staff/:id', async (req, res) => {
     res.json({ success: true });
 });
 
+// --- CLIENT DIRECTORY API ROUTES ---
+app.get('/api/clients', async (req, res) => {
+    try {
+        let clientsList = [];
+        if (isConnected) {
+            try {
+                clientsList = await Client.find({}).lean();
+            } catch (e) {
+                console.error('[DATABASE] Error querying MongoDB Client collection:', e.message);
+            }
+        }
+        if (!clientsList || clientsList.length === 0) {
+            clientsList = localDb.clients || [];
+        }
+
+        const { branch, branchId } = req.query;
+        const targetBranch = branch || branchId;
+        if (targetBranch && targetBranch !== 'all' && targetBranch !== 'Main Branch') {
+            clientsList = clientsList.filter(c => !c.branchId || c.branchId === targetBranch || c.location === targetBranch);
+        }
+
+        console.log(`[CLIENTS API] Returning ${clientsList.length} clients`);
+        return res.json(clientsList);
+    } catch (err) {
+        console.error('[CLIENTS API ERROR]', err);
+        return res.json(localDb.clients || []);
+    }
+});
+
+app.post('/api/clients', async (req, res) => {
+    try {
+        const clientData = req.body || {};
+        if (!clientData.id) clientData.id = 'c_' + Date.now();
+        if (!clientData.pts) clientData.pts = 0;
+        if (!clientData.ltv) clientData.ltv = '₹0';
+
+        if (!localDb.clients) localDb.clients = [];
+        const existingIdx = localDb.clients.findIndex(c => c.id === clientData.id || (c.phone && c.phone === clientData.phone));
+        if (existingIdx !== -1) {
+            localDb.clients[existingIdx] = { ...localDb.clients[existingIdx], ...clientData };
+        } else {
+            localDb.clients.push(clientData);
+        }
+        saveLocal();
+
+        if (isConnected) {
+            try {
+                await Client.updateOne({ id: clientData.id }, clientData, { upsert: true });
+            } catch (e) {
+                console.error('[DATABASE] MongoDB client save error:', e.message);
+            }
+        }
+
+        return res.json({ success: true, client: clientData });
+    } catch (err) {
+        console.error('[API ERROR] POST /api/clients failed:', err);
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/clients/:id', async (req, res) => {
+    try {
+        const searchId = String(req.params.id).trim();
+        const updateData = req.body || {};
+        if (!localDb.clients) localDb.clients = [];
+        const idx = localDb.clients.findIndex(c => String(c.id).trim() === searchId || String(c._id).trim() === searchId);
+        if (idx !== -1) {
+            localDb.clients[idx] = { ...localDb.clients[idx], ...updateData };
+            saveLocal();
+        }
+        if (isConnected) {
+            try {
+                await Client.updateOne({ $or: [{ id: searchId }, { _id: searchId }] }, updateData);
+            } catch (e) {}
+        }
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+app.delete('/api/clients/:id', async (req, res) => {
+    try {
+        const searchId = String(req.params.id).trim();
+        if (!localDb.clients) localDb.clients = [];
+        localDb.clients = localDb.clients.filter(c => String(c.id).trim() !== searchId && String(c._id).trim() !== searchId);
+        saveLocal();
+        if (isConnected) {
+            try {
+                await Client.deleteOne({ $or: [{ id: searchId }, { _id: searchId }] });
+            } catch (e) {}
+        }
+        return res.json({ success: true });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 // Services
 app.get('/api/services', async (req, res) => {
     const { branchId } = req.query;

@@ -7304,7 +7304,7 @@
         }
       ],
       "phone": "9876540001",
-      "password": "MEG@0001"
+      "password": "scrypt:79c7b7f339d2eb166896d8e2a575a6fa:4cc42522446df493b6d7ad4e1df5121dda163c21caa4ffe48752f636e1726088d5e663d8bf64e81a778881b42f44a362e163d896216f3d05b22c51062c650526"
     },
     {
       "id": "st2",
@@ -7331,7 +7331,7 @@
         }
       ],
       "phone": "9876540002",
-      "password": "RAV@0002"
+      "password": "scrypt:c59375b735d099b46de0b53207c1549f:d99f6e0de533f08297d490f75c91404bc45d50be95a08e15fcea226e05b50a1f66e03d401c62e4c4e5b7883b18019b99fd8c7ab3baf0978b8247a307661dddbe"
     },
     {
       "id": "st3",
@@ -7352,7 +7352,7 @@
         }
       ],
       "phone": "9876540003",
-      "password": "DEE@0003"
+      "password": "scrypt:224f7093fc1afc00f6b148998ec82745:d4759d06e449fa3dd30d70c29d5f5a8944ea85be5903e94e1bd0450fee17ab403b14de23a9cd8135bb6e57ef0d5cae30fb2f827ab98795b34095368d800205f9"
     },
     {
       "id": "st4",
@@ -7375,7 +7375,7 @@
       "payoutStatus": "Paid",
       "commissionRate": 9,
       "phone": "9876540004",
-      "password": "SNE@0004"
+      "password": "scrypt:a3e3742dcbcbdc751a15c0e03b1bdcab:40b027ef4081372d9876869b4cb93dc279315b69ce9599d202b0f1dc3460351a8f9a3641af27196bbf6c5a0d2ab9cea7f9a7014790cf45667790276f308a1421"
     },
     {
       "id": "st5",
@@ -7396,7 +7396,7 @@
         }
       ],
       "phone": "9876540005",
-      "password": "ARY@0005"
+      "password": "scrypt:4f8fb3050d7942cb9e15b0b1b944219f:1d83a56d1829d10764ac12a817dde8901e18f372c798a27d8042dc40056dc48a613d3a3c5fedb4be5c9a35723243b21f505b31fff26d97e34ee7d2d7ac0a37e9"
     },
     {
       "id": "st6",
@@ -7417,7 +7417,7 @@
         }
       ],
       "phone": "9876540006",
-      "password": "PRI@0006"
+      "password": "scrypt:58520ce5fc09a94f090048061185c155:63335d47b63a771b6c4df2bd53db1038812ca17e50212abb570dcc35d1593bbfa6208a15e49d8cbf97560b968ec7e00fdbc1de90ba5e18b449771193f48f4088"
     },
     {
       "id": "st7",
@@ -7447,7 +7447,7 @@
         }
       ],
       "phone": "9876540007",
-      "password": "VIK@0007"
+      "password": "scrypt:07ce5b1e1e93f402b11c34acfeb54527:267ce6042fed9caf853fad5120b29f5a6a360fb1b4dbb5c1ea58dadba27bf7b0864e531095a275090ede87ecfd22c95ff0715e8d703e4633ebe5b4c3013566f9"
     },
     {
       "name": "Sarah Jenkins",
@@ -7455,7 +7455,7 @@
       "salary": 25000,
       "role": "Senior Stylist",
       "phone": "9876540011",
-      "password": "SAR@0011"
+      "password": "scrypt:1a53bc30fcaa8073518fab891ecd1cdb:8750f6e9068173737881eb8554990a2bd3f1fb0a8a311d7901254e2fa8212187bb4a0ec8114409d9d513319d79500326ff91ff6ba0616cde6d4718e189614002"
     },
     {
       "name": "Michael Chen",
@@ -7463,7 +7463,7 @@
       "salary": 18000,
       "role": "Hair Colorist",
       "phone": "9876540012",
-      "password": "MIC@0012"
+      "password": "scrypt:35bad0a6e56d6efb66bcb9cea52ec5f5:edaa99c20d03c9f517d09394a2c884559bdc368042b6cbd225dbe07acb78397e5e77074fbc4e9d09a22cc4f7d7aaa12927ffe910df1a0eb0adb4f92161edfef1"
     },
     {
       "name": "Emma Wilson",
@@ -7471,12 +7471,12 @@
       "salary": 15000,
       "role": "Nail Technician",
       "phone": "9876540013",
-      "password": "EMM@0013"
+      "password": "scrypt:01c3305293d403eedf448bdbd9e126b5:27ca0099e1c3fafb495d3ecd3f5d005aac8b5ff08b8a9465a4503c7f5ea332115876de7396985ad2d93504f09275ddd1f4f2a2372a2146366d7f3df21be9dba3"
     },
     {
       "id": "STF-FNNAOB",
       "staffId": "STF-FNNAOB",
-      "password": "STF-FNNAOB",
+      "password": "scrypt:7f9c2049f2049604b4a436d9b24b4322:23962f87e7edb8165823764ea8ef98dd40b3f95943abe191cae039ff6cdb44b578dbfd81cbbe9cd5986a48f505d5f311acce30defcc83a51f6bfb2afd5f2e175",
       "name": "ballu",
       "spec": "sddfg",
       "role": "sddfg",
@@ -7492,7 +7492,7 @@
     {
       "id": "STF-JWY61K",
       "staffId": "STF-JWY61K",
-      "password": "STF-JWY61K",
+      "password": "scrypt:464fc739f35f4c84e14a59fb809f0189:6801f0607c0b3681ede2449ff57d71991d6cf0ed73849eabe2a82173bdd558dcb8c9e3ebb17cff2ad5b198ad721c33927b3690a616dc97640194e1a7054fc1b4",
       "name": "vani",
       "spec": "owner",
       "role": "owner",
@@ -12890,7 +12890,7 @@
       "verificationStatus": "Approved",
       "status": "Active",
       "email": "BR-MAIN-5511",
-      "password": "874767",
+      "password": "scrypt:d1b767885e70fee3d060541d6c511d60:b1a28282402391b6bfaf13d1ee76bbfb618be40a671da4b47026c603661ce9ac794b81c38e0e29fcc45cff79c2bc5666ad2df92a5b5a21c82f547c8ed285fa37",
       "subscription": {
         "plan": "Basic",
         "price": "â‚¹1,999/mo",
@@ -12941,7 +12941,7 @@
       "type": "Unisex Salon",
       "email": "BR-SRIJ-9260",
       "accessKey": "BR-SRIJ-9260",
-      "password": "547099"
+      "password": "scrypt:20a9bcce548805d57c3005e445989e9d:328b9bd1cfb496aac3530054de7cb996a3950dac1077eac5800c963ee3e2ded642d65ecd1236c784638e31f77f4153929222c0009ed8a93423159a7a034f0112"
     }
   ],
   "chains": [],
@@ -13007,7 +13007,7 @@
   "admins": [
     {
       "email": "admin@medika.com",
-      "password": "admin",
+      "password": "scrypt:6965e0e8d7a81f185c298e9b45408a7f:1264c857801c2e4ce82fc8c15b41e610155590ae5fafcb8bf72438eaca8a1b2dad04553441ba5fa0aae9608a3fedd123a01c01a3be5e809d05a519f762ab5c73",
       "name": "Founder (Tier 1)",
       "role": "super",
       "tier": 1,

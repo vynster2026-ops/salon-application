@@ -176,13 +176,20 @@
                         return;
                     }
 
-                    // Handle Super Admin 2FA auto-verify
-                    if (data.require2FA && data.simulatedOtp) {
+                    // Handle Super Admin 2FA challenge
+                    if (data.require2FA) {
                         const targetEmail = data.email || email;
+                        const userCode = prompt(`A 6-digit verification code was sent to ${targetEmail}.\nPlease enter your 6-digit code:`);
+                        if (!userCode) {
+                            showAlert('2FA verification cancelled.');
+                            btnLogin.innerHTML = '<i class="fa-solid fa-lock" style="margin-right: 8px;"></i> Authenticate';
+                            btnLogin.disabled = false;
+                            return;
+                        }
                         const verifyRes = await fetch(`${API_URL}/api/auth/verify-2fa`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ email: targetEmail, code: data.simulatedOtp })
+                            body: JSON.stringify({ email: targetEmail, code: userCode.trim() })
                         });
                         const verifyData = await verifyRes.json();
                         if (verifyRes.ok && verifyData.success) {
@@ -193,7 +200,7 @@
                             setTimeout(() => window.location.href = 'matrix.html', 800);
                             return;
                         } else {
-                            showAlert(verifyData.error || 'SuperAdmin 2FA Auto-Verify Failed.');
+                            showAlert(verifyData.error || '2FA Verification Failed.');
                             btnLogin.innerHTML = '<i class="fa-solid fa-lock" style="margin-right: 8px;"></i> Authenticate';
                             btnLogin.disabled = false;
                             return;

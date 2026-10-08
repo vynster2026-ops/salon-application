@@ -1897,7 +1897,7 @@
         function logoutWhatsApp() {
             if (confirm("Are you sure you want to disconnect WhatsApp and log out the current session?")) {
                 const apiPath = (typeof API_URL !== 'undefined') ? API_URL : '/api';
-                fetch(apiPath + '/whatsapp/logout', { method: 'POST' })
+                fetch(apiPath + '/whatsapp/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('adminToken') || localStorage.getItem('token') || '') } })
                     .then(res => res.json())
                     .then(data => {
                         const connectedPanel = document.getElementById('qr-connected-panel');

@@ -9,7 +9,7 @@
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
     var socket = null;
-    try { socket = io(); } catch(e) {}
+    try { socket = io(); } catch (e) { }
   </script>
   <!-- Clerk Authentication SDK -->
   <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_Y2xlcmsubWVkaGlrYWFydHMuY29tJA"
@@ -2903,7 +2903,7 @@ ${buildCategoryModal()}`;
           const newSsi = document.getElementById('serviceSearchInput');
           if (newSsi) {
             newSsi.focus({ preventScroll: true });
-            try { newSsi.selectionStart = newSsi.selectionEnd = newSsi.value.length; } catch(err){}
+            try { newSsi.selectionStart = newSsi.selectionEnd = newSsi.value.length; } catch (err) { }
           }
         });
       }

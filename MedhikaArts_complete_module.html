@@ -3867,6 +3867,10 @@
                         if (!config.headers) config.headers = {};
                         const pin = localStorage.getItem('srijes_admin_pin');
                         if (pin) config.headers['x-admin-pin'] = pin;
+                        const token = localStorage.getItem('adminToken') || localStorage.getItem('staffToken') || localStorage.getItem('token');
+                        if (token && !config.headers['Authorization'] && !config.headers['authorization']) {
+                            config.headers['Authorization'] = 'Bearer ' + token;
+                        }
                         return originalFetchPerms.apply(window, [resource, config]);
                     };
                 })();

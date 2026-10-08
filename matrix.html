@@ -2147,8 +2147,8 @@
                                 Environment</label>
                             <select id="setting-razorpay"
                                 style="width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5);">
+                                <option value="live" selected>Live Mode (Production)</option>
                                 <option value="test">Test Mode (Sandbox)</option>
-                                <option value="live">Live Mode (Production)</option>
                             </select>
                         </div>
                         <div style="grid-column: span 2;">
@@ -2379,9 +2379,9 @@
         const API_URL = isLocal ? 'http://localhost:5000' : '';
 
         let token = localStorage.getItem('adminToken');
-        if (!token) {
-            token = 'superadmin_active_session_token';
-            localStorage.setItem('adminToken', token);
+        if (!token || token === 'superadmin_active_session_token' || token === 'mock_admin_token' || token === 'adminToken') {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'superadmin_login.html';
         }
 
         let vendors = [

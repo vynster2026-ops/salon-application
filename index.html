@@ -320,10 +320,48 @@
             border-color: rgba(255, 255, 255, 0.1);
             color: #f8fafc;
         }
+
+        /* Back to Home Button */
+        .home-btn {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            padding: 0.65rem 1.25rem;
+            border-radius: 50px;
+            cursor: pointer;
+            z-index: 100;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .home-btn:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-1);
+        }
+
+        body.dark-mode .home-btn {
+            background: rgba(15, 23, 42, 0.5);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Back to Landing Page Button -->
+    <a href="/" class="home-btn" aria-label="Back to Landing Page" title="Back to Landing Page">
+        <i class="fa-solid fa-arrow-left"></i> <span>Home</span>
+    </a>
+
     <!-- Theme Toggle Button -->
     <button class="theme-toggle" id="theme-toggle" aria-label="Toggle Theme">
         <i class="fa-solid fa-moon"></i>

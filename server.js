@@ -333,22 +333,37 @@ app.use((req, res, next) => {
 app.use(express.static(__dirname));
 
 // --- FRONTEND DASHBOARD ROUTE ALIASES ---
-app.get(['/', '/admin', '/salon', '/owner'], (req, res) => {
+// 1. Landing Page (Default Public Homepage)
+app.get(['/', '/landing', '/home'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'landing.html'));
+});
+
+// 2. Enterprise Gateway Hub (Portal selector)
+app.get(['/index', '/index.html', '/gateway', '/portal', '/hub'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// 3. Salon Management Dashboard
+app.get(['/admin', '/salon', '/owner', '/dashboard'], (req, res) => {
     res.sendFile(path.join(__dirname, 'vynster-salon.html'));
 });
 
+// 4. Online Booking & Reception
 app.get(['/reception', '/booking'], (req, res) => {
     res.sendFile(path.join(__dirname, 'vynster-booking.html'));
 });
 
+// 5. Staff Portal
 app.get(['/staff', '/staff-dashboard'], (req, res) => {
     res.sendFile(path.join(__dirname, 'staff.html'));
 });
 
+// 6. Superadmin / Matrix
 app.get(['/superadmin', '/matrix'], (req, res) => {
     res.sendFile(path.join(__dirname, 'matrix.html'));
 });
 
+// 7. Staff Login
 app.get('/staff-login', (req, res) => {
     res.sendFile(path.join(__dirname, 'staff-login.html'));
 });

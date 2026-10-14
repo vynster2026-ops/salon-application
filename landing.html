@@ -83,47 +83,152 @@
             transition: background-color 0.4s ease, color 0.4s ease;
         }
 
-        /* Bright Mode Theme Overrides */
+        /* ========================================================
+           BRIGHT MODE - COMPREHENSIVE HIGH CONTRAST DESIGN SYSTEM
+           ======================================================== */
         html.theme-bright, body.theme-bright {
-            background-color: #F4F7FA !important;
-            color: #1E293B !important;
+            background-color: #F8FAFC !important;
+            color: #0F172A !important;
         }
 
-        .theme-bright .brand-text { color: #0F172A !important; }
-        .theme-bright .nav-link { color: #334155 !important; }
-        .theme-bright .nav-link:hover { color: #F40606 !important; }
-        .theme-bright .section-title { color: #0F172A !important; }
-        .theme-bright .section-copy { color: #475569 !important; }
-        .theme-bright .section-pull { color: #0F172A !important; }
-        .theme-bright .hero-sub { color: #475569 !important; }
-        .theme-bright .button-secondary { 
-            background: rgba(255, 255, 255, 0.85) !important; 
-            color: #0F172A !important; 
+        .theme-bright h1, 
+        .theme-bright h2, 
+        .theme-bright h3, 
+        .theme-bright h4, 
+        .theme-bright h5, 
+        .theme-bright h6,
+        .theme-bright .section-title,
+        .theme-bright .section-pull,
+        .theme-bright .brand-text {
+            color: #0F172A !important;
+        }
+
+        .theme-bright p,
+        .theme-bright li,
+        .theme-bright .section-copy,
+        .theme-bright .hero-sub {
+            color: #334155 !important;
+        }
+
+        .theme-bright .text-white {
+            color: #0F172A !important;
+        }
+
+        .theme-bright .text-\[\#D7E2EA\] {
+            color: #334155 !important;
+        }
+
+        .theme-bright .text-\[\#94A3B8\] {
+            color: #475569 !important;
+        }
+
+        .theme-bright .nav-link {
+            color: #334155 !important;
+        }
+
+        .theme-bright .nav-link:hover {
+            color: #F40606 !important;
+        }
+
+        .theme-bright .button-secondary {
+            background: #FFFFFF !important;
+            color: #0F172A !important;
+            border-color: rgba(15, 23, 42, 0.25) !important;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08) !important;
+        }
+
+        .theme-bright .button-secondary:hover {
+            border-color: #F40606 !important;
+            color: #F40606 !important;
+            background: #FFF5F5 !important;
+        }
+
+        /* Glass Elements in Bright Mode */
+        .theme-bright .glass-panel {
+            background: rgba(255, 255, 255, 0.94) !important;
+            border: 1px solid rgba(226, 232, 240, 0.95) !important;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1) !important;
+        }
+
+        .theme-bright .glass-card {
+            background: #FFFFFF !important;
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05) !important;
+        }
+
+        .theme-bright .glass-card:hover {
+            border-color: #F40606 !important;
+            box-shadow: 0 12px 28px rgba(244, 6, 6, 0.12) !important;
+            background: #FFFFFF !important;
+        }
+
+        .theme-bright .glass-pill {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px solid rgba(226, 232, 240, 0.9) !important;
+            box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06) !important;
+        }
+
+        .theme-bright .glass-input {
+            background: #FFFFFF !important;
+            border: 1px solid rgba(203, 213, 225, 0.9) !important;
+            color: #0F172A !important;
+        }
+
+        .theme-bright .glass-input:focus {
+            background: #FFFFFF !important;
+            border-color: #F40606 !important;
+            box-shadow: 0 0 15px rgba(244, 6, 6, 0.2) !important;
+        }
+
+        /* Number counters in Bright Mode */
+        .theme-bright [data-target] {
+            color: #0F172A !important;
+        }
+
+        /* Partner Logos Dotted Box in Bright Mode */
+        .theme-bright .aspect-\[1\.6\/1\] {
             border-color: rgba(15, 23, 42, 0.2) !important;
+            background: #FFFFFF !important;
+            color: #475569 !important;
         }
 
-        /* Hero Heading Gradient */
-        .hero-heading {
-            background: linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 45%, #94A3B8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.6));
+        /* Ambient Glow & Orbs in Bright Mode */
+        .theme-bright #heroEmblemGlow {
+            background: radial-gradient(circle, rgba(244, 6, 6, 0.12), transparent 70%) !important;
+            opacity: 0.5 !important;
         }
 
-        .theme-bright .hero-heading {
-            background: linear-gradient(180deg, #0F172A 0%, #1E293B 60%, #334155 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.08));
+        .theme-bright #orb1,
+        .theme-bright #orb2,
+        .theme-bright #orb3 {
+            opacity: 0.12 !important;
         }
 
-        .text-red-fill {
-            background: linear-gradient(180deg, #FF3344 0%, #F40606 60%, #C40000 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        /* Logo Drop Shadow in Bright Mode */
+        .theme-bright img[src="vynster-logo.png"] {
+            filter: drop-shadow(0 0 35px rgba(244, 6, 6, 0.45)) drop-shadow(0 8px 25px rgba(15, 23, 42, 0.15)) !important;
         }
 
-        /* Glassmorphism Design System - Dark Mode (Default) */
+        /* Client Portal Modal in Bright Mode */
+        .theme-bright #portalModalOverlay > div {
+            background: #FFFFFF !important;
+            color: #0F172A !important;
+            border: 1px solid #E2E8F0 !important;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2) !important;
+        }
+
+        .theme-bright #portalModalOverlay a {
+            background: #F8FAFC !important;
+            color: #0F172A !important;
+            border: 1px solid #E2E8F0 !important;
+        }
+
+        .theme-bright #portalModalOverlay a:hover {
+            background: #FEF2F2 !important;
+            border-color: #F40606 !important;
+        }
+
+        /* Base Glass Styles (Dark Mode Default) */
         .glass-panel {
             background: rgba(4, 19, 48, 0.35);
             backdrop-filter: blur(20px);
@@ -170,54 +275,6 @@
             background: rgba(3, 8, 20, 0.85);
             border-color: rgba(244, 6, 6, 0.7);
             box-shadow: 0 0 20px rgba(244, 6, 6, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        }
-
-        /* Glassmorphism Design System - Bright Mode Overrides */
-        .theme-bright .glass-panel {
-            background: rgba(255, 255, 255, 0.88) !important;
-            border-color: rgba(15, 23, 42, 0.12) !important;
-            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
-        }
-
-        .theme-bright .glass-card {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(241, 245, 249, 0.85) 100%) !important;
-            border-color: rgba(15, 23, 42, 0.1) !important;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05) !important;
-        }
-
-        .theme-bright .glass-card:hover {
-            background: linear-gradient(135deg, rgba(254, 242, 242, 0.95) 0%, rgba(254, 226, 226, 0.5) 100%) !important;
-            border-color: rgba(244, 6, 6, 0.45) !important;
-            box-shadow: 0 18px 40px rgba(244, 6, 6, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.9) !important;
-        }
-
-        .theme-bright .glass-pill {
-            background: rgba(255, 255, 255, 0.9) !important;
-            border-color: rgba(15, 23, 42, 0.15) !important;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
-        }
-
-        .theme-bright .glass-input {
-            background: rgba(241, 245, 249, 0.95) !important;
-            border-color: rgba(15, 23, 42, 0.15) !important;
-            color: #0F172A !important;
-        }
-
-        .theme-bright .glass-input:focus {
-            background: #FFFFFF !important;
-            border-color: rgba(244, 6, 6, 0.7) !important;
-            box-shadow: 0 0 20px rgba(244, 6, 6, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
-        }
-
-        /* Background Orbs Bright Mode */
-        .theme-bright #orb1 {
-            background: radial-gradient(circle, rgba(244, 6, 6, 0.15), rgba(255, 107, 107, 0.1), transparent 70%) !important;
-        }
-        .theme-bright #orb2 {
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.2), rgba(129, 140, 248, 0.15), transparent 70%) !important;
-        }
-        .theme-bright #orb3 {
-            background: radial-gradient(circle, rgba(244, 63, 94, 0.15), rgba(251, 113, 133, 0.1), transparent 70%) !important;
         }
 
         /* Logo Circular Moving Red Ring Sweep Animation */
@@ -371,8 +428,8 @@
             <!-- 3D LOGO EMBLEM FOREGROUND: CRISP LOGO IN FRONT + ROTATING ELECTRIC ARC ON BLUE RING + BLINKING PIN -->
             <div class="absolute left-1/2 top-[44%] -translate-x-1/2 -translate-y-1/2 z-20 w-[340px] sm:w-[500px] md:w-[640px] lg:w-[740px] xl:w-[820px] pointer-events-none select-none">
                 <div class="w-full flex justify-center relative">
-                    <!-- Ambient Glow Atmosphere Behind Emblem -->
-                    <div id="heroEmblemGlow" class="absolute inset-0 rounded-full blur-[90px] scale-125 pointer-events-none animate-pulse bg-gradient-to-tr from-[#F40606]/40 via-[#041330]/80 to-[#990000]/30"></div>
+                    <!-- Ambient Glow Atmosphere Behind Emblem (Stable, Non-Flashing) -->
+                    <div id="heroEmblemGlow" class="absolute inset-0 rounded-full blur-[80px] scale-110 pointer-events-none opacity-50 bg-gradient-to-tr from-[#F40606]/30 via-[#041330]/60 to-[#990000]/20"></div>
 
                     <div class="w-full relative z-20 flex justify-center items-center">
                         <div class="relative w-full aspect-square flex items-center justify-center max-w-[680px]">
@@ -450,10 +507,10 @@
         <section id="about" class="relative min-h-screen w-full bg-transparent px-5 sm:px-8 md:px-10 py-24 flex flex-col items-center justify-center overflow-hidden z-10">
             <!-- 3D DECORATIVE CORNER ACCENTS -->
             <div class="absolute top-[4%] left-[2%] z-0 pointer-events-none opacity-80 hidden lg:block">
-                <img src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/moon_icon.11395d36.png" alt="3D Moon Accent" class="w-[180px] h-auto filter drop-shadow-[0_20px_40px_rgba(244,6,6,0.3)] animate-pulse">
+                <img src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/moon_icon.11395d36.png" alt="3D Moon Accent" class="w-[180px] h-auto filter drop-shadow-[0_20px_40px_rgba(244,6,6,0.3)]">
             </div>
             <div class="absolute top-[4%] right-[2%] z-0 pointer-events-none opacity-80 hidden lg:block">
-                <img src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/lego_icon-1.703bb594.png" alt="3D Lego Accent" class="w-[180px] h-auto filter drop-shadow-[0_20px_40px_rgba(244,6,6,0.3)] animate-pulse">
+                <img src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/lego_icon-1.703bb594.png" alt="3D Lego Accent" class="w-[180px] h-auto filter drop-shadow-[0_20px_40px_rgba(244,6,6,0.3)]">
             </div>
 
             <!-- ABOUT GLASS CONTAINER -->

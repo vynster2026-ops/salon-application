@@ -330,8 +330,6 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(express.static(__dirname));
-
 // --- FRONTEND DASHBOARD ROUTE ALIASES ---
 // 1. Landing Page (Default Public Homepage)
 app.get(['/', '/landing', '/home'], (req, res) => {
@@ -342,6 +340,9 @@ app.get(['/', '/landing', '/home'], (req, res) => {
 app.get(['/index', '/index.html', '/gateway', '/portal', '/hub'], (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
+
+// Serve static assets without auto-intercepting '/' as index.html
+app.use(express.static(__dirname, { index: false }));
 
 // 3. Salon Management Dashboard
 app.get(['/admin', '/salon', '/owner', '/dashboard'], (req, res) => {

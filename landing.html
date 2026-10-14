@@ -367,18 +367,20 @@
             <!-- FROSTED GLASS NAVBAR -->
             <div class="w-full z-30 px-4 sm:px-8 md:px-12 pt-5 md:pt-7 flex justify-center">
                 <nav class="glass-pill rounded-full px-5 sm:px-8 py-3 flex items-center justify-between gap-3 sm:gap-6 md:gap-10 max-w-5xl w-full">
-                    <!-- Left Brand Badge -->
-                    <a href="landing.html" class="flex items-center gap-2.5 sm:gap-3">
-                        <img src="vynster-logo.png" alt="Vynster Symbol" class="w-8 h-8 sm:w-9 sm:h-9 object-contain drop-shadow-[0_0_10px_rgba(244,6,6,0.4)] brightness-105 contrast-110" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                        <svg class="w-8 h-8 sm:w-9 sm:h-9 hidden" viewBox="0 0 220 220">
-                            <circle cx="110" cy="110" r="92" fill="none" stroke="#2B2140" stroke-width="10" />
-                            <path d="M44.2,72 L110,186 L175.8,72" fill="none" stroke="#FF6F59" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
-                            <circle cx="211.5" cy="62.6" r="7" fill="#FF6F59" />
-                        </svg>
-                        <span class="font-black text-base sm:text-xl tracking-wider select-none text-white brand-text">
+                    <!-- Left Brand Badge (Navbar Logo links to Super Admin matrix.html) -->
+                    <div class="flex items-center gap-2.5 sm:gap-3">
+                        <a id="navbarSuperAdminLogo" href="matrix.html" class="flex items-center justify-center transition-transform duration-300 hover:scale-110 cursor-pointer" title="Super Admin Portal (Matrix)">
+                            <img src="vynster-logo.png" alt="Vynster Symbol" class="w-8 h-8 sm:w-9 sm:h-9 object-contain drop-shadow-[0_0_10px_rgba(244,6,6,0.4)] brightness-105 contrast-110 hover:drop-shadow-[0_0_15px_rgba(244,6,6,0.8)] transition-all" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <svg class="w-8 h-8 sm:w-9 sm:h-9 hidden" viewBox="0 0 220 220">
+                                <circle cx="110" cy="110" r="92" fill="none" stroke="#2B2140" stroke-width="10" />
+                                <path d="M44.2,72 L110,186 L175.8,72" fill="none" stroke="#FF6F59" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" />
+                                <circle cx="211.5" cy="62.6" r="7" fill="#FF6F59" />
+                            </svg>
+                        </a>
+                        <a href="landing.html" class="font-black text-base sm:text-xl tracking-wider select-none text-white brand-text transition-colors hover:text-[#F40606]">
                             V<span class="text-[#F40606]">Y</span>NSTER
-                        </span>
-                    </a>
+                        </a>
+                    </div>
 
                     <!-- Nav Links -->
                     <div class="hidden md:flex items-center gap-6 lg:gap-10">

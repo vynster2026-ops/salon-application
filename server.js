@@ -915,26 +915,38 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     // Check Admin accounts in MongoDB
     if (isConnected) {
         try {
-            admin = await Admin.findOne({ email: new RegExp('^' + cleanEmail + '$', 'i') }).lean();
+            const mongoAdmins = await Admin.find({ email: new RegExp('^' + cleanEmail + '$', 'i') }).lean();
+            for (const cand of mongoAdmins) {
+                if (verifyPassword(cleanPassword, cand.password)) {
+                    admin = cand;
+                    break;
+                }
+            }
         } catch (e) {}
     }
-    // Check localDb admins
+    // Check localDb admins (supports multiple tiers like Tier 1 and Tier 2 on same email)
     if (!admin && localDb.admins) {
-        admin = localDb.admins.find(a => a.email && a.email.toLowerCase() === cleanEmail);
-    }
-
-    if (admin) {
-        if (!verifyPassword(cleanPassword, admin.password)) {
+        const localCandidates = localDb.admins.filter(a => a.email && a.email.toLowerCase() === cleanEmail);
+        for (const cand of localCandidates) {
+            if (verifyPassword(cleanPassword, cand.password) || cand.password === cleanPassword) {
+                admin = cand;
+                break;
+            }
+        }
+        if (!admin && localCandidates.length > 0) {
             console.log('[AUTH FAILED] Password mismatch for Admin: "' + cleanEmail + '"');
             return res.status(401).json({ error: 'Invalid email or password.' });
         }
+    }
+
+    if (admin) {
         // Transparent upgrade of plaintext password
         if (admin.password && !admin.password.startsWith('scrypt:')) {
             const newHash = hashPassword(cleanPassword);
             admin.password = newHash;
             saveLocal();
             if (isConnected) {
-                try { await Admin.updateOne({ email: admin.email }, { password: newHash }); } catch(e){}
+                try { await Admin.updateOne({ email: admin.email, tier: admin.tier }, { password: newHash }); } catch(e){}
             }
         }
     } else {

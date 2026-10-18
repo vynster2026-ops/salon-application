@@ -320,9 +320,20 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
+                    if (data.user.role === 'super') {
+                        localStorage.setItem('adminToken', data.token);
+                        localStorage.setItem('adminUser', JSON.stringify(data.user));
+                        btnLogin.innerHTML = '<i class="fa-solid fa-check" style="margin-right: 8px;"></i> Access Granted · Tier ' + (data.user.tier || 1);
+                        btnLogin.style.background = 'var(--success-color)';
+                        setTimeout(() => {
+                            window.location.href = 'matrix.html';
+                        }, 800);
+                        return;
+                    }
+
                     // Strict check for branch manager access to the admin portal
                     if (data.user.role !== 'manager' && data.user.role !== 'admin') {
-                        showAlert('Invalid Role: This portal requires valid Branch Credentials. Super Admins must use the Super Admin Gateway.');
+                        showAlert('Invalid Role: This portal requires valid Branch or Admin Credentials.');
                         btnLogin.innerHTML = '<i class="fa-solid fa-lock" style="margin-right: 8px;"></i> Authenticate';
                         btnLogin.disabled = false;
                         return;

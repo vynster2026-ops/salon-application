@@ -1092,7 +1092,7 @@
     <nav class="sidebar glass-panel">
         <div class="brand">
             <i class="fa-solid fa-crown"></i>
-            <span>MedhikaArts</span>
+            <span>Vynster</span>
         </div>
 
         <div class="nav-menu" style="margin-top: 2rem;">
@@ -2732,9 +2732,86 @@
         }
         window.handleSyncData = handleSyncData;
 
+        function applyTierRestrictions() {
+            let currentAdmin = {};
+            try {
+                currentAdmin = JSON.parse(localStorage.getItem('adminUser') || '{}');
+            } catch(e) {}
+            const tier = Number(currentAdmin.tier) || 1;
+
+            // Display badge in header
+            const pageTitle = document.getElementById('page-title');
+            if (pageTitle && !document.getElementById('tier-badge')) {
+                const badge = document.createElement('span');
+                badge.id = 'tier-badge';
+                badge.style.cssText = 'display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; margin-left:14px; vertical-align:middle; text-transform:none; letter-spacing:0;';
+                if (tier === 1) {
+                    badge.style.background = 'rgba(239, 68, 68, 0.2)';
+                    badge.style.color = '#f87171';
+                    badge.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+                    badge.innerHTML = '👑 Tier 1 · Super Admin';
+                } else if (tier === 2) {
+                    badge.style.background = 'rgba(59, 130, 246, 0.2)';
+                    badge.style.color = '#60a5fa';
+                    badge.style.border = '1px solid rgba(59, 130, 246, 0.4)';
+                    badge.innerHTML = '🛡️ Tier 2 · Operations Admin';
+                } else if (tier === 3) {
+                    badge.style.background = 'rgba(16, 185, 129, 0.2)';
+                    badge.style.color = '#34d399';
+                    badge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+                    badge.innerHTML = '💼 Tier 3 · Business Development';
+                }
+                pageTitle.appendChild(badge);
+            }
+
+            // Enforce Tier 3 Restrictions: ONLY Overview, Onboarding, Business Analysis, and Ad Management
+            if (tier === 3) {
+                const allowed = ['overview', 'marketing', 'business-analysis', 'ad-manager'];
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    const target = item.getAttribute('data-target');
+                    if (target && !allowed.includes(target)) {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Restrict stat card quick links on overview dashboard
+                const statCards = document.querySelectorAll('.stat-card');
+                statCards.forEach(card => {
+                    const oc = card.getAttribute('onclick') || '';
+                    if (oc && !allowed.some(a => oc.includes("'" + a + "'"))) {
+                        card.style.opacity = '0.45';
+                        card.style.cursor = 'not-allowed';
+                        card.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (typeof showToast === 'function') {
+                                showToast('Tier 3 Restriction: You only have access to Overview, Onboarding, Business Analysis, and Ad Management.', 'error');
+                            }
+                        };
+                    }
+                });
+            }
+        }
+        window.applyTierRestrictions = applyTierRestrictions;
+
         // Global switch section function
         window.switchSection = function (target) {
             if (!target) return;
+
+            // Tier 3 Permission Enforcement
+            let currentAdmin = {};
+            try { currentAdmin = JSON.parse(localStorage.getItem('adminUser') || '{}'); } catch(e) {}
+            const userTier = Number(currentAdmin.tier) || 1;
+            if (userTier === 3) {
+                const allowedTier3 = ['overview', 'marketing', 'business-analysis', 'ad-manager'];
+                if (!allowedTier3.includes(target)) {
+                    if (typeof showToast === 'function') {
+                        showToast('Access Restricted: Tier 3 is limited to Overview, Onboarding, Business Analysis, and Ad Management.', 'error');
+                    }
+                    return;
+                }
+            }
+
             const navItems = document.querySelectorAll('.nav-item');
             const contentSections = document.querySelectorAll('.content-section');
             const pageTitle = document.getElementById('page-title');
@@ -3318,6 +3395,7 @@
             renderVendorTable();
             renderExtendedTables();
             fetchRealTimeData();
+            applyTierRestrictions();
 
             // Real-time live polling engine
             setInterval(() => {

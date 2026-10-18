@@ -7,7 +7,7 @@ services:
     plan: free
     envVars:
       - key: MONGODB_URI
-        sync: false
+        sync: true
       - key: GREENAPI_INSTANCE_ID
         sync: false
       - key: GREENAPI_TOKEN

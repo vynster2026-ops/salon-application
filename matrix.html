@@ -2394,14 +2394,37 @@
         let globalBookings = [];
         let globalExpenses = [];
 
-        window.deleteVendor = function (id) {
-            const index = vendors.findIndex(v => String(v.id) === String(id));
+        window.deleteVendor = async function (id) {
+            const v = vendors.find(x => String(x.id) === String(id));
+            const salonName = v ? v.name : 'this branch';
+            if (!confirm(`Are you sure you want to completely delete "${salonName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/branches/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    showToast(`Successfully deleted ${salonName}`, 'success');
+                    await fetchRealTimeData();
+                    return;
+                } else {
+                    const err = await response.json().catch(() => ({}));
+                    showToast(err.error || 'Failed to delete branch from server.', 'error');
+                }
+            } catch (e) {
+                console.error("Delete branch request failed:", e);
+                showToast('Network error while deleting branch.', 'error');
+            }
+
+            // Fallback local delete
+            const index = vendors.findIndex(x => String(x.id) === String(id));
             if (index > -1) {
-                const v = vendors[index];
                 vendors.splice(index, 1);
                 renderVendorTable();
                 renderExtendedTables();
-                if (typeof showToast === 'function') showToast(`Deleted ${v.name} vendor record`, 'error');
             }
         };
 
@@ -2577,7 +2600,7 @@
             const accessKey = 'BR-' + vendor.name.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '') + '-' + Math.floor(1000 + Math.random() * 9000);
             const passcode = Math.floor(100000 + Math.random() * 900000).toString();
 
-            // Local real-time sync for Staff Portal
+            // Store in local STAFF_CREDENTIALS so viewCredentials can retrieve it
             vendor.email = accessKey;
             vendor.password = passcode;
             let creds = JSON.parse(localStorage.getItem('STAFF_CREDENTIALS') || '{}');
@@ -2590,10 +2613,18 @@
             localStorage.setItem('STAFF_CREDENTIALS', JSON.stringify(creds));
 
             try {
-                const response = await fetch(`http://localhost:5000/api/branches/${vendor.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: accessKey, password: passcode })
+                const response = await fetch(`${API_URL}/api/admin/generate-branch-credentials`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ 
+                        branchId: vendor.id,
+                        branchName: vendor.name,
+                        accessKey: accessKey, 
+                        passcode: passcode 
+                    })
                 });
 
                 if (response.ok) {
@@ -2601,48 +2632,63 @@
 
                     // Alert the user so they can copy it!
                     setTimeout(() => {
-                        alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key: ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
+                        alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key (Email): ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
                     }, 500);
 
-                    fetchRealTimeData();
+                    await fetchRealTimeData();
                 } else {
                     showToast('Failed to save credentials to backend.', 'error');
                 }
             } catch (e) {
                 console.error(e);
-                showToast(`Credentials generated for ${vendor.name} (Local Sync Active)`, 'success');
+                showToast(`Credentials generated for ${vendor.name} (Local Sync Active)`, 'warning');
                 setTimeout(() => {
-                    alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key: ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
+                    alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key (Email): ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
                 }, 500);
             }
         }
 
         async function viewCredentials(id) {
-            // First try to fetch from backend to get real up-to-date credentials
-            try {
-                const response = await fetch('http://localhost:5000/api/branches', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    const branch = data.find(b => String(b.id) === String(id));
-                    if (branch && branch.email) {
-                        alert(`Active Credentials for ${branch.name}:\n\nAccess Key (Email): ${branch.email}\nPasscode: ${branch.password}`);
-                        return;
-                    }
-                }
-            } catch (e) {
-                console.log("Backend offline, trying local state");
-            }
-
-            // Fallback to local state if backend fetch fails
             const vendor = vendors.find(v => String(v.id) === String(id));
             if (!vendor) return;
-            if (vendor.email) {
-                alert(`Active Credentials for ${vendor.name}:\n\nAccess Key (Email): ${vendor.email}\nPasscode: ${vendor.password}`);
-            } else {
-                alert(`No credentials generated yet for ${vendor.name}. Please click 'Generate Credentials' first.`);
+
+            let accessKey = vendor.email || '';
+            let passcode = '';
+
+            // Check if passcode is cached in localStorage from credential generation
+            let creds = JSON.parse(localStorage.getItem('STAFF_CREDENTIALS') || '{}');
+            if (accessKey && creds[accessKey] && creds[accessKey].password) {
+                passcode = creds[accessKey].password;
             }
+
+            // Fetch latest branch info from backend if accessKey is missing
+            if (!accessKey) {
+                try {
+                    const response = await fetch(`${API_URL}/api/branches`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const branch = data.find(b => String(b.id) === String(id));
+                        if (branch && (branch.email || branch.accessKey)) {
+                            accessKey = branch.email || branch.accessKey;
+                            if (creds[accessKey] && creds[accessKey].password) {
+                                passcode = creds[accessKey].password;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.log("Backend offline, using local state");
+                }
+            }
+
+            if (!accessKey) {
+                alert(`No credentials generated yet for ${vendor.name}.\n\nPlease click the green 'Generate Credentials' button first.`);
+                return;
+            }
+
+            const passcodeDisplay = passcode || '(Hashed securely on server — Click "Generate Credentials" to generate a new passcode anytime)';
+            alert(`Active Credentials for ${vendor.name}:\n\nAccess Key (Email): ${accessKey}\nPasscode: ${passcodeDisplay}`);
         }
 
         function submitManualRecord() {
@@ -3691,30 +3737,7 @@
         }
 
         async function deleteVendor(id) {
-            if (confirm("Are you sure you want to completely delete this branch? This action cannot be undone.")) {
-                try {
-                    const response = await fetch(`http://localhost:5000/api/branches/${id}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (response.ok) {
-                        showToast('Branch successfully deleted.', 'success');
-                        fetchRealTimeData();
-                        return;
-                    }
-                } catch (e) {
-                    console.log("Backend offline, attempting local delete");
-                }
-
-                // Fallback local delete
-                const vIndex = vendors.findIndex(v => String(v.id) === String(id));
-                if (vIndex > -1) {
-                    vendors.splice(vIndex, 1);
-                    showToast('Branch deleted locally.', 'success');
-                    renderVendorTable();
-                    renderExtendedTables();
-                }
-            }
+            return window.deleteVendor(id);
         }
 
         function signOut() {

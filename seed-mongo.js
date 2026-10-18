@@ -1,4 +1,6 @@
 require('dotenv').config();
+const dns = require('dns');
+try { dns.setServers(['8.8.8.8', '1.1.1.1']); } catch(e) {}
 const mongoose = require('mongoose');
 const fs = require('fs');
 
@@ -13,6 +15,10 @@ const eventSchema = new mongoose.Schema({ id: String, title: String, date: Strin
 const expenseSchema = new mongoose.Schema({ id: String, cat: String, desc: String, amount: Number, date: String, method: String }, { strict: false });
 const campaignSchema = new mongoose.Schema({ id: String, name: String, message: String, mediaUrls: [String], recipientsCount: Number, status: String, timestamp: String, results: Array }, { strict: false });
 
+const branchSchema = new mongoose.Schema({ id: String, name: String, location: String, phone: String, chainId: String, email: String, accessKey: String, password: String, status: String, verificationStatus: String }, { strict: false });
+const adminSchema = new mongoose.Schema({ email: String, password: String, name: String, role: String, tier: Number, status: String }, { strict: false });
+const chainSchema = new mongoose.Schema({ id: String, name: String, logo: String, color: String }, { strict: false });
+
 const Client = mongoose.model('Client', clientSchema);
 const Staff = mongoose.model('Staff', staffSchema);
 const Service = mongoose.model('Service', serviceSchema);
@@ -21,16 +27,24 @@ const Booking = mongoose.model('Booking', bookingSchema);
 const Event = mongoose.model('Event', eventSchema);
 const Expense = mongoose.model('Expense', expenseSchema);
 const Campaign = mongoose.model('Campaign', campaignSchema);
+const Branch = mongoose.model('Branch', branchSchema);
+const Admin = mongoose.model('Admin', adminSchema);
+const Chain = mongoose.model('Chain', chainSchema);
 
 async function seed() {
     console.log('Connecting to MongoDB...');
     try {
         await mongoose.connect(MONGODB_URI);
-        console.log('Connected!');
+        console.log('Connected to MongoDB successfully!');
 
         const dbFile = JSON.parse(fs.readFileSync('db.json', 'utf8'));
 
-        console.log(`Found ${dbFile.clients.length} clients, ${dbFile.bookings.length} bookings, ${dbFile.staff.length} staff.`);
+        console.log(`Found:
+  - ${dbFile.branches ? dbFile.branches.length : 0} branches/salons
+  - ${dbFile.admins ? dbFile.admins.length : 0} admins
+  - ${dbFile.clients ? dbFile.clients.length : 0} clients
+  - ${dbFile.bookings ? dbFile.bookings.length : 0} bookings
+  - ${dbFile.staff ? dbFile.staff.length : 0} staff`);
 
         console.log('Clearing old data in MongoDB...');
         await Promise.all([
@@ -41,20 +55,26 @@ async function seed() {
             Booking.deleteMany({}),
             Event.deleteMany({}),
             Expense.deleteMany({}),
-            Campaign.deleteMany({})
+            Campaign.deleteMany({}),
+            Branch.deleteMany({}),
+            Admin.deleteMany({}),
+            Chain.deleteMany({})
         ]);
 
         console.log('Inserting local data into MongoDB...');
-        if (dbFile.clients.length) await Client.insertMany(dbFile.clients);
-        if (dbFile.staff.length) await Staff.insertMany(dbFile.staff);
-        if (dbFile.services.length) await Service.insertMany(dbFile.services);
-        if (dbFile.inventory.length) await Inventory.insertMany(dbFile.inventory);
-        if (dbFile.bookings.length) await Booking.insertMany(dbFile.bookings);
+        if (dbFile.branches && dbFile.branches.length) await Branch.insertMany(dbFile.branches);
+        if (dbFile.admins && dbFile.admins.length) await Admin.insertMany(dbFile.admins);
+        if (dbFile.chains && dbFile.chains.length) await Chain.insertMany(dbFile.chains);
+        if (dbFile.clients && dbFile.clients.length) await Client.insertMany(dbFile.clients);
+        if (dbFile.staff && dbFile.staff.length) await Staff.insertMany(dbFile.staff);
+        if (dbFile.services && dbFile.services.length) await Service.insertMany(dbFile.services);
+        if (dbFile.inventory && dbFile.inventory.length) await Inventory.insertMany(dbFile.inventory);
+        if (dbFile.bookings && dbFile.bookings.length) await Booking.insertMany(dbFile.bookings);
         if (dbFile.events && dbFile.events.length) await Event.insertMany(dbFile.events);
         if (dbFile.expenses && dbFile.expenses.length) await Expense.insertMany(dbFile.expenses);
         if (dbFile.campaigns && dbFile.campaigns.length) await Campaign.insertMany(dbFile.campaigns);
 
-        console.log('Data migration complete! You can now close this script and refresh the dashboard.');
+        console.log('Data migration complete! All branches, admins, bookings, and salon data successfully imported into MongoDB.');
         process.exit(0);
     } catch (err) {
         console.error('Error during migration:', err);

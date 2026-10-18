@@ -8,6 +8,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Socket.IO for real-time live synchronization across all 4 dashboards -->
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        var socket = null;
+        try {
+            socket = io();
+            socket.on('connect', function() {
+                console.log('[REALTIME SOCKET.IO] Connected in Superadmin Dashboard (matrix.html)');
+            });
+            socket.on('sync_refresh', function(event) {
+                console.log('[REALTIME SYNC EVENT RECEIVE]', event);
+                if (typeof loadAllData === 'function') loadAllData();
+                if (typeof renderGlobalOverview === 'function') renderGlobalOverview();
+            });
+        } catch(e) {}
+    </script>
     <!-- Three.js for 3D Visuals & Chart.js for Analytics -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1076,11 +1092,12 @@
     <nav class="sidebar glass-panel">
         <div class="brand">
             <i class="fa-solid fa-crown"></i>
-            <span>MedhikaArts</span>
+            <span>Vynster</span>
         </div>
 
         <div class="nav-menu" style="margin-top: 2rem;">
-            <a href="javascript:void(0)" class="nav-item active" data-target="overview" onclick="switchSection('overview')">
+            <a href="javascript:void(0)" class="nav-item active" data-target="overview"
+                onclick="switchSection('overview')">
                 <i class="fa-solid fa-border-all"></i>
                 Overview
             </a>
@@ -1088,7 +1105,8 @@
                 <i class="fa-solid fa-bullhorn"></i>
                 Onboarding
             </a>
-            <a href="javascript:void(0)" class="nav-item" data-target="verification" onclick="switchSection('verification')">
+            <a href="javascript:void(0)" class="nav-item" data-target="verification"
+                onclick="switchSection('verification')">
                 <i class="fa-solid fa-id-card-clip"></i>
                 Verification & KYC
             </a>
@@ -1096,7 +1114,8 @@
                 <i class="fa-solid fa-store"></i>
                 Salons & Vendors
             </a>
-            <a href="javascript:void(0)" class="nav-item" data-target="transactions" onclick="switchSection('transactions')">
+            <a href="javascript:void(0)" class="nav-item" data-target="transactions"
+                onclick="switchSection('transactions')">
                 <i class="fa-solid fa-file-invoice-dollar"></i>
                 Transactions
             </a>
@@ -1104,7 +1123,8 @@
                 <i class="fa-solid fa-wallet"></i>
                 Revenue
             </a>
-            <a href="javascript:void(0)" class="nav-item" data-target="manual-record" onclick="switchSection('manual-record')">
+            <a href="javascript:void(0)" class="nav-item" data-target="manual-record"
+                onclick="switchSection('manual-record')">
                 <i class="fa-solid fa-pen-to-square"></i>
                 Manual Record
             </a>
@@ -1112,11 +1132,13 @@
                 <i class="fa-solid fa-file-invoice-dollar"></i>
                 Annual Report
             </a>
-            <a href="javascript:void(0)" class="nav-item" data-target="business-analysis" onclick="switchSection('business-analysis')">
+            <a href="javascript:void(0)" class="nav-item" data-target="business-analysis"
+                onclick="switchSection('business-analysis')">
                 <i class="fa-solid fa-chart-pie"></i>
                 Business Analysis
             </a>
-            <a href="javascript:void(0)" class="nav-item" data-target="ad-manager" onclick="switchSection('ad-manager')">
+            <a href="javascript:void(0)" class="nav-item" data-target="ad-manager"
+                onclick="switchSection('ad-manager')">
                 <i class="fa-solid fa-bullhorn"></i>
                 Ad Management
             </a>
@@ -1174,7 +1196,8 @@
         <div id="section-overview" class="content-section" style="display: block;">
             <div class="dashboard-grid">
                 <!-- Stats -->
-                <div class="stat-card glass-panel" onclick="switchSection('revenue')" style="cursor: pointer;" title="Click to view Revenue section">
+                <div class="stat-card glass-panel" onclick="switchSection('revenue')" style="cursor: pointer;"
+                    title="Click to view Revenue section">
                     <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
                     <div>
                         <div class="stat-value">₹4.2M</div>
@@ -1183,7 +1206,8 @@
                     <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +12.5%</div>
                 </div>
 
-                <div class="stat-card glass-panel" onclick="switchSection('salons')" style="cursor: pointer;" title="Click to view Salons & Vendors">
+                <div class="stat-card glass-panel" onclick="switchSection('salons')" style="cursor: pointer;"
+                    title="Click to view Salons & Vendors">
                     <div class="stat-icon"><i class="fa-solid fa-store"></i></div>
                     <div>
                         <div class="stat-value">342</div>
@@ -1192,7 +1216,8 @@
                     <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +8</div>
                 </div>
 
-                <div class="stat-card glass-panel" onclick="switchSection('users')" style="cursor: pointer;" title="Click to view Users Base">
+                <div class="stat-card glass-panel" onclick="switchSection('users')" style="cursor: pointer;"
+                    title="Click to view Users Base">
                     <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
                     <div>
                         <div class="stat-value">128.5k</div>
@@ -1201,7 +1226,8 @@
                     <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +5.2%</div>
                 </div>
 
-                <div class="stat-card glass-panel" onclick="switchSection('settings')" style="cursor: pointer;" title="Click to view System Settings">
+                <div class="stat-card glass-panel" onclick="switchSection('settings')" style="cursor: pointer;"
+                    title="Click to view System Settings">
                     <div class="stat-icon"><i class="fa-solid fa-bolt"></i></div>
                     <div>
                         <div class="stat-value">99.9%</div>
@@ -1431,32 +1457,44 @@
                         </div>
 
                         <!-- Owner Photo & Identity Section -->
-                        <div style="grid-column: span 2; margin-top: 0.5rem; background: rgba(26, 107, 138, 0.08); padding: 1.25rem; border-radius: 12px; border: 1px dashed var(--accent-secondary);">
-                            <label style="display: block; font-size: 0.95rem; font-weight: 600; color: var(--accent-primary); margin-bottom: 0.8rem;">
-                                <i class="fa-solid fa-camera" style="margin-right: 0.5rem;"></i> Owner Headshot / Profile Image *
+                        <div
+                            style="grid-column: span 2; margin-top: 0.5rem; background: rgba(26, 107, 138, 0.08); padding: 1.25rem; border-radius: 12px; border: 1px dashed var(--accent-secondary);">
+                            <label
+                                style="display: block; font-size: 0.95rem; font-weight: 600; color: var(--accent-primary); margin-bottom: 0.8rem;">
+                                <i class="fa-solid fa-camera" style="margin-right: 0.5rem;"></i> Owner Headshot /
+                                Profile Image *
                             </label>
-                            
+
                             <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
                                 <!-- Live Avatar Preview Circle -->
-                                <div id="marketing-owner-photo-preview" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent-primary); background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
-                                    <img id="marketing-owner-photo-img" src="" alt="Owner Preview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
-                                    <i id="marketing-owner-photo-icon" class="fa-solid fa-user-tie" style="font-size: 2.2rem; color: var(--text-muted);"></i>
+                                <div id="marketing-owner-photo-preview"
+                                    style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent-primary); background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                    <img id="marketing-owner-photo-img" src="" alt="Owner Preview"
+                                        style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                                    <i id="marketing-owner-photo-icon" class="fa-solid fa-user-tie"
+                                        style="font-size: 2.2rem; color: var(--text-muted);"></i>
                                 </div>
 
                                 <div style="flex: 1; min-width: 240px;">
-                                    <input type="file" id="marketing-doc-owner-photo" accept="image/*" onchange="previewOwnerPhoto(event)"
+                                    <input type="file" id="marketing-doc-owner-photo" accept="image/*"
+                                        onchange="previewOwnerPhoto(event)"
                                         style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.7); color: var(--text-main); font-size: 0.85rem;">
                                     <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.4rem;">
                                         Upload official headshot photo (JPG, PNG, WEBP). Recommended size: 300x300.
                                     </p>
                                     <div style="display: flex; gap: 0.5rem; margin-top: 0.6rem; flex-wrap: wrap;">
-                                        <button type="button" onclick="selectSampleOwnerPhoto('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80')" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-radius: 6px; border: 1px solid var(--accent-secondary); background: rgba(26,107,138,0.1); color: var(--accent-primary); cursor: pointer;">
+                                        <button type="button"
+                                            onclick="selectSampleOwnerPhoto('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80')"
+                                            style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-radius: 6px; border: 1px solid var(--accent-secondary); background: rgba(26,107,138,0.1); color: var(--accent-primary); cursor: pointer;">
                                             <i class="fa-solid fa-user"></i> Sample Photo 1
                                         </button>
-                                        <button type="button" onclick="selectSampleOwnerPhoto('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80')" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-radius: 6px; border: 1px solid var(--accent-secondary); background: rgba(26,107,138,0.1); color: var(--accent-primary); cursor: pointer;">
+                                        <button type="button"
+                                            onclick="selectSampleOwnerPhoto('https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80')"
+                                            style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-radius: 6px; border: 1px solid var(--accent-secondary); background: rgba(26,107,138,0.1); color: var(--accent-primary); cursor: pointer;">
                                             <i class="fa-solid fa-user"></i> Sample Photo 2
                                         </button>
-                                        <button type="button" onclick="clearOwnerPhoto()" style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-radius: 6px; border: 1px solid rgba(229,62,62,0.4); background: rgba(229,62,62,0.1); color: #e53e3e; cursor: pointer;">
+                                        <button type="button" onclick="clearOwnerPhoto()"
+                                            style="padding: 0.25rem 0.6rem; font-size: 0.75rem; border-radius: 6px; border: 1px solid rgba(229,62,62,0.4); background: rgba(229,62,62,0.1); color: #e53e3e; cursor: pointer;">
                                             <i class="fa-solid fa-xmark"></i> Clear
                                         </button>
                                     </div>
@@ -1473,30 +1511,39 @@
                             <label
                                 style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Owner
                                 Aadhaar Card *</label>
-                            <input type="file" id="marketing-doc-aadhaar" accept="image/*,.pdf" capture="environment" onchange="previewDocFile('marketing-doc-aadhaar', 'aadhaar-preview-badge')"
+                            <input type="file" id="marketing-doc-aadhaar" accept="image/*,.pdf" capture="environment"
+                                onchange="previewDocFile('marketing-doc-aadhaar', 'aadhaar-preview-badge')"
                                 style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px dashed var(--accent-secondary); background: rgba(0,0,0,0.2); color: var(--text-main);">
-                            <div id="aadhaar-preview-badge" style="display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 6px; color: #00ff88; font-size: 0.78rem; align-items: center; gap: 0.5rem;">
-                                <i class="fa-solid fa-check-circle"></i> <span class="doc-status-text">Photo Captured / Selected</span>
+                            <div id="aadhaar-preview-badge"
+                                style="display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 6px; color: #00ff88; font-size: 0.78rem; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-check-circle"></i> <span class="doc-status-text">Photo Captured /
+                                    Selected</span>
                             </div>
                         </div>
                         <div>
                             <label
                                 style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Owner
                                 PAN Card *</label>
-                            <input type="file" id="marketing-doc-pan" accept="image/*,.pdf" capture="environment" onchange="previewDocFile('marketing-doc-pan', 'pan-preview-badge')"
+                            <input type="file" id="marketing-doc-pan" accept="image/*,.pdf" capture="environment"
+                                onchange="previewDocFile('marketing-doc-pan', 'pan-preview-badge')"
                                 style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px dashed var(--accent-secondary); background: rgba(0,0,0,0.2); color: var(--text-main);">
-                            <div id="pan-preview-badge" style="display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 6px; color: #00ff88; font-size: 0.78rem; align-items: center; gap: 0.5rem;">
-                                <i class="fa-solid fa-check-circle"></i> <span class="doc-status-text">Photo Captured / Selected</span>
+                            <div id="pan-preview-badge"
+                                style="display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 6px; color: #00ff88; font-size: 0.78rem; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-check-circle"></i> <span class="doc-status-text">Photo Captured /
+                                    Selected</span>
                             </div>
                         </div>
                         <div style="grid-column: span 2;">
                             <label
                                 style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Salon
                                 License / Electricity Bill *</label>
-                            <input type="file" id="marketing-doc-license" accept="image/*,.pdf" capture="environment" onchange="previewDocFile('marketing-doc-license', 'license-preview-badge')"
+                            <input type="file" id="marketing-doc-license" accept="image/*,.pdf" capture="environment"
+                                onchange="previewDocFile('marketing-doc-license', 'license-preview-badge')"
                                 style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px dashed var(--accent-secondary); background: rgba(0,0,0,0.2); color: var(--text-main);">
-                            <div id="license-preview-badge" style="display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 6px; color: #00ff88; font-size: 0.78rem; align-items: center; gap: 0.5rem;">
-                                <i class="fa-solid fa-check-circle"></i> <span class="doc-status-text">Photo Captured / Selected</span>
+                            <div id="license-preview-badge"
+                                style="display: none; margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.3); border-radius: 6px; color: #00ff88; font-size: 0.78rem; align-items: center; gap: 0.5rem;">
+                                <i class="fa-solid fa-check-circle"></i> <span class="doc-status-text">Photo Captured /
+                                    Selected</span>
                             </div>
                         </div>
                         <div style="grid-column: span 2;">
@@ -1521,7 +1568,8 @@
         <div id="section-users" class="content-section" style="display: none;">
             <div class="glass-panel" style="padding: 2rem;">
                 <h2>Annual Report Analytics</h2>
-                <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Annual financial performance,
+                <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Annual financial
+                    performance,
                     growth trajectories, and yearly metrics.</p>
 
                 <div class="dashboard-grid">
@@ -1742,10 +1790,13 @@
 
         <div id="section-business-analysis" class="content-section" style="display: none;">
             <!-- Header & Controls -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
                 <div>
-                    <h2><i class="fa-solid fa-chart-pie" style="color: #00d2ff;"></i> Business Development Analytics & Export Engine</h2>
-                    <p style="color: var(--text-muted); margin-top: 0.5rem;">Real-time diagnostics, performance charts, and AI-driven growth recommendations.</p>
+                    <h2><i class="fa-solid fa-chart-pie" style="color: #00d2ff;"></i> Business Development Analytics &
+                        Export Engine</h2>
+                    <p style="color: var(--text-muted); margin-top: 0.5rem;">Real-time diagnostics, performance charts,
+                        and AI-driven growth recommendations.</p>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                     <select id="ba-branch-select"
@@ -1753,7 +1804,9 @@
                         onchange="renderBusinessAnalysis()">
                         <option value="all">Global Performance (All Branches)</option>
                     </select>
-                    <button type="button" class="ai-assistant-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white;" onclick="exportBusinessAnalysisReport('pdf')">
+                    <button type="button" class="ai-assistant-btn"
+                        style="background: linear-gradient(135deg, #10b981, #059669); color: white;"
+                        onclick="exportBusinessAnalysisReport('pdf')">
                         <i class="fa-solid fa-file-pdf"></i> Export PDF Report
                     </button>
                     <button type="button" class="sync-btn" onclick="exportBusinessAnalysisReport('csv')">
@@ -1797,8 +1850,10 @@
             <!-- Animated Charts Grid (Revenue vs Marketing Spend & Lead Acquisition Channels) -->
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
                 <div class="glass-panel" style="padding: 1.5rem;">
-                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
-                        <i class="fa-solid fa-chart-line" style="color: #00d2ff;"></i> Revenue Generated vs Marketing Spend
+                    <h3
+                        style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-chart-line" style="color: #00d2ff;"></i> Revenue Generated vs Marketing
+                        Spend
                     </h3>
                     <div style="height: 300px; position: relative;">
                         <canvas id="superadminRevenueVsSpendChart"></canvas>
@@ -1806,7 +1861,8 @@
                 </div>
 
                 <div class="glass-panel" style="padding: 1.5rem;">
-                    <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+                    <h3
+                        style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
                         <i class="fa-solid fa-chart-pie" style="color: #8a2be2;"></i> Lead Acquisition Channels
                     </h3>
                     <div style="height: 300px; position: relative;">
@@ -1820,7 +1876,8 @@
                 <h3 style="margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-store" style="color: #f59e0b;"></i> Salon Network BD Branch Performance Matrix
                 </h3>
-                <div style="background: rgba(255,255,255,0.6); border-radius: 12px; border: 1px solid var(--glass-border); overflow-x: auto;">
+                <div
+                    style="background: rgba(255,255,255,0.6); border-radius: 12px; border: 1px solid var(--glass-border); overflow-x: auto;">
                     <table class="vendor-table" style="margin-top: 0;">
                         <thead>
                             <tr>
@@ -2143,7 +2200,8 @@
                 style="background: rgba(26,107,138,0.05); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px dashed var(--accent-secondary);">
                 <div id="kyc-doc-preview-container"
                     style="display: flex; align-items: center; justify-content: center; min-height: 180px; background: rgba(255,255,255,0.5); border-radius: 8px; margin-bottom: 1rem; border: 1px solid var(--glass-border); overflow: hidden; position: relative;">
-                    <img id="kyc-doc-preview-img" src="" alt="Document Preview" style="display: none; max-width: 100%; max-height: 220px; object-fit: contain; border-radius: 6px;">
+                    <img id="kyc-doc-preview-img" src="" alt="Document Preview"
+                        style="display: none; max-width: 100%; max-height: 220px; object-fit: contain; border-radius: 6px;">
                     <div id="kyc-doc-preview-placeholder" style="text-align: center;">
                         <i class="fa-solid fa-file-image"
                             style="font-size: 3rem; color: var(--text-muted); margin-bottom: 10px;"></i>
@@ -2183,32 +2241,42 @@
     </div>
 
     <!-- Live Camera Photo Capture Modal -->
-    <div class="modal-overlay" id="camera-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center;">
-        <div class="modal-content" style="max-width: 520px; width: 90%; background: #1a202c; border: 1px solid var(--accent-secondary); border-radius: 16px; padding: 1.5rem; color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
+    <div class="modal-overlay" id="camera-modal"
+        style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 10000; justify-content: center; align-items: center;">
+        <div class="modal-content"
+            style="max-width: 520px; width: 90%; background: #1a202c; border: 1px solid var(--accent-secondary); border-radius: 16px; padding: 1.5rem; color: #fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;">
                 <h3 style="color: #fff; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fa-solid fa-camera" style="color: var(--accent-secondary);"></i>
                     <span id="camera-modal-title">Take Document Photo</span>
                 </h3>
-                <button type="button" onclick="closeCameraModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+                <button type="button" onclick="closeCameraModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
             </div>
 
-            <div style="position: relative; width: 100%; height: 320px; background: #000; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid var(--accent-primary);">
-                <video id="camera-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <div
+                style="position: relative; width: 100%; height: 320px; background: #000; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 2px solid var(--accent-primary);">
+                <video id="camera-video" autoplay playsinline
+                    style="width: 100%; height: 100%; object-fit: cover;"></video>
                 <canvas id="camera-canvas" style="display: none;"></canvas>
-                
-                <div style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; color: #00ff88; display: flex; align-items: center; gap: 0.4rem; border: 1px solid rgba(0,255,136,0.3);">
+
+                <div
+                    style="position: absolute; top: 12px; left: 12px; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; color: #00ff88; display: flex; align-items: center; gap: 0.4rem; border: 1px solid rgba(0,255,136,0.3);">
                     <i class="fa-solid fa-circle" style="font-size: 0.5rem; color: #00ff88;"></i> Camera Live
                 </div>
             </div>
 
-            <p style="font-size: 0.8rem; color: #a0aec0; text-align: center; margin-top: 0.8rem; margin-bottom: 1.2rem;">
+            <p
+                style="font-size: 0.8rem; color: #a0aec0; text-align: center; margin-top: 0.8rem; margin-bottom: 1.2rem;">
                 Position document cleanly within the camera frame before taking the photo.
             </p>
 
             <div style="display: flex; gap: 1rem; justify-content: center;">
-                <button type="button" class="btn-cancel" onclick="closeCameraModal()" style="padding: 0.6rem 1.2rem;">Cancel</button>
-                <button type="button" class="ai-assistant-btn" onclick="captureCameraPhoto()" style="padding: 0.6rem 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));">
+                <button type="button" class="btn-cancel" onclick="closeCameraModal()"
+                    style="padding: 0.6rem 1.2rem;">Cancel</button>
+                <button type="button" class="ai-assistant-btn" onclick="captureCameraPhoto()"
+                    style="padding: 0.6rem 1.5rem; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));">
                     <i class="fa-solid fa-camera"></i> Snap Photo
                 </button>
             </div>
@@ -2307,11 +2375,13 @@
         });
 
         // --- Application Logic --- //
+        const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+        const API_URL = isLocal ? 'http://localhost:5000' : '';
 
         let token = localStorage.getItem('adminToken');
-        if (!token) {
-            token = 'superadmin_active_session_token';
-            localStorage.setItem('adminToken', token);
+        if (!token || token === 'superadmin_active_session_token' || token === 'mock_admin_token' || token === 'adminToken') {
+            localStorage.removeItem('adminToken');
+            window.location.href = 'superadmin_login.html';
         }
 
         let vendors = [
@@ -2324,14 +2394,37 @@
         let globalBookings = [];
         let globalExpenses = [];
 
-        window.deleteVendor = function(id) {
-            const index = vendors.findIndex(v => String(v.id) === String(id));
+        window.deleteVendor = async function (id) {
+            const v = vendors.find(x => String(x.id) === String(id));
+            const salonName = v ? v.name : 'this branch';
+            if (!confirm(`Are you sure you want to completely delete "${salonName}"? This action cannot be undone.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/api/branches/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    showToast(`Successfully deleted ${salonName}`, 'success');
+                    await fetchRealTimeData();
+                    return;
+                } else {
+                    const err = await response.json().catch(() => ({}));
+                    showToast(err.error || 'Failed to delete branch from server.', 'error');
+                }
+            } catch (e) {
+                console.error("Delete branch request failed:", e);
+                showToast('Network error while deleting branch.', 'error');
+            }
+
+            // Fallback local delete
+            const index = vendors.findIndex(x => String(x.id) === String(id));
             if (index > -1) {
-                const v = vendors[index];
                 vendors.splice(index, 1);
                 renderVendorTable();
                 renderExtendedTables();
-                if (typeof showToast === 'function') showToast(`Deleted ${v.name} vendor record`, 'error');
             }
         };
 
@@ -2424,7 +2517,7 @@
         async function confirmSuspend() {
             if (salonToSuspend) {
                 try {
-                    const response = await fetch(`http://localhost:5000/api/branches/${salonToSuspend.id}/status`, {
+                    const response = await fetch(`${API_URL}/api/branches/${salonToSuspend.id}/status`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ status: 'Suspended' })
@@ -2458,7 +2551,7 @@
                 };
 
                 try {
-                    const response = await fetch(`http://localhost:5000/api/branches/${id}`, {
+                    const response = await fetch(`${API_URL}/api/branches/${id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -2482,7 +2575,7 @@
             const vendor = vendors.find(v => String(v.id) === String(id));
             if (vendor) {
                 try {
-                    const response = await fetch(`http://localhost:5000/api/branches/${id}/status`, {
+                    const response = await fetch(`${API_URL}/api/branches/${id}/status`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify({ status: 'Active' })
@@ -2507,7 +2600,7 @@
             const accessKey = 'BR-' + vendor.name.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '') + '-' + Math.floor(1000 + Math.random() * 9000);
             const passcode = Math.floor(100000 + Math.random() * 900000).toString();
 
-            // Local real-time sync for Staff Portal
+            // Store in local STAFF_CREDENTIALS so viewCredentials can retrieve it
             vendor.email = accessKey;
             vendor.password = passcode;
             let creds = JSON.parse(localStorage.getItem('STAFF_CREDENTIALS') || '{}');
@@ -2520,10 +2613,18 @@
             localStorage.setItem('STAFF_CREDENTIALS', JSON.stringify(creds));
 
             try {
-                const response = await fetch(`http://localhost:5000/api/branches/${vendor.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: accessKey, password: passcode })
+                const response = await fetch(`${API_URL}/api/admin/generate-branch-credentials`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ 
+                        branchId: vendor.id,
+                        branchName: vendor.name,
+                        accessKey: accessKey, 
+                        passcode: passcode 
+                    })
                 });
 
                 if (response.ok) {
@@ -2531,48 +2632,63 @@
 
                     // Alert the user so they can copy it!
                     setTimeout(() => {
-                        alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key: ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
+                        alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key (Email): ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
                     }, 500);
 
-                    fetchRealTimeData();
+                    await fetchRealTimeData();
                 } else {
                     showToast('Failed to save credentials to backend.', 'error');
                 }
             } catch (e) {
                 console.error(e);
-                showToast(`Credentials generated for ${vendor.name} (Local Sync Active)`, 'success');
+                showToast(`Credentials generated for ${vendor.name} (Local Sync Active)`, 'warning');
                 setTimeout(() => {
-                    alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key: ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
+                    alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key (Email): ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
                 }, 500);
             }
         }
 
         async function viewCredentials(id) {
-            // First try to fetch from backend to get real up-to-date credentials
-            try {
-                const response = await fetch('http://localhost:5000/api/branches', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    const branch = data.find(b => String(b.id) === String(id));
-                    if (branch && branch.email) {
-                        alert(`Active Credentials for ${branch.name}:\n\nAccess Key (Email): ${branch.email}\nPasscode: ${branch.password}`);
-                        return;
-                    }
-                }
-            } catch (e) {
-                console.log("Backend offline, trying local state");
-            }
-
-            // Fallback to local state if backend fetch fails
             const vendor = vendors.find(v => String(v.id) === String(id));
             if (!vendor) return;
-            if (vendor.email) {
-                alert(`Active Credentials for ${vendor.name}:\n\nAccess Key (Email): ${vendor.email}\nPasscode: ${vendor.password}`);
-            } else {
-                alert(`No credentials generated yet for ${vendor.name}. Please click 'Generate Credentials' first.`);
+
+            let accessKey = vendor.email || '';
+            let passcode = '';
+
+            // Check if passcode is cached in localStorage from credential generation
+            let creds = JSON.parse(localStorage.getItem('STAFF_CREDENTIALS') || '{}');
+            if (accessKey && creds[accessKey] && creds[accessKey].password) {
+                passcode = creds[accessKey].password;
             }
+
+            // Fetch latest branch info from backend if accessKey is missing
+            if (!accessKey) {
+                try {
+                    const response = await fetch(`${API_URL}/api/branches`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        const branch = data.find(b => String(b.id) === String(id));
+                        if (branch && (branch.email || branch.accessKey)) {
+                            accessKey = branch.email || branch.accessKey;
+                            if (creds[accessKey] && creds[accessKey].password) {
+                                passcode = creds[accessKey].password;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.log("Backend offline, using local state");
+                }
+            }
+
+            if (!accessKey) {
+                alert(`No credentials generated yet for ${vendor.name}.\n\nPlease click the green 'Generate Credentials' button first.`);
+                return;
+            }
+
+            const passcodeDisplay = passcode || '(Hashed securely on server — Click "Generate Credentials" to generate a new passcode anytime)';
+            alert(`Active Credentials for ${vendor.name}:\n\nAccess Key (Email): ${accessKey}\nPasscode: ${passcodeDisplay}`);
         }
 
         function submitManualRecord() {
@@ -2658,13 +2774,90 @@
         function bindSyncButton() {
             const btn = document.getElementById('sync-btn');
             if (!btn) return;
-            btn.onclick = function() { handleSyncData(btn); };
+            btn.onclick = function () { handleSyncData(btn); };
         }
         window.handleSyncData = handleSyncData;
 
+        function applyTierRestrictions() {
+            let currentAdmin = {};
+            try {
+                currentAdmin = JSON.parse(localStorage.getItem('adminUser') || '{}');
+            } catch(e) {}
+            const tier = Number(currentAdmin.tier) || 1;
+
+            // Display badge in header
+            const pageTitle = document.getElementById('page-title');
+            if (pageTitle && !document.getElementById('tier-badge')) {
+                const badge = document.createElement('span');
+                badge.id = 'tier-badge';
+                badge.style.cssText = 'display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:12px; font-weight:700; margin-left:14px; vertical-align:middle; text-transform:none; letter-spacing:0;';
+                if (tier === 1) {
+                    badge.style.background = 'rgba(239, 68, 68, 0.2)';
+                    badge.style.color = '#f87171';
+                    badge.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+                    badge.innerHTML = '👑 Tier 1 · Super Admin';
+                } else if (tier === 2) {
+                    badge.style.background = 'rgba(59, 130, 246, 0.2)';
+                    badge.style.color = '#60a5fa';
+                    badge.style.border = '1px solid rgba(59, 130, 246, 0.4)';
+                    badge.innerHTML = '🛡️ Tier 2 · Operations Admin';
+                } else if (tier === 3) {
+                    badge.style.background = 'rgba(16, 185, 129, 0.2)';
+                    badge.style.color = '#34d399';
+                    badge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+                    badge.innerHTML = '💼 Tier 3 · Business Development';
+                }
+                pageTitle.appendChild(badge);
+            }
+
+            // Enforce Tier 3 Restrictions: ONLY Overview, Onboarding, Business Analysis, and Ad Management
+            if (tier === 3) {
+                const allowed = ['overview', 'marketing', 'business-analysis', 'ad-manager'];
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    const target = item.getAttribute('data-target');
+                    if (target && !allowed.includes(target)) {
+                        item.style.display = 'none';
+                    }
+                });
+
+                // Restrict stat card quick links on overview dashboard
+                const statCards = document.querySelectorAll('.stat-card');
+                statCards.forEach(card => {
+                    const oc = card.getAttribute('onclick') || '';
+                    if (oc && !allowed.some(a => oc.includes("'" + a + "'"))) {
+                        card.style.opacity = '0.45';
+                        card.style.cursor = 'not-allowed';
+                        card.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (typeof showToast === 'function') {
+                                showToast('Tier 3 Restriction: You only have access to Overview, Onboarding, Business Analysis, and Ad Management.', 'error');
+                            }
+                        };
+                    }
+                });
+            }
+        }
+        window.applyTierRestrictions = applyTierRestrictions;
+
         // Global switch section function
-        window.switchSection = function(target) {
+        window.switchSection = function (target) {
             if (!target) return;
+
+            // Tier 3 Permission Enforcement
+            let currentAdmin = {};
+            try { currentAdmin = JSON.parse(localStorage.getItem('adminUser') || '{}'); } catch(e) {}
+            const userTier = Number(currentAdmin.tier) || 1;
+            if (userTier === 3) {
+                const allowedTier3 = ['overview', 'marketing', 'business-analysis', 'ad-manager'];
+                if (!allowedTier3.includes(target)) {
+                    if (typeof showToast === 'function') {
+                        showToast('Access Restricted: Tier 3 is limited to Overview, Onboarding, Business Analysis, and Ad Management.', 'error');
+                    }
+                    return;
+                }
+            }
+
             const navItems = document.querySelectorAll('.nav-item');
             const contentSections = document.querySelectorAll('.content-section');
             const pageTitle = document.getElementById('page-title');
@@ -2713,7 +2906,7 @@
             }
         };
 
-        window.signOut = function() {
+        window.signOut = function () {
             localStorage.removeItem('adminToken');
             if (typeof showToast === 'function') showToast('Signing out of Super Admin...', 'info');
             setTimeout(() => {
@@ -2876,7 +3069,7 @@
 
         async function fetchRealTimeData() {
             try {
-                const response = await fetch('http://localhost:5000/api/branches', {
+                const response = await fetch(`${API_URL}/api/branches`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
@@ -2935,19 +3128,19 @@
             }
 
             try {
-                const mkRes = await fetch('http://localhost:5000/api/marketing');
+                const mkRes = await fetch(`${API_URL}/api/marketing`);
                 if (mkRes.ok) {
                     marketingRequests = await mkRes.json();
                 }
             } catch (e) { }
 
             try {
-                const bkRes = await fetch('http://localhost:5000/api/bookings');
+                const bkRes = await fetch(`${API_URL}/api/bookings`);
                 if (bkRes.ok) globalBookings = await bkRes.json();
             } catch (e) { }
 
             try {
-                const setRes = await fetch('http://localhost:5000/api/settings');
+                const setRes = await fetch(`${API_URL}/api/settings`);
                 if (setRes.ok) {
                     const settings = await setRes.json();
                     if (settings.fee) document.getElementById('setting-fee').value = settings.fee;
@@ -2967,7 +3160,7 @@
             } catch (e) { }
 
             try {
-                const expRes = await fetch('http://localhost:5000/api/expenses');
+                const expRes = await fetch(`${API_URL}/api/expenses`);
                 if (expRes.ok) globalExpenses = await expRes.json();
             } catch (e) { }
         }
@@ -3002,7 +3195,7 @@
                     status: 'Active'
                 };
 
-                const response = await fetch(`http://localhost:5000/api/branches/${id}`, {
+                const response = await fetch(`${API_URL}/api/branches/${id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3039,7 +3232,7 @@
 
         async function rejectSalon(id) {
             try {
-                const response = await fetch(`http://localhost:5000/api/branches/${id}/verify`, {
+                const response = await fetch(`${API_URL}/api/branches/${id}/verify`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3248,6 +3441,7 @@
             renderVendorTable();
             renderExtendedTables();
             fetchRealTimeData();
+            applyTierRestrictions();
 
             // Real-time live polling engine
             setInterval(() => {
@@ -3302,7 +3496,7 @@
             };
 
             try {
-                await fetch('http://localhost:5000/api/branches', {
+                await fetch(`${API_URL}/api/branches`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(reqPayload)
@@ -3330,7 +3524,7 @@
                                     branchId: reqPayload.id
                                 };
                                 try {
-                                    await fetch('http://localhost:5000/api/clients', {
+                                    await fetch(`${API_URL}/api/clients`, {
                                         method: 'POST',
                                         headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify(clientPayload)
@@ -3476,7 +3670,7 @@
             }
 
             try {
-                const res = await fetch('http://localhost:5000/api/settings', {
+                const res = await fetch(`${API_URL}/api/settings`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ fee, tax, maint, razorpay, autoApprove, billAds: globalBillAds })
@@ -3543,30 +3737,7 @@
         }
 
         async function deleteVendor(id) {
-            if (confirm("Are you sure you want to completely delete this branch? This action cannot be undone.")) {
-                try {
-                    const response = await fetch(`http://localhost:5000/api/branches/${id}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (response.ok) {
-                        showToast('Branch successfully deleted.', 'success');
-                        fetchRealTimeData();
-                        return;
-                    }
-                } catch (e) {
-                    console.log("Backend offline, attempting local delete");
-                }
-
-                // Fallback local delete
-                const vIndex = vendors.findIndex(v => String(v.id) === String(id));
-                if (vIndex > -1) {
-                    vendors.splice(vIndex, 1);
-                    showToast('Branch deleted locally.', 'success');
-                    renderVendorTable();
-                    renderExtendedTables();
-                }
-            }
+            return window.deleteVendor(id);
         }
 
         function signOut() {
@@ -3840,7 +4011,7 @@
         // --- Booking Confirmation Ad Management JS ---
         async function fetchBookingAdSettings() {
             try {
-                const res = await fetch('http://localhost:5000/api/marketing/booking-ad');
+                const res = await fetch(`${API_URL}/api/marketing/booking-ad`);
                 if (res.ok) {
                     const data = await res.json();
                     const enabledEl = document.getElementById('booking-ad-enabled');
@@ -3901,7 +4072,7 @@
             };
 
             try {
-                const res = await fetch('http://localhost:5000/api/marketing/booking-ad', {
+                const res = await fetch(`${API_URL}/api/marketing/booking-ad`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -3942,7 +4113,7 @@
         }
         async function fetchAndRenderAds() {
             try {
-                const res = await fetch('http://localhost:5000/api/ads');
+                const res = await fetch(`${API_URL}/api/ads`);
                 if (!res.ok) return;
                 const ads = await res.json();
 
@@ -3995,7 +4166,7 @@
             }
 
             try {
-                const res = await fetch('http://localhost:5000/api/ads', {
+                const res = await fetch(`${API_URL}/api/ads`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ emoji, title, description, buttonText, targets })
@@ -4017,7 +4188,7 @@
         async function deleteAd(id) {
             if (!confirm('Are you sure you want to pull this ad from the network?')) return;
             try {
-                const res = await fetch(`http://localhost:5000/api/ads/${id}`, { method: 'DELETE' });
+                const res = await fetch(`${API_URL}/api/ads/${id}`, { method: 'DELETE' });
                 if (res.ok) {
                     showToast('Ad revoked successfully.', 'success');
                     fetchAndRenderAds();
@@ -4062,22 +4233,31 @@
     </script>
 
     <!-- KYC DOCUMENT VIEWER MODAL -->
-    <div id="kyc-modal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999; display: none; justify-content: center; align-items: center;">
-        <div style="background: #111827; border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; max-width: 550px; width: 90%; color: #fff; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+    <div id="kyc-modal"
+        style="position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 99999; display: none; justify-content: center; align-items: center;">
+        <div
+            style="background: #111827; border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; max-width: 550px; width: 90%; color: #fff; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
                 <div>
-                    <h3 id="kyc-modal-title" style="font-size: 1.1rem; font-weight: 700; color: var(--accent-primary, #38bdf8);">KYC Document Verification</h3>
+                    <h3 id="kyc-modal-title"
+                        style="font-size: 1.1rem; font-weight: 700; color: var(--accent-primary, #38bdf8);">KYC Document
+                        Verification</h3>
                     <p id="kyc-modal-meta" style="font-size: 0.8rem; color: #9ca3af; margin-top: 2px;"></p>
                 </div>
-                <button type="button" onclick="closeKycModal()" style="background: none; border: none; font-size: 1.5rem; color: #aaa; cursor: pointer;">&times;</button>
+                <button type="button" onclick="closeKycModal()"
+                    style="background: none; border: none; font-size: 1.5rem; color: #aaa; cursor: pointer;">&times;</button>
             </div>
 
-            <div style="position: relative; width: 100%; height: 300px; background: #000; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.15);">
-                <img id="kyc-modal-img" src="" alt="Document Preview" style="width: 100%; height: 100%; object-fit: contain;">
+            <div
+                style="position: relative; width: 100%; height: 300px; background: #000; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.15);">
+                <img id="kyc-modal-img" src="" alt="Document Preview"
+                    style="width: 100%; height: 100%; object-fit: contain;">
             </div>
 
             <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px;">
-                <button type="button" onclick="closeKycModal()" style="padding: 10px 22px; border-radius: 8px; border: none; background: var(--accent-primary, #38bdf8); color: #000; font-weight: 700; cursor: pointer; font-size: 0.9rem;">Close</button>
+                <button type="button" onclick="closeKycModal()"
+                    style="padding: 10px 22px; border-radius: 8px; border: none; background: var(--accent-primary, #38bdf8); color: #000; font-weight: 700; cursor: pointer; font-size: 0.9rem;">Close</button>
             </div>
         </div>
     </div>

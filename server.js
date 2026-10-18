@@ -1,4 +1,6 @@
 try { require('dotenv').config(); } catch(e) {}
+const dns = require('dns');
+try { dns.setServers(['8.8.8.8', '1.1.1.1']); } catch(e) {}
 // Global error handler to prevent unexpected background errors from crashing the server
 process.on('unhandledRejection', (reason, promise) => {
     console.error('[CRITICAL] Unhandled Rejection:', reason);
@@ -22,7 +24,7 @@ const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',').map(s => s.trim()) 
-    : ['http://localhost:5000', 'http://127.0.0.1:5000', 'https://salon-application.onrender.com'];
+    : ['http://localhost:5000', 'http://127.0.0.1:5000', 'https://salon-application.onrender.com', 'https://vynster.com', 'http://vynster.com'];
 
 const isOriginAllowed = (origin) => {
     if (!origin) return true;
@@ -2253,9 +2255,13 @@ app.post('/api/branches', requireAuth, authMiddleware(1), async (req, res) => {
 });
 
 app.put('/api/branches/:id', requireAuth, authMiddleware(1), async (req, res) => {
-    if (isConnected) { try { return res.json(await Branch.findOneAndUpdate({ id: req.params.id }, req.body, { new: true })); } catch (e) { } }
-    const idx = localDb.branches.findIndex(b => b.id === req.params.id);
-    if (idx !== -1) { localDb.branches[idx] = { ...localDb.branches[idx], ...req.body }; saveLocal(); return res.json(localDb.branches[idx]); }
+    const updateData = { ...req.body };
+    if (updateData.password && !updateData.password.startsWith('scrypt:')) {
+        updateData.password = hashPassword(updateData.password);
+    }
+    if (isConnected) { try { return res.json(await Branch.findOneAndUpdate({ $or: [{ id: req.params.id }, { _id: req.params.id }] }, updateData, { new: true })); } catch (e) { } }
+    const idx = localDb.branches ? localDb.branches.findIndex(b => String(b.id) === String(req.params.id)) : -1;
+    if (idx !== -1) { localDb.branches[idx] = { ...localDb.branches[idx], ...updateData }; saveLocal(); return res.json(localDb.branches[idx]); }
     res.status(404).json({ error: 'Not found' });
 });
 
@@ -2318,9 +2324,19 @@ app.put('/api/branches/:id/verify', authMiddleware(1), async (req, res) => {
 });
 
 app.delete('/api/branches/:id', requireAuth, authMiddleware(1), async (req, res) => {
-    if (isConnected) { try { await Branch.deleteOne({ id: req.params.id }); return res.json({ success: true }); } catch (e) { } }
-    const idx = localDb.branches.findIndex(b => b.id === req.params.id);
-    if (idx !== -1) { localDb.branches.splice(idx, 1); saveLocal(); return res.json({ success: true }); }
+    const branchId = req.params.id;
+    if (isConnected) { 
+        try { 
+            await Branch.deleteOne({ $or: [{ id: branchId }, { _id: branchId }] }); 
+            return res.json({ success: true }); 
+        } catch (e) { } 
+    }
+    const idx = localDb.branches ? localDb.branches.findIndex(b => String(b.id) === String(branchId)) : -1;
+    if (idx !== -1) { 
+        localDb.branches.splice(idx, 1); 
+        saveLocal(); 
+        return res.json({ success: true }); 
+    }
     res.status(404).json({ error: 'Not found' });
 });
 
@@ -2562,29 +2578,30 @@ app.put('/api/marketing/:id/deny', requireAuth, requireRole('super', 'owner', 'm
 
 // --- Generate Branch Credentials ---
 app.post('/api/admin/generate-branch-credentials', requireAuth, authMiddleware(1), async (req, res) => {
-    const { branchName, accessKey, passcode } = req.body;
+    const { branchId, branchName, accessKey, passcode } = req.body;
     const hashedPasscode = hashPassword(passcode);
     if (!localDb.branches) localDb.branches = [];
 
-    let branch = localDb.branches.find(b => b.name === branchName);
+    let branch = localDb.branches.find(b => (branchId && String(b.id) === String(branchId)) || (branchName && b.name === branchName));
     if (!branch) {
         branch = {
-            id: 'b' + Date.now(),
-            name: branchName,
+            id: branchId || ('b' + Date.now()),
+            name: branchName || 'New Branch',
             status: 'Active',
             verificationStatus: 'Approved'
         };
         localDb.branches.push(branch);
     }
     branch.email = accessKey;
+    branch.accessKey = accessKey;
     branch.password = hashedPasscode;
 
     // Also save to mongo if connected
     if (isConnected) {
         try {
             await Branch.updateOne(
-                { name: branchName },
-                { $set: { email: accessKey, password: hashedPasscode, status: 'Active', verificationStatus: 'Approved' } },
+                { $or: [{ id: branch.id }, { name: branch.name }] },
+                { $set: { email: accessKey, accessKey: accessKey, password: hashedPasscode, status: 'Active', verificationStatus: 'Approved' } },
                 { upsert: true }
             );
         } catch (e) { console.error('Error saving branch creds to mongo:', e); }

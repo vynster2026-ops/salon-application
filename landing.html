@@ -84,6 +84,44 @@
             transition: background-color 0.4s ease, color 0.4s ease;
         }
 
+        /* Modern Village HD Scenery Page Background - Clearly Visible */
+        .page-village-bg {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .page-village-bg-img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center 25%;
+            filter: brightness(0.98) saturate(1.15) contrast(1.05);
+            transition: filter 0.4s ease;
+        }
+
+        .page-village-bg-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(3, 8, 20, 0.42) 0%, rgba(3, 8, 20, 0.05) 18%, rgba(3, 8, 20, 0.05) 82%, rgba(3, 8, 20, 0.45) 100%);
+            pointer-events: none;
+            transition: background 0.4s ease;
+        }
+
+        .theme-bright .page-village-bg-img {
+            filter: brightness(1.02) saturate(1.1) contrast(1.03);
+        }
+
+        .theme-bright .page-village-bg-overlay {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0%, rgba(255, 255, 255, 0.05) 18%, rgba(255, 255, 255, 0.05) 82%, rgba(255, 255, 255, 0.4) 100%);
+        }
+
         /* ========================================================
            BRIGHT MODE - COMPREHENSIVE HIGH CONTRAST DESIGN SYSTEM
            ======================================================== */
@@ -345,8 +383,14 @@
 
 <body class="bg-[#030814] text-[#D7E2EA] font-['Kanit',sans-serif] antialiased overflow-x-clip selection:bg-[#F40606] selection:text-white">
 
+    <!-- MODERN VILLAGE HD SCENERY BACKGROUND -->
+    <div class="page-village-bg" aria-hidden="true">
+        <img src="modern-village-bg.jpg" alt="Modern Village Scenery" class="page-village-bg-img" id="villageBgImg" />
+        <div class="page-village-bg-overlay"></div>
+    </div>
+
     <!-- ATMOSPHERIC BACKGROUND MESH & GLOWING ORBS -->
-    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden mix-blend-screen opacity-35">
         <!-- Glowing Orb 1 -->
         <div id="orb1" class="absolute -top-[10%] left-[15%] w-[600px] h-[600px] sm:w-[800px] sm:h-[800px] rounded-full blur-[140px] animate-orb-1 transition-all duration-500 bg-gradient-to-br from-[#F40606]/20 via-[#B30000]/15 to-transparent"></div>
 
@@ -357,7 +401,7 @@
         <div id="orb3" class="absolute bottom-[10%] left-[5%] w-[650px] h-[650px] sm:w-[850px] sm:h-[850px] rounded-full blur-[160px] animate-orb-3 transition-all duration-500 bg-gradient-to-tr from-[#990000]/25 via-[#F40606]/10 to-transparent"></div>
 
         <!-- Radial grid overlay -->
-        <div class="absolute inset-0 transition-opacity duration-400 opacity-100" style="background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px); background-size: 36px 36px;"></div>
+        <div class="absolute inset-0 transition-opacity duration-400 opacity-50" style="background-image: radial-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px); background-size: 36px 36px;"></div>
     </div>
 
     <!-- MAIN CONTENT WRAPPER -->

@@ -341,6 +341,13 @@ app.get(['/index', '/index.html', '/gateway', '/portal', '/hub'], (req, res) => 
 
 // Serve static assets without auto-intercepting '/' as index.html
 app.use(express.static(__dirname, { index: false }));
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+app.use('/landing-pages', express.static(path.join(__dirname, 'public', 'landing-pages'), { index: false }));
+
+// SylvaHero 3D Living World Route Aliases
+app.get(['/sylva', '/sylva-hero', '/sylva-living-world', '/sylva/living-green'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'landing-pages', 'inner-green-3d.html'));
+});
 
 // 3. Salon Management Dashboard
 app.get(['/admin', '/salon', '/owner', '/dashboard'], (req, res) => {

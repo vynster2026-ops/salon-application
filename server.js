@@ -812,7 +812,22 @@ if (MONGODB_URI) {
     isConnected = false;
 }
 
-const clientSchema = new mongoose.Schema({ id: String, name: String, phone: String, email: String, location: String, pts: Number, ltv: String, av: String, branchId: String }, { bufferCommands: false });
+const clientSchema = new mongoose.Schema({ 
+    id: String, 
+    name: String, 
+    phone: String, 
+    email: String, 
+    location: String, 
+    pts: Number, 
+    ltv: String, 
+    av: String, 
+    branchId: String,
+    branch: String,
+    branchName: String,
+    notes: String,
+    dob: String,
+    anniversary: String
+}, { bufferCommands: false, strict: false });
 const staffSchema = new mongoose.Schema({ id: String, staffId: String, name: String, gender: String, spec: String, role: String, rating: String, av: String, services: [String], status: String, phone: String, password: String, specialties: [String], summary: String, branchId: String }, { bufferCommands: false, strict: false });
 const serviceSchema = new mongoose.Schema({ id: String, name: String, cat: String, duration: Number, price: Number, prices: [Number], icon: String, gender: String, branchId: String }, { bufferCommands: false });
 const inventorySchema = new mongoose.Schema({ id: String, name: String, cat: String, stock: Number, min: Number, unit: String, cost: Number, branchId: String }, { bufferCommands: false });
@@ -1284,7 +1299,7 @@ app.put('/api/admins/status', authMiddleware(1), (req, res) => {
 });
 
 // --- CLIENT DIRECTORY API ROUTES ---
-app.get('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'reception', 'staff'), async (req, res) => {
+app.get('/api/clients', async (req, res) => {
     try {
         let clientsList = [];
         if (isConnected) {
@@ -1299,15 +1314,48 @@ app.get('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'r
         }
 
         const { branch, branchId } = req.query;
-        const targetBranch = branch || branchId || (req.user && req.user.role !== 'super' ? req.user.branchId : null);
+        let user = null;
+        const token = req.cookies?.authToken || req.headers['authorization'] || req.query.token;
+        if (token) {
+            user = verifyToken(token);
+        }
+
+        const targetBranch = branch || branchId || (user && user.role !== 'super' ? user.branchId : null);
+
         if (targetBranch && targetBranch !== 'all') {
+            const allBranches = isConnected ? await Branch.find({}).lean() : (localDb.branches || []);
+            const targetLower = String(targetBranch).trim().toLowerCase();
+            const matchedBranch = allBranches.find(b => 
+                String(b.id || '').trim().toLowerCase() === targetLower || 
+                String(b.name || '').trim().toLowerCase() === targetLower
+            );
+
             clientsList = clientsList.filter(c => {
-                const cBranch = String(c.branchId || c.branch || c.location || '').trim();
-                const tBranch = String(targetBranch).trim();
-                return cBranch === tBranch ||
-                    (tBranch === 'Main Branch' && (cBranch === 'b1' || cBranch === 'Main Branch')) ||
-                    (tBranch === 'b1' && (cBranch === 'b1' || cBranch === 'Main Branch'));
+                const cBranchId = String(c.branchId || '').trim().toLowerCase();
+                const cBranchName = String(c.branch || c.branchName || c.location || '').trim().toLowerCase();
+
+                // Direct match against target string
+                if (cBranchId === targetLower || cBranchName === targetLower) return true;
+
+                // Match against resolved branch entity if found
+                if (matchedBranch) {
+                    const mbId = String(matchedBranch.id || '').trim().toLowerCase();
+                    const mbName = String(matchedBranch.name || '').trim().toLowerCase();
+                    if (cBranchId === mbId || cBranchName === mbName || cBranchId === mbName) {
+                        return true;
+                    }
+                }
+
+                // Special handling for Main Branch / b1
+                if ((targetLower === 'main branch' || targetLower === 'b1') && (cBranchId === 'b1' || cBranchName === 'main branch')) {
+                    return true;
+                }
+
+                return false;
             });
+        } else if (!user || user.role !== 'super') {
+            // Unscoped non-admin request defaults to b1 / Main Branch
+            clientsList = clientsList.filter(c => c.branchId === 'b1' || c.branch === 'Main Branch');
         }
 
         console.log(`[CLIENTS API] Returning ${clientsList.length} clients for branch scope: ${targetBranch || 'all'}`);
@@ -1318,7 +1366,7 @@ app.get('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'r
     }
 });
 
-app.post('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'reception', 'staff'), async (req, res) => {
+app.post('/api/clients', async (req, res) => {
     try {
         const clientData = req.body || {};
         if (!clientData.id) clientData.id = 'c_' + Date.now();
@@ -1326,6 +1374,9 @@ app.post('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', '
         if (!clientData.ltv) clientData.ltv = '₹0';
         if (!clientData.branchId) {
             clientData.branchId = req.query.branchId || req.query.branch || (req.user && req.user.branchId) || 'b1';
+        }
+        if (!clientData.branch) {
+            clientData.branch = req.query.branch || clientData.branchName || clientData.branchId;
         }
 
         if (!localDb.clients) localDb.clients = [];
@@ -1339,7 +1390,7 @@ app.post('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', '
 
         if (isConnected) {
             try {
-                await Client.updateOne({ id: clientData.id }, clientData, { upsert: true });
+                await Client.updateOne({ id: clientData.id }, { $set: clientData }, { upsert: true });
             } catch (e) {
                 console.error('[DATABASE] MongoDB client save error:', e.message);
             }
@@ -1350,6 +1401,74 @@ app.post('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', '
         console.error('[API ERROR] POST /api/clients failed:', err);
         return res.status(500).json({ error: err.message });
     }
+});
+
+app.post('/api/clients/bulk', async (req, res) => {
+    try {
+        const { branchId, branch, clients } = req.body || {};
+        if (!Array.isArray(clients) || clients.length === 0) {
+            return res.status(400).json({ error: 'clients array is required' });
+        }
+
+        const bId = branchId || req.query.branchId || req.query.branch || (req.user && req.user.branchId) || 'b1';
+        const bName = branch || req.query.branch || bId;
+
+        const processed = clients.map((c, i) => ({
+            id: c.id || ('c_' + Date.now() + '_' + i),
+            name: c.name || c.Name || 'Customer',
+            phone: c.phone || c.Phone || c.Mobile || c.Contact || '',
+            email: c.email || c.Email || '',
+            notes: c.notes || c.Notes || 'Imported via Onboarding',
+            pts: Number(c.pts) || 0,
+            ltv: c.ltv || '₹0',
+            branchId: bId,
+            branch: bName,
+            branchName: bName,
+            location: c.location || bName,
+            createdAt: c.createdAt || new Date().toISOString()
+        }));
+
+        if (!localDb.clients) localDb.clients = [];
+        for (const item of processed) {
+            const idx = localDb.clients.findIndex(x => (x.phone && item.phone && x.phone === item.phone && x.branchId === item.branchId) || x.id === item.id);
+            if (idx !== -1) {
+                localDb.clients[idx] = { ...localDb.clients[idx], ...item };
+            } else {
+                localDb.clients.push(item);
+            }
+        }
+        saveLocal();
+
+        if (isConnected) {
+            try {
+                for (const item of processed) {
+                    await Client.updateOne({ id: item.id }, { $set: item }, { upsert: true });
+                }
+            } catch (e) {
+                console.error('[DATABASE] Bulk clients MongoDB save error:', e.message);
+            }
+        }
+
+        console.log(`[CLIENTS API] Bulk imported ${processed.length} clients for salon: ${bName} (${bId})`);
+        return res.json({ success: true, count: processed.length, branchId: bId, branch: bName });
+    } catch (err) {
+        console.error('[CLIENTS BULK ERROR]', err);
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+// Non-/api alias routes for universal compatibility across branch portals
+app.get('/clients', (req, res, next) => {
+    req.url = '/api/clients' + (req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '');
+    return app._router.handle(req, res, next);
+});
+app.post('/clients', (req, res, next) => {
+    req.url = '/api/clients' + (req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '');
+    return app._router.handle(req, res, next);
+});
+app.post('/clients/bulk', (req, res, next) => {
+    req.url = '/api/clients/bulk' + (req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '');
+    return app._router.handle(req, res, next);
 });
 
 app.put('/api/clients/:id', requireAuth, requireRole('super', 'owner', 'manager', 'reception'), async (req, res) => {

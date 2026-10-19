@@ -1806,9 +1806,12 @@
                         </div>
                     </div>
                     <div id="branch-toggle"
-                        style="background:#f1f5f9; border:1px solid var(--border); border-radius:12px; padding:6px 12px; font-size:12px; font-weight:800; color:var(--primary); display:flex; align-items:center; gap:6px; cursor:pointer;"
-                        onclick="showComingSoon('Multi-Branch Support')">
-                        <span style="font-size:14px;">📍</span> Main Branch ▾
+                        style="background:#f1f5f9; border:1px solid var(--border); border-radius:12px; padding:4px 8px; display:flex; align-items:center; gap:4px;">
+                        <span style="font-size:14px;">📍</span>
+                        <select id="branch-selector-dropdown" onchange="onSwitchActiveSalon(this.value)"
+                            style="background: transparent; border: none; font-size: 12px; font-weight: 800; color: var(--primary); outline: none; cursor: pointer; padding: 2px 4px;">
+                            <option value="Main Branch">Main Branch</option>
+                        </select>
                     </div>
                     <div
                         style="display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; background: #f8fafc; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border);">
@@ -7988,12 +7991,63 @@
         }
 
 
-        window.currentBranch = localStorage.getItem("selectedBranch") || "Main Branch";
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlBranchParam = urlParams.get('branch') || urlParams.get('branchId') || urlParams.get('salon');
+        if (urlBranchParam) {
+            window.currentBranch = decodeURIComponent(urlBranchParam);
+            localStorage.setItem("selectedBranch", window.currentBranch);
+        } else {
+            window.currentBranch = localStorage.getItem("selectedBranch") || "Main Branch";
+        }
+
         const API_URL = localStorage.getItem('CUSTOM_API_URL') || (
             (window.location.protocol === 'file:' || (['localhost', '127.0.0.1'].includes(window.location.hostname) && window.location.port !== '5000' && window.location.port !== ''))
                 ? 'http://localhost:5000/api'
                 : '/api'
         );
+
+        async function loadBranchesList() {
+            try {
+                const res = await fetch(`${API_URL}/branches`);
+                if (res.ok) {
+                    const branches = await res.json();
+                    const dropdown = document.getElementById('branch-selector-dropdown');
+                    if (dropdown && Array.isArray(branches) && branches.length > 0) {
+                        dropdown.innerHTML = '';
+                        const branchNames = new Set();
+                        branches.forEach(b => {
+                            const bName = b.name || b.id;
+                            if (bName) branchNames.add(bName);
+                        });
+                        if (window.currentBranch) {
+                            branchNames.add(window.currentBranch);
+                        }
+                        branchNames.forEach(name => {
+                            const opt = document.createElement('option');
+                            opt.value = name;
+                            opt.textContent = name;
+                            if (name.trim().toLowerCase() === String(window.currentBranch || '').trim().toLowerCase()) {
+                                opt.selected = true;
+                            }
+                            dropdown.appendChild(opt);
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn('Could not populate branches dropdown:', e);
+            }
+        }
+
+        function onSwitchActiveSalon(selectedSalonName) {
+            if (!selectedSalonName) return;
+            window.currentBranch = selectedSalonName;
+            localStorage.setItem("selectedBranch", selectedSalonName);
+            const url = new URL(window.location);
+            url.searchParams.set('branch', selectedSalonName);
+            window.history.replaceState({}, '', url);
+            if (typeof showToast === 'function') showToast(`Switched portal to: ${selectedSalonName}`, 'info');
+            refreshData();
+        }
         let cachedBookings = [];
         let cachedClients = [];
         let cachedEvents = [];
@@ -8550,15 +8604,15 @@
             document.body.classList.add('syncing');
             isOfflineMode = false; // Attempt to reconnect to live server
             try {
-                const ts = new Date().getTime();
+                const bParam = encodeURIComponent(window.currentBranch || 'Main Branch');
                 const [crez, brez, sRes, iRes, svRes, eRes, exRes, tRes] = await Promise.all([
-                    fetch(`${API_URL}/clients?_t=${ts}&branch=${window.currentBranch}`),
-                    fetch(`${API_URL}/bookings?_t=${ts}&branch=${window.currentBranch}`),
-                    fetch(`${API_URL}/staff?_t=${ts}&branch=${window.currentBranch}`),
-                    fetch(`${API_URL}/inventory?_t=${ts}&branch=${window.currentBranch}`),
-                    fetch(`${API_URL}/services?_t=${ts}&branch=${window.currentBranch}`),
-                    fetch(`${API_URL}/events?_t=${ts}&branch=${window.currentBranch}`),
-                    fetch(`${API_URL}/expenses?_t=${ts}&branch=${window.currentBranch}`),
+                    fetch(`${API_URL}/clients?_t=${ts}&branch=${bParam}`),
+                    fetch(`${API_URL}/bookings?_t=${ts}&branch=${bParam}`),
+                    fetch(`${API_URL}/staff?_t=${ts}&branch=${bParam}`),
+                    fetch(`${API_URL}/inventory?_t=${ts}&branch=${bParam}`),
+                    fetch(`${API_URL}/services?_t=${ts}&branch=${bParam}`),
+                    fetch(`${API_URL}/events?_t=${ts}&branch=${bParam}`),
+                    fetch(`${API_URL}/expenses?_t=${ts}&branch=${bParam}`),
                     fetch(`${API_URL}/tickets?_t=${ts}`)
                 ]);
 
@@ -17745,6 +17799,7 @@
         }
 
         switchView(currentViewId);
+        if (typeof loadBranchesList === 'function') loadBranchesList();
         refreshData(); // Replaced loadFromDB() with refreshData() as it's the actual data loader
     </script>
 

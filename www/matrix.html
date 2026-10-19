@@ -27,6 +27,7 @@
     <!-- Three.js for 3D Visuals & Chart.js for Analytics -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
             --bg-dark: #ebedee;
@@ -1548,10 +1549,21 @@
                         </div>
                         <div style="grid-column: span 2;">
                             <label
-                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Clients
-                                List (CSV: Name, Phone, Email) - Optional</label>
-                            <input type="file" id="marketing-doc-clients" accept=".csv"
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                                <i class="fa-solid fa-file-excel" style="color: #107c41; margin-right: 6px;"></i>
+                                Clients List (<strong style="color: var(--accent-secondary);">Excel .xlsx, .xls, or .csv</strong>: Name, Phone, Email, Notes) - Optional
+                            </label>
+                            <input type="file" id="marketing-doc-clients" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv"
+                                onchange="previewClientsDocFile(event)"
                                 style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px dashed var(--accent-secondary); background: rgba(0,0,0,0.2); color: var(--text-main);">
+                            <div id="clients-preview-badge"
+                                style="display: none; margin-top: 0.5rem; padding: 0.5rem 0.8rem; background: rgba(16, 124, 65, 0.15); border: 1px solid rgba(16, 124, 65, 0.4); border-radius: 6px; color: #4ade80; font-size: 0.82rem; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-file-circle-check"></i>
+                                    <span id="clients-preview-name">File selected</span>
+                                </div>
+                                <span id="clients-preview-count" style="background: rgba(0,0,0,0.25); padding: 2px 8px; border-radius: 12px; font-weight: 600;">0 clients detected</span>
+                            </div>
                         </div>
 
                         <div style="grid-column: span 2; margin-top: 1.5rem;">
@@ -2510,7 +2522,10 @@
                         </td>
                         <td>${vendor.revenue}</td>
                         <td><span class="status-badge ${statusClass}">${vendor.status}</span></td>
-                        <td style="display: flex; gap: 0.5rem;">
+                        <td style="display: flex; gap: 0.5rem; align-items: center;">
+                            <a href="vynster-salon.html?branch=${encodeURIComponent(vendor.name)}" target="_blank" class="action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(26, 107, 138, 0.15); color: var(--accent-primary); border: 1px solid var(--accent-secondary);" title="Open ${vendor.name} Branch Portal">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Salon Portal
+                            </a>
                             ${actionButton}
                             <button type="button" class="action-btn" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid rgba(229, 62, 62, 0.3);" onclick="deleteVendor('${vendor.id}')"><i class="fa-solid fa-trash"></i></button>
                         </td>
@@ -3105,9 +3120,14 @@
                                 </select>
                             </div>
 
-                            <div style="display: flex; gap: 1rem;">
+                            <div style="display: flex; gap: 1rem; margin-bottom: 0.8rem;">
                                 <button type="button" class="btn-approve" style="flex: 1; padding: 0.8rem;" onclick="approveSalon('${salon.id}')"><i class="fa-solid fa-check"></i> Approve & Provision</button>
                                 <button type="button" class="action-btn btn-suspend" style="flex: 1;" onclick="rejectSalon('${salon.id}')">Reject</button>
+                            </div>
+                            <div style="text-align: center;">
+                                <a href="vynster-salon.html?branch=${encodeURIComponent(salon.name)}" target="_blank" style="color: var(--accent-secondary); font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Salon Portal (${salon.name})
+                                </a>
                             </div>
                         </div>
                     `;
@@ -3143,7 +3163,10 @@
                                     </select>
                                 </td>
                                 <td><span class="status-badge ${vendor.status === 'Suspended' ? 'status-suspended' : 'status-active'}">${vendor.status}</span></td>
-                                <td style="display: flex; gap: 0.5rem;">
+                                <td style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <a href="vynster-salon.html?branch=${encodeURIComponent(vendor.name)}" target="_blank" class="action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(26, 107, 138, 0.15); color: var(--accent-primary); border: 1px solid var(--accent-secondary);" title="Open ${vendor.name} Branch Portal">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Salon Portal
+                                    </a>
                                     ${actionBtn}
                                     <button type="button" class="action-btn" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);" onclick="viewCredentials('${vendor.id}')" title="View Branch Credentials"><i class="fa-solid fa-eye"></i> View Credentials</button>
                                     <button type="button" class="action-btn" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);" onclick="generateAndSetCredentials('${vendor.id}')" title="Generate New Branch Credentials"><i class="fa-solid fa-key"></i> Generate Credentials</button>
@@ -3558,6 +3581,116 @@
             }
         }
 
+        function parseClientsFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        let rows = [];
+
+                        // 1. SheetJS parsing (works on .xlsx, .xls, and clean .csv)
+                        if (typeof XLSX !== 'undefined') {
+                            try {
+                                const workbook = XLSX.read(data, { type: 'array' });
+                                if (workbook.SheetNames && workbook.SheetNames.length > 0) {
+                                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                                    rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+                                }
+                            } catch (xlsxErr) {
+                                console.warn('[SHEETJS WARN] Fallback to raw text parser:', xlsxErr);
+                            }
+                        }
+
+                        // 2. Fallback to raw CSV text parsing if rows are still empty
+                        if (!rows || rows.length === 0) {
+                            const text = new TextDecoder('utf-8').decode(data);
+                            const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+                            if (lines.length > 1) {
+                                const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, ''));
+                                for (let i = 1; i < lines.length; i++) {
+                                    const cols = lines[i].split(',').map(c => c.trim().replace(/^["']|["']$/g, ''));
+                                    const obj = {};
+                                    headers.forEach((h, idx) => { obj[h] = cols[idx] || ''; });
+                                    rows.push(obj);
+                                }
+                            }
+                        }
+
+                        if (!rows || rows.length === 0) {
+                            return resolve([]);
+                        }
+
+                        const findVal = (row, patterns) => {
+                            for (const k of Object.keys(row)) {
+                                const cleanKey = k.trim().toLowerCase();
+                                if (patterns.some(p => cleanKey === p || cleanKey.includes(p))) {
+                                    return String(row[k]).trim();
+                                }
+                            }
+                            return '';
+                        };
+
+                        const clients = rows.map((row, idx) => {
+                            const name = findVal(row, ['customer name', 'client name', 'fullname', 'full name', 'name', 'client']) || `Client ${idx + 1}`;
+                            const phone = findVal(row, ['phone', 'mobile', 'contact', 'cell', 'tel', 'whatsapp', 'number']);
+                            const email = findVal(row, ['email', 'mail', 'e-mail']);
+                            const notes = findVal(row, ['notes', 'note', 'remarks', 'address', 'city']) || 'Imported via Onboarding';
+                            const rawPts = findVal(row, ['pts', 'points', 'loyalty']);
+                            const rawLtv = findVal(row, ['ltv', 'revenue', 'spend', 'spent', 'total']);
+
+                            return {
+                                id: 'c_' + Date.now() + '_' + idx,
+                                name: name,
+                                phone: phone,
+                                email: email,
+                                notes: notes,
+                                pts: Number(rawPts) || 0,
+                                ltv: rawLtv ? (rawLtv.startsWith('₹') ? rawLtv : '₹' + rawLtv) : '₹0'
+                            };
+                        }).filter(c => c.name && (c.phone || c.email || c.name !== 'Client'));
+
+                        resolve(clients);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = (err) => reject(err);
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function previewClientsDocFile(event) {
+            const file = event.target.files[0];
+            const badge = document.getElementById('clients-preview-badge');
+            const nameEl = document.getElementById('clients-preview-name');
+            const countEl = document.getElementById('clients-preview-count');
+            if (!file) {
+                if (badge) badge.style.display = 'none';
+                return;
+            }
+            if (badge) {
+                badge.style.display = 'flex';
+                if (nameEl) nameEl.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                if (countEl) {
+                    countEl.textContent = 'Analyzing spreadsheet...';
+                    countEl.style.color = '#f59e0b';
+                }
+            }
+            try {
+                const parsed = await parseClientsFile(file);
+                if (countEl) {
+                    countEl.textContent = `${parsed.length} client(s) detected & ready to import`;
+                    countEl.style.color = '#00ff88';
+                }
+            } catch (err) {
+                if (countEl) {
+                    countEl.textContent = 'File attached (ready for upload)';
+                    countEl.style.color = '#4ade80';
+                }
+            }
+        }
+
         function previewOwnerPhoto(event) {
             const file = event.target.files[0];
             if (file) {
@@ -3723,43 +3856,35 @@
                     return;
                 }
 
-                // Process clients CSV file if provided
+                // Process clients Excel/CSV file if provided
+                let importedClientCount = 0;
                 if (clientsFile) {
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        const text = e.target.result;
-                        const lines = text.split('\n');
-                        for (let i = 1; i < lines.length; i++) { // Skip header line
-                            const line = lines[i].trim();
-                            if (!line) continue;
-
-                            const parts = line.split(',');
-                            if (parts.length >= 2) {
-                                const clientPayload = {
-                                    id: 'c_' + Date.now() + '_' + i,
-                                    name: parts[0] ? parts[0].trim() : 'Customer',
-                                    phone: parts[1] ? parts[1].trim() : '',
-                                    email: parts[2] ? parts[2].trim() : '',
-                                    pts: 0,
-                                    ltv: "₹0",
-                                    branchId: reqPayload.id
-                                };
-                                try {
-                                    await fetch(`${API_URL}/api/clients`, {
-                                        method: 'POST',
-                                        headers: { 
-                                            'Content-Type': 'application/json',
-                                            'Authorization': `Bearer ${token}`
-                                        },
-                                        body: JSON.stringify(clientPayload)
-                                    });
-                                } catch (err) {
-                                    console.error('Failed to upload client row', err);
-                                }
+                    try {
+                        const parsedClients = await parseClientsFile(clientsFile);
+                        if (parsedClients && parsedClients.length > 0) {
+                            const bulkRes = await fetch(`${API_URL}/api/clients/bulk`, {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    branchId: reqPayload.id,
+                                    branch: reqPayload.name,
+                                    clients: parsedClients
+                                })
+                            });
+                            if (bulkRes.ok) {
+                                importedClientCount = parsedClients.length;
+                                console.log(`[ONBOARDING] Successfully bulk imported ${importedClientCount} clients for ${reqPayload.name}`);
+                            } else {
+                                console.warn('[ONBOARDING] Bulk client import response status:', bulkRes.status);
                             }
                         }
-                    };
-                    reader.readAsText(clientsFile);
+                    } catch (parseErr) {
+                        console.error('Failed to parse/upload clients file:', parseErr);
+                        showToast(`Notice: Salon created, but client file processing had an issue: ${parseErr.message}`, 'warning');
+                    }
                 }
             } catch (e) {
                 console.error("Salon submission error:", e);
@@ -3778,12 +3903,16 @@
             document.getElementById('marketing-doc-clients').value = '';
             clearOwnerPhoto();
             capturedDocImages = {};
-            ['aadhaar-preview-badge', 'pan-preview-badge', 'license-preview-badge'].forEach(id => {
+            ['aadhaar-preview-badge', 'pan-preview-badge', 'license-preview-badge', 'clients-preview-badge'].forEach(id => {
                 const b = document.getElementById(id);
                 if (b) b.style.display = 'none';
             });
 
-            showToast('Salon onboarded successfully! Routed to Verification & KYC queue.', 'success');
+            if (importedClientCount > 0) {
+                showToast(`Salon '${name}' onboarded with ${importedClientCount} clients! Routed to KYC queue.`, 'success');
+            } else {
+                showToast('Salon onboarded successfully! Routed to Verification & KYC queue.', 'success');
+            }
 
             // Re-fetch to populate the Verification queue immediately
             await fetchRealTimeData();

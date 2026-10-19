@@ -1200,30 +1200,30 @@
                     title="Click to view Revenue section">
                     <div class="stat-icon"><i class="fa-solid fa-indian-rupee-sign"></i></div>
                     <div>
-                        <div class="stat-value">₹4.2M</div>
+                        <div class="stat-value" id="kpi-total-revenue">₹0</div>
                         <div class="stat-label">Total Platform Revenue</div>
                     </div>
-                    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +12.5%</div>
+                    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> Live</div>
                 </div>
 
                 <div class="stat-card glass-panel" onclick="switchSection('salons')" style="cursor: pointer;"
                     title="Click to view Salons & Vendors">
                     <div class="stat-icon"><i class="fa-solid fa-store"></i></div>
                     <div>
-                        <div class="stat-value">342</div>
+                        <div class="stat-value" id="kpi-active-salons">1</div>
                         <div class="stat-label">Active Salons/Vendors</div>
                     </div>
-                    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +8</div>
+                    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> Live</div>
                 </div>
 
                 <div class="stat-card glass-panel" onclick="switchSection('users')" style="cursor: pointer;"
                     title="Click to view Users Base">
                     <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
                     <div>
-                        <div class="stat-value">128.5k</div>
+                        <div class="stat-value" id="kpi-total-users">0</div>
                         <div class="stat-label">Total Users Base</div>
                     </div>
-                    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +5.2%</div>
+                    <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> Live</div>
                 </div>
 
                 <div class="stat-card glass-panel" onclick="switchSection('settings')" style="cursor: pointer;"
@@ -1357,7 +1357,7 @@
                     <div>
                         <h3 style="color: var(--accent-primary);">Vendor Directory</h3>
                         <p style="color: var(--text-muted); font-size: 0.9rem;">Total Active: <strong
-                                style="color: var(--text-main);">342</strong></p>
+                                style="color: var(--text-main);" id="vendor-directory-count">1</strong></p>
                     </div>
                 </div>
 
@@ -1602,7 +1602,7 @@
                         <div
                             style="padding: 2rem; background: rgba(0, 255, 136, 0.1); border-radius: 15px; border: 1px solid rgba(0,255,136,0.3);">
                             <h3 style="color: #166534; margin-bottom: 1rem;">Platform Fees Collected</h3>
-                            <h1 style="font-size: 3rem; color: #00ff88;">₹8,45,200</h1>
+                            <h1 id="kpi-fees-collected" style="font-size: 3rem; color: #00ff88;">₹0</h1>
                             <p style="color: var(--text-muted); margin-top: 1rem; line-height: 1.5;">Total gross
                                 platform fees accumulated from all successful procedures and bookings across MedhikaArts
                                 vendor network.</p>
@@ -1614,7 +1614,7 @@
                         <div
                             style="padding: 2rem; background: rgba(245, 158, 11, 0.1); border-radius: 15px; border: 1px solid rgba(245, 158, 11, 0.3);">
                             <h3 style="color: #b45309; margin-bottom: 1rem;">Pending Payouts</h3>
-                            <h1 style="font-size: 3rem; color: #f59e0b;">₹12,50,000</h1>
+                            <h1 id="kpi-pending-payouts" style="font-size: 3rem; color: #f59e0b;">₹0</h1>
                             <button type="button" class="sync-btn"
                                 style="margin-top: 1rem; background: #f59e0b; color: white; border: none;">Process
                                 Payouts</button>
@@ -2164,6 +2164,40 @@
                         style="width: fit-content; margin-top: 1rem;" onclick="saveSystemSettings()">
                         <i class="fa-solid fa-floppy-disk"></i> Save Configuration
                     </button>
+
+                    <!-- Tier 1 Master Factory Reset & Zero Revenue (Tier 1 Super Admin Only) -->
+                    <div id="tier1-reset-panel" style="margin-top: 2.5rem; padding: 1.75rem; border-radius: 14px; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.35); position: relative;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.8rem;">
+                            <div style="display: flex; align-items: center; gap: 0.8rem;">
+                                <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(239, 68, 68, 0.2); display: flex; align-items: center; justify-content: center; color: #f87171; font-size: 1.25rem;">
+                                    <i class="fa-solid fa-triangle-exclamation"></i>
+                                </div>
+                                <div>
+                                    <h3 style="color: #f87171; margin: 0; font-size: 1.15rem;">Danger Zone · Master Data & Revenue Reset</h3>
+                                    <span style="font-size: 0.8rem; color: var(--text-muted);">Strictly restricted to Tier 1 Super Admin</span>
+                                </div>
+                            </div>
+                            <span id="tier1-reset-auth-badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700;">
+                                👑 Tier 1 Access Only
+                            </span>
+                        </div>
+
+                        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                            Executing this master reset will restore platform data back to initial zero baseline:
+                            <br>• Zeroes all revenue records, platform fees, and payouts.
+                            <br>• Clears all salon client/customer data completely.
+                            <br>• Removes all past bookings, appointments, and expense entries.
+                            <br>• Retains only the default <strong>Main Branch (b1)</strong> with ₹0 revenue.
+                        </p>
+
+                        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                            <button type="button" id="btn-master-factory-reset" onclick="triggerTier1MasterReset()"
+                                style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; border: none; padding: 0.85rem 1.6rem; border-radius: 10px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 0.6rem; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35); transition: all 0.2s;">
+                                <i class="fa-solid fa-fire"></i> Reset All Data & Zero Revenue (Tier 1)
+                            </button>
+                            <span id="tier1-reset-hint" style="font-size: 0.82rem; color: var(--text-muted);">Requires explicit confirmation</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2384,11 +2418,7 @@
             window.location.href = 'superadmin_login.html';
         }
 
-        let vendors = [
-            { id: 1, name: 'Glamour Lounge', joined: '2 days ago', initials: 'GL', location: 'Mumbai, West', plan: 'Premium (Yearly)', revenue: '₹45,000', status: 'Active', type: 'Premium Unisex Salon' },
-            { id: 2, name: 'Style Studio', joined: '5 days ago', initials: 'SS', location: 'Delhi, South', plan: 'Basic (Monthly)', revenue: '₹12,500', status: 'Active', type: 'Hair Studio' },
-            { id: 3, name: 'Urban X Spa', joined: 'Today', initials: 'UX', location: 'Bangalore, CBD', plan: 'Premium (Yearly)', revenue: '-', status: 'Pending Review', type: 'Spa & Wellness Center' }
-        ];
+        let vendors = [];
 
         let salonToSuspend = null;
         let globalBookings = [];
@@ -2430,8 +2460,21 @@
 
         function renderVendorTable() {
             const tbody = document.getElementById('vendor-table-body');
+            const activeVendors = vendors.filter(v => v.status === 'Active' || !v.status);
+            const count = activeVendors.length || vendors.length;
+
+            const kpiElem = document.getElementById('kpi-active-salons');
+            if (kpiElem) kpiElem.innerText = count;
+            const dirCountElem = document.getElementById('vendor-directory-count');
+            if (dirCountElem) dirCountElem.innerText = count;
+
             if (!tbody) return;
             tbody.innerHTML = '';
+
+            if (vendors.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No registered vendors found. Onboard a salon to see it here.</td></tr>`;
+                return;
+            }
 
             vendors.forEach(vendor => {
                 let statusClass = 'status-active';
@@ -2460,9 +2503,9 @@
                         <td>${vendor.location}</td>
                         <td>
                             <select onchange="updateVendorPlan('${vendor.id}', this.value)" style="padding: 0.4rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
-                                <option value="Basic" ${vendor.plan.includes('Basic') ? 'selected' : ''}>Basic</option>
-                                <option value="Premium" ${vendor.plan.includes('Premium') ? 'selected' : ''}>Premium</option>
-                                <option value="Deluxe" ${vendor.plan.includes('Deluxe') ? 'selected' : ''}>Deluxe</option>
+                                <option value="Basic" ${(vendor.plan || '').includes('Basic') ? 'selected' : ''}>Basic</option>
+                                <option value="Premium" ${(vendor.plan || '').includes('Premium') ? 'selected' : ''}>Premium</option>
+                                <option value="Deluxe" ${(vendor.plan || '').includes('Deluxe') ? 'selected' : ''}>Deluxe</option>
                             </select>
                         </td>
                         <td>${vendor.revenue}</td>
@@ -2837,8 +2880,102 @@
                     }
                 });
             }
+
+            // Enforce Tier 1 Only permissions on Master Data & Revenue Reset
+            const resetBtn = document.getElementById('btn-master-factory-reset');
+            const resetHint = document.getElementById('tier1-reset-hint');
+            const resetAuthBadge = document.getElementById('tier1-reset-auth-badge');
+            if (resetBtn) {
+                if (tier === 1) {
+                    resetBtn.disabled = false;
+                    resetBtn.style.opacity = '1';
+                    resetBtn.style.cursor = 'pointer';
+                    if (resetHint) resetHint.innerHTML = 'Authorized · Tier 1 Super Admin access active';
+                    if (resetAuthBadge) {
+                        resetAuthBadge.innerHTML = '👑 Tier 1 Authorized';
+                        resetAuthBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+                        resetAuthBadge.style.color = '#f87171';
+                        resetAuthBadge.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+                    }
+                } else {
+                    resetBtn.disabled = true;
+                    resetBtn.style.opacity = '0.45';
+                    resetBtn.style.cursor = 'not-allowed';
+                    if (resetHint) resetHint.innerHTML = '🔒 Locked · Accessible to Tier 1 Super Admin only';
+                    if (resetAuthBadge) {
+                        resetAuthBadge.innerHTML = '🔒 Locked (Tier 1 Only)';
+                        resetAuthBadge.style.background = 'rgba(100, 116, 139, 0.2)';
+                        resetAuthBadge.style.color = '#94a3b8';
+                        resetAuthBadge.style.border = '1px solid rgba(100, 116, 139, 0.4)';
+                    }
+                }
+            }
         }
         window.applyTierRestrictions = applyTierRestrictions;
+
+        async function triggerTier1MasterReset() {
+            let currentAdmin = {};
+            try { currentAdmin = JSON.parse(localStorage.getItem('adminUser') || '{}'); } catch(e) {}
+            const tier = Number(currentAdmin.tier) || 1;
+
+            if (tier !== 1) {
+                showToast('Access Denied: Only Tier 1 Super Admin can reset portal data and zero revenue.', 'error');
+                return;
+            }
+
+            const confirmed = confirm(
+                "⚠️ DANGER ZONE: MASTER SYSTEM RESET (TIER 1 ONLY)\n\n" +
+                "Are you sure you want to completely RESET ALL RECORDS to ZERO?\n\n" +
+                "• All revenue records and platform fees will be zeroed (₹0).\n" +
+                "• All salon client/customer data will be completely wiped.\n" +
+                "• All bookings and expense entries will be deleted.\n" +
+                "• Salons will be restored to 1 default Main Branch (b1) with ₹0 revenue.\n\n" +
+                "This action cannot be undone. Click OK to proceed."
+            );
+
+            if (!confirmed) return;
+
+            const btn = document.getElementById('btn-master-factory-reset');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Resetting Records to Zero...';
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/api/admin/reset-portal-data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await res.json().catch(() => ({}));
+
+                if (res.ok) {
+                    showToast('All records & revenue reset to zero successfully! System initialized.', 'success');
+                    vendors = [];
+                    pendingSalons = [];
+                    payments = [];
+
+                    await fetchRealTimeData();
+                    renderExtendedTables();
+                    switchSection('overview');
+                } else {
+                    showToast(data.error || 'Failed to reset system records.', 'error');
+                }
+            } catch (err) {
+                console.error('Reset error:', err);
+                showToast('Network error while resetting portal data.', 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa-solid fa-fire"></i> Reset All Data & Zero Revenue (Tier 1)';
+                    applyTierRestrictions();
+                }
+            }
+        }
+        window.triggerTier1MasterReset = triggerTier1MasterReset;
 
         // Global switch section function
         window.switchSection = function (target) {
@@ -2915,155 +3052,162 @@
         };
 
         // Salon Verification & Extended Rendering
-        let pendingSalons = [
-            { id: 101, name: 'Luxe Beauty Bar', ownerName: 'Priya Sharma', location: 'Pune, Central', applied: '2 hours ago', docs: 'Verified ✓', type: 'Beauty Clinic', ownerPhoto: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80' },
-            { id: 102, name: 'Glow Up Studio', ownerName: 'Vikram Mehta', location: 'Chennai, East', applied: '1 day ago', docs: 'Pending...', type: 'Barber Shop', ownerPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80' }
-        ];
-
-        let payments = [
-            { txId: 'TXN-98213', salon: 'Glamour Lounge', procedure: 'Bridal Makeup Pkg', amount: '₹12,500', date: 'Today, 10:30 AM', status: 'Completed' },
-            { txId: 'TXN-98212', salon: 'Style Studio', procedure: 'Keratin Treatment', amount: '₹4,200', date: 'Today, 09:15 AM', status: 'Completed' },
-            { txId: 'TXN-98210', salon: 'Glamour Lounge', procedure: 'Premium Haircut', amount: '₹1,500', date: 'Yesterday, 04:20 PM', status: 'Completed' },
-            { txId: 'TXN-98205', salon: 'Style Studio', procedure: 'Spa & Massage', amount: '₹3,000', date: 'Yesterday, 02:00 PM', status: 'Processing' }
-        ];
+        let pendingSalons = [];
+        let payments = [];
 
         function renderExtendedTables() {
             // Render Pending Verification Cards
             const verifyQueue = document.getElementById('verification-queue');
-            verifyQueue.innerHTML = '';
-            pendingSalons.forEach(salon => {
-                const ownerImg = salon.ownerPhoto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
-                verifyQueue.innerHTML += `
-                    <div style="background: rgba(255,255,255,0.6); border: 1px solid var(--glass-border); border-radius: 15px; padding: 1.5rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                            <div style="display: flex; gap: 0.9rem; align-items: center;">
-                                <div style="width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--accent-primary); overflow: hidden; flex-shrink: 0; background: rgba(0,0,0,0.1); box-shadow: 0 3px 8px rgba(0,0,0,0.15);">
-                                    <img src="${ownerImg}" alt="${salon.ownerName || 'Owner'}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';">
+            if (verifyQueue) {
+                verifyQueue.innerHTML = '';
+                pendingSalons.forEach(salon => {
+                    const ownerImg = salon.ownerPhoto || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+                    verifyQueue.innerHTML += `
+                        <div style="background: rgba(255,255,255,0.6); border: 1px solid var(--glass-border); border-radius: 15px; padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                                <div style="display: flex; gap: 0.9rem; align-items: center;">
+                                    <div style="width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--accent-primary); overflow: hidden; flex-shrink: 0; background: rgba(0,0,0,0.1); box-shadow: 0 3px 8px rgba(0,0,0,0.15);">
+                                        <img src="${ownerImg}" alt="${salon.ownerName || 'Owner'}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';">
+                                    </div>
+                                    <div>
+                                        <h3 style="margin-bottom: 0.2rem;">${salon.name}</h3>
+                                        <p style="color: var(--text-muted); font-size: 0.85rem;"><i class="fa-solid fa-user-shield"></i> Owner: <strong>${salon.ownerName || salon.owner || 'Salon Owner'}</strong></p>
+                                        <p style="color: var(--text-muted); font-size: 0.85rem;"><i class="fa-solid fa-location-dot"></i> ${salon.location}</p>
+                                        ${salon.phone ? `<p style="color: var(--text-muted); font-size: 0.85rem;"><i class="fa-solid fa-phone"></i> ${salon.phone}</p>` : ''}
+                                    </div>
                                 </div>
-                                <div>
-                                    <h3 style="margin-bottom: 0.2rem;">${salon.name}</h3>
-                                    <p style="color: var(--text-muted); font-size: 0.85rem;"><i class="fa-solid fa-user-shield"></i> Owner: <strong>${salon.ownerName || salon.owner || 'Rahul Sharma'}</strong></p>
-                                    <p style="color: var(--text-muted); font-size: 0.85rem;"><i class="fa-solid fa-location-dot"></i> ${salon.location}</p>
+                                <span style="background: rgba(245, 158, 11, 0.1); color: #b45309; padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600;">Pending Review</span>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <p style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">KYC Documents & Identity</p>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('Owner Photo', '${ownerImg}', '${salon.ownerName || salon.name}')"><i class="fa-solid fa-camera"></i> Owner Photo</button>
+                                    <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('Aadhaar Card', '${salon.aadhaarDoc || 'Doc-Aadhaar-Submitted'}', '${salon.ownerName || salon.name}')"><i class="fa-regular fa-id-card"></i> Owner Aadhaar</button>
+                                    <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('PAN Card', '${salon.panDoc || 'Doc-PAN-Submitted'}', '${salon.ownerName || salon.name}')"><i class="fa-solid fa-file-invoice"></i> Owner PAN</button>
+                                    <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('Salon License', '${salon.addressProofDoc || 'Doc-License-Submitted'}', '${salon.name}')"><i class="fa-solid fa-certificate"></i> Salon License</button>
                                 </div>
                             </div>
-                            <span style="background: rgba(245, 158, 11, 0.1); color: #b45309; padding: 0.3rem 0.6rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600;">Pending</span>
-                        </div>
-                        
-                        <div style="margin-bottom: 1.5rem;">
-                            <p style="font-size: 0.9rem; font-weight: 600; margin-bottom: 0.5rem;">KYC Documents & Identity</p>
-                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('Owner Photo', '${ownerImg}', '${salon.ownerName || 'Owner of ' + salon.name}')"><i class="fa-solid fa-camera"></i> Owner Photo</button>
-                                <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('Aadhaar Card', '${salon.aadhaarDoc || '8429-XXXX-4912'}', '${salon.ownerName || 'Owner of ' + salon.name}')"><i class="fa-regular fa-id-card"></i> Owner Aadhaar</button>
-                                <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('PAN Card', '${salon.panDoc || 'BWXPMXXXX1'}', '${salon.ownerName || 'Owner of ' + salon.name}')"><i class="fa-solid fa-file-invoice"></i> Owner PAN</button>
-                                <button type="button" class="sync-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="openKycModal('Business Registration', '${salon.addressProofDoc || 'LIC-2026-9921'}', '${salon.name}')"><i class="fa-solid fa-certificate"></i> Salon License</button>
+
+                            <div style="margin-bottom: 1rem;">
+                                <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Assign Shop Type & Provision Services:</label>
+                                <select id="shop-type-${salon.id}" style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-dark); color: var(--text-main); outline: none;">
+                                    <option value="Unisex Salon" ${salon.type === 'Unisex Salon' ? 'selected' : ''}>Unisex Salon</option>
+                                    <option value="Feminine Salon" ${salon.type === 'Feminine Salon' ? 'selected' : ''}>Feminine Salon</option>
+                                    <option value="Mens Salon" ${salon.type === 'Mens Salon' ? 'selected' : ''}>Men's Salon</option>
+                                    <option value="Premium Unisex Salon" ${salon.type === 'Premium Unisex Salon' ? 'selected' : ''}>Premium Unisex Salon</option>
+                                    <option value="Barber Shop" ${salon.type === 'Barber Shop' ? 'selected' : ''}>Barber Shop</option>
+                                    <option value="Spa & Wellness Center" ${salon.type === 'Spa & Wellness Center' ? 'selected' : ''}>Spa & Wellness Center</option>
+                                    <option value="Beauty Clinic" ${salon.type === 'Beauty Clinic' ? 'selected' : ''}>Beauty Clinic</option>
+                                    <option value="Hair Studio" ${salon.type === 'Hair Studio' ? 'selected' : ''}>Hair Studio</option>
+                                    <option value="Franchise Outlet" ${salon.type === 'Franchise Outlet' ? 'selected' : ''}>Franchise Outlet</option>
+                                    <option value="Home Service Salon" ${salon.type === 'Home Service Salon' ? 'selected' : ''}>Home Service Salon</option>
+                                </select>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem;">
+                                <button type="button" class="btn-approve" style="flex: 1; padding: 0.8rem;" onclick="approveSalon('${salon.id}')"><i class="fa-solid fa-check"></i> Approve & Provision</button>
+                                <button type="button" class="action-btn btn-suspend" style="flex: 1;" onclick="rejectSalon('${salon.id}')">Reject</button>
                             </div>
                         </div>
-
-                        <div style="margin-bottom: 1rem;">
-                            <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Assign Shop Type & Provision Services:</label>
-                            <select id="shop-type-${salon.id}" style="width: 100%; padding: 0.6rem; margin-top: 0.4rem; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--bg-dark); color: var(--text-main); outline: none;">
-                                <option value="Unisex Salon" ${salon.type === 'Unisex Salon' ? 'selected' : ''}>Unisex Salon</option>
-                                <option value="Feminine Salon" ${salon.type === 'Feminine Salon' ? 'selected' : ''}>Feminine Salon</option>
-                                <option value="Mens Salon" ${salon.type === 'Mens Salon' ? 'selected' : ''}>Men's Salon</option>
-                                <option value="Premium Unisex Salon" ${salon.type === 'Premium Unisex Salon' ? 'selected' : ''}>Premium Unisex Salon</option>
-                                <option value="Barber Shop" ${salon.type === 'Barber Shop' ? 'selected' : ''}>Barber Shop</option>
-                                <option value="Spa & Wellness Center" ${salon.type === 'Spa & Wellness Center' ? 'selected' : ''}>Spa & Wellness Center</option>
-                                <option value="Beauty Clinic" ${salon.type === 'Beauty Clinic' ? 'selected' : ''}>Beauty Clinic</option>
-                                <option value="Hair Studio" ${salon.type === 'Hair Studio' ? 'selected' : ''}>Hair Studio</option>
-                                <option value="Franchise Outlet" ${salon.type === 'Franchise Outlet' ? 'selected' : ''}>Franchise Outlet</option>
-                                <option value="Home Service Salon" ${salon.type === 'Home Service Salon' ? 'selected' : ''}>Home Service Salon</option>
-                            </select>
-                        </div>
-
-                        <div style="display: flex; gap: 1rem;">
-                            <button type="button" class="btn-approve" style="flex: 1; padding: 0.8rem;" onclick="approveSalon('${salon.id}')"><i class="fa-solid fa-check"></i> Approve & Provision</button>
-                            <button type="button" class="action-btn btn-suspend" style="flex: 1;" onclick="rejectSalon('${salon.id}')">Reject</button>
-                        </div>
-                    </div>
-                `;
-            });
-            if (pendingSalons.length === 0) verifyQueue.innerHTML = `<p style="color:var(--text-muted);">No pending verifications at this time.</p>`;
+                    `;
+                });
+                if (pendingSalons.length === 0) {
+                    verifyQueue.innerHTML = `<div style="grid-column: 1 / -1; background: rgba(255,255,255,0.03); border: 1px dashed var(--glass-border); border-radius: 12px; padding: 2.5rem; text-align: center; color: var(--text-muted);"><i class="fa-solid fa-clipboard-check" style="font-size: 2rem; margin-bottom: 0.8rem; display: block; color: var(--accent-primary); opacity: 0.7;"></i>No pending salon verifications at this time. When a salon is onboarded, it will appear here for document review.</div>`;
+                }
+            }
 
             // Render Full Active Vendor Table
             const fullTbody = document.getElementById('full-vendor-table-body');
-            fullTbody.innerHTML = '';
-            vendors.forEach(vendor => {
-                if (vendor.status === 'Pending Review') return; // Hide pending in active list
-                let actionBtn = vendor.status === 'Suspended' ?
-                    `<button type="button" type="button" class="action-btn btn-reactivate" onclick="reactivateLicense('${vendor.id}')">Reactivate</button>` :
-                    `<button type="button" type="button" class="action-btn btn-suspend" onclick="requestSuspend('${vendor.id}')">Suspend</button>`;
+            if (fullTbody) {
+                fullTbody.innerHTML = '';
+                const activeVendors = vendors.filter(v => v.status !== 'Pending Review');
+                if (activeVendors.length === 0) {
+                    fullTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No active salons currently in vendor directory.</td></tr>`;
+                } else {
+                    activeVendors.forEach(vendor => {
+                        let actionBtn = vendor.status === 'Suspended' ?
+                            `<button type="button" class="action-btn btn-reactivate" onclick="reactivateLicense('${vendor.id}')">Reactivate</button>` :
+                            `<button type="button" class="action-btn btn-suspend" onclick="requestSuspend('${vendor.id}')">Suspend</button>`;
 
-                fullTbody.innerHTML += `
-                    <tr>
-                        <td><strong>${vendor.name}</strong></td>
-                        <td><span style="font-size: 0.85rem; color: var(--accent-secondary); border: 1px solid var(--accent-secondary); padding: 0.2rem 0.5rem; border-radius: 6px;">${vendor.type}</span></td>
-                        <td>${vendor.location}</td>
-                        <td>
-                            <select onchange="updateVendorPlan('${vendor.id}', this.value)" style="padding: 0.4rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
-                                <option value="Basic" ${vendor.plan.includes('Basic') ? 'selected' : ''}>Basic</option>
-                                <option value="Premium" ${vendor.plan.includes('Premium') ? 'selected' : ''}>Premium</option>
-                                <option value="Deluxe" ${vendor.plan.includes('Deluxe') ? 'selected' : ''}>Deluxe</option>
-                            </select>
-                        </td>
-                        <td><span class="status-badge ${vendor.status === 'Suspended' ? 'status-suspended' : 'status-active'}">${vendor.status}</span></td>
-                        <td style="display: flex; gap: 0.5rem;">
-                            ${actionBtn}
-                            <button type="button" class="action-btn" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);" onclick="viewCredentials('${vendor.id}')" title="View Branch Credentials"><i class="fa-solid fa-eye"></i> View Credentials</button>
-                            <button type="button" class="action-btn" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);" onclick="generateAndSetCredentials('${vendor.id}')" title="Generate New Branch Credentials"><i class="fa-solid fa-key"></i> Generate Credentials</button>
-                            <button type="button" class="action-btn" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid rgba(229, 62, 62, 0.3);" onclick="deleteVendor('${vendor.id}')"><i class="fa-solid fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-            });
+                        fullTbody.innerHTML += `
+                            <tr>
+                                <td><strong>${vendor.name}</strong></td>
+                                <td><span style="font-size: 0.85rem; color: var(--accent-secondary); border: 1px solid var(--accent-secondary); padding: 0.2rem 0.5rem; border-radius: 6px;">${vendor.type}</span></td>
+                                <td>${vendor.location}</td>
+                                <td>
+                                    <select onchange="updateVendorPlan('${vendor.id}', this.value)" style="padding: 0.4rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); outline: none; color: var(--text-main);">
+                                        <option value="Basic" ${(vendor.plan || '').includes('Basic') ? 'selected' : ''}>Basic</option>
+                                        <option value="Premium" ${(vendor.plan || '').includes('Premium') ? 'selected' : ''}>Premium</option>
+                                        <option value="Deluxe" ${(vendor.plan || '').includes('Deluxe') ? 'selected' : ''}>Deluxe</option>
+                                    </select>
+                                </td>
+                                <td><span class="status-badge ${vendor.status === 'Suspended' ? 'status-suspended' : 'status-active'}">${vendor.status}</span></td>
+                                <td style="display: flex; gap: 0.5rem;">
+                                    ${actionBtn}
+                                    <button type="button" class="action-btn" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);" onclick="viewCredentials('${vendor.id}')" title="View Branch Credentials"><i class="fa-solid fa-eye"></i> View Credentials</button>
+                                    <button type="button" class="action-btn" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);" onclick="generateAndSetCredentials('${vendor.id}')" title="Generate New Branch Credentials"><i class="fa-solid fa-key"></i> Generate Credentials</button>
+                                    <button type="button" class="action-btn" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid rgba(229, 62, 62, 0.3);" onclick="deleteVendor('${vendor.id}')"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            }
 
             // Render Payment History
             const paymentTbody = document.getElementById('payment-history-body');
-            paymentTbody.innerHTML = '';
-            payments.forEach(pay => {
-                let statusBadge = pay.status === 'Completed' ?
-                    `<span class="status-badge status-active">Completed</span>` :
-                    `<span class="status-badge status-pending">Processing</span>`;
-                paymentTbody.innerHTML += `
-                    <tr>
-                        <td style="font-family: monospace;">${pay.txId}</td>
-                        <td><strong>${pay.salon}</strong></td>
-                        <td>${pay.procedure}</td>
-                        <td style="font-weight: 700; color: var(--accent-primary);">${pay.amount}</td>
-                        <td style="color: var(--text-muted); font-size: 0.9rem;">${pay.date}</td>
-                        <td>${statusBadge}</td>
-                    </tr>
-                `;
-            });
+            if (paymentTbody) {
+                paymentTbody.innerHTML = '';
+                if (payments.length === 0) {
+                    paymentTbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 2rem;">No payment records found. Zero transactions on file.</td></tr>';
+                } else {
+                    payments.forEach(pay => {
+                        let statusBadge = pay.status === 'Completed' ?
+                            `<span class="status-badge status-active">Completed</span>` :
+                            `<span class="status-badge status-pending">Processing</span>`;
+                        paymentTbody.innerHTML += `
+                            <tr>
+                                <td style="font-family: monospace;">${pay.txId}</td>
+                                <td><strong>${pay.salon}</strong></td>
+                                <td>${pay.procedure}</td>
+                                <td style="font-weight: 700; color: var(--accent-primary);">${pay.amount}</td>
+                                <td style="color: var(--text-muted); font-size: 0.9rem;">${pay.date}</td>
+                                <td>${statusBadge}</td>
+                            </tr>
+                        `;
+                    });
+                }
+            }
 
             // Render Full Transactions Table
             const fullTxTbody = document.getElementById('full-transactions-body');
             if (fullTxTbody) {
                 fullTxTbody.innerHTML = '';
-                let extendedPayments = [...payments,
-                { txId: 'TXN-98202', salon: 'Luxe Beauty Bar', procedure: 'Party Makeup', amount: '₹5,500', date: '01 Jun 2026, 11:00 AM', status: 'Completed' },
-                { txId: 'TXN-98199', salon: 'Glow Up Studio', procedure: 'Hair Coloring', amount: '₹8,200', date: '30 May 2026, 03:45 PM', status: 'Completed' },
-                { txId: 'TXN-98150', salon: 'Elite Looks Salon', procedure: 'Manicure & Pedicure', amount: '₹2,500', date: '28 May 2026, 01:15 PM', status: 'Completed' }
-                ];
-                extendedPayments.forEach(pay => {
-                    let statusBadge = pay.status === 'Completed' ?
-                        `<span class="status-badge status-active">Completed</span>` :
-                        `<span class="status-badge status-pending">Processing</span>`;
+                if (payments.length === 0) {
+                    fullTxTbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">No transaction records found. Zero transactions on file.</td></tr>';
+                } else {
+                    payments.forEach(pay => {
+                        let statusBadge = pay.status === 'Completed' ?
+                            `<span class="status-badge status-active">Completed</span>` :
+                            `<span class="status-badge status-pending">Processing</span>`;
 
-                    let amountNum = parseInt(pay.amount.replace(/[^0-9]/g, ''));
-                    let fee = amountNum * 0.15;
+                        let amountNum = parseInt((pay.amount || '0').replace(/[^0-9]/g, '')) || 0;
+                        let fee = amountNum * 0.15;
 
-                    fullTxTbody.innerHTML += `
-                        <tr>
-                            <td style="font-family: monospace;">${pay.txId}</td>
-                            <td><strong>${pay.salon}</strong></td>
-                            <td>${pay.procedure}</td>
-                            <td style="font-weight: 700; color: var(--accent-primary);">${pay.amount}</td>
-                            <td style="color: #166534; font-weight: 600;">₹${fee.toFixed(2)}</td>
-                            <td style="color: var(--text-muted); font-size: 0.9rem;">${pay.date}</td>
-                            <td>${statusBadge}</td>
-                        </tr>
-                    `;
-                });
+                        fullTxTbody.innerHTML += `
+                            <tr>
+                                <td style="font-family: monospace;">${pay.txId}</td>
+                                <td><strong>${pay.salon}</strong></td>
+                                <td>${pay.procedure}</td>
+                                <td style="font-weight: 700; color: var(--accent-primary);">${pay.amount}</td>
+                                <td style="color: #166534; font-weight: 600;">₹${fee.toFixed(2)}</td>
+                                <td style="color: var(--text-muted); font-size: 0.9rem;">${pay.date}</td>
+                                <td>${statusBadge}</td>
+                            </tr>
+                        `;
+                    });
+                }
             }
         }
 
@@ -3085,25 +3229,48 @@
                         targetSelect.innerHTML = '<option value="global">All Salons (Global Override)</option>';
                     }
 
+                    let totalGrossRevenue = 0;
+
                     data.forEach(branch => {
-                        if (branch.verificationStatus === 'Approved') {
+                        const vStatus = (branch.verificationStatus || '').toLowerCase();
+                        const isApproved = vStatus === 'approved' || (!branch.verificationStatus && branch.status === 'Active');
+
+                        totalGrossRevenue += Number(branch.grossRevenue || 0);
+
+                        if (isApproved) {
                             vendors.push({
-                                id: branch.id, name: branch.name, joined: 'Recently', initials: branch.name.substring(0, 2).toUpperCase(),
+                                id: branch.id,
+                                name: branch.name,
+                                joined: branch.date ? new Date(branch.date).toLocaleDateString() : 'Active',
+                                initials: (branch.name || 'NA').substring(0, 2).toUpperCase(),
                                 location: branch.location || 'N/A',
                                 plan: (branch.subscription && branch.subscription.plan) ? branch.subscription.plan : 'Basic',
                                 revenue: '₹' + (branch.grossRevenue || 0),
-                                status: branch.status,
+                                status: branch.status || 'Active',
                                 type: branch.type || 'Unisex Salon',
                                 email: branch.email || '',
-                                password: branch.password || ''
+                                password: branch.password || '',
+                                phone: branch.phone || '',
+                                ownerName: branch.ownerName || branch.owner || ''
                             });
 
                             if (targetSelect) {
                                 targetSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
                             }
-                        } else if (branch.verificationStatus === 'Pending') {
+                        } else if (vStatus === 'pending' || vStatus === 'under_review' || branch.status === 'Pending Review' || !branch.status) {
                             pendingSalons.push({
-                                id: branch.id, name: branch.name, location: branch.location || 'N/A', applied: 'Recently', docs: 'Pending...', type: branch.type || 'Unisex Salon',
+                                id: branch.id,
+                                name: branch.name,
+                                ownerName: branch.ownerName || branch.owner || 'Salon Owner',
+                                ownerPhoto: branch.ownerPhoto || '',
+                                phone: branch.phone || '',
+                                location: branch.location || 'N/A',
+                                applied: branch.date ? new Date(branch.date).toLocaleDateString() : 'Recently',
+                                docs: (branch.aadhaarDoc || branch.panDoc) ? 'Submitted ✓' : 'Pending...',
+                                type: branch.type || 'Unisex Salon',
+                                aadhaarDoc: branch.aadhaarDoc || '',
+                                panDoc: branch.panDoc || '',
+                                addressProofDoc: branch.addressProofDoc || '',
                                 subscription: branch.subscription || null
                             });
                         }
@@ -3115,6 +3282,51 @@
                         }
                     }
 
+                    // Dynamically calculate and update Total Platform Revenue KPI
+                    const kpiRevEl = document.getElementById('kpi-total-revenue');
+                    if (kpiRevEl) {
+                        if (totalGrossRevenue === 0) {
+                            kpiRevEl.innerText = '₹0';
+                        } else if (totalGrossRevenue >= 10000000) {
+                            kpiRevEl.innerText = '₹' + (totalGrossRevenue / 10000000).toFixed(2) + 'Cr';
+                        } else if (totalGrossRevenue >= 100000) {
+                            kpiRevEl.innerText = '₹' + (totalGrossRevenue / 100000).toFixed(1) + 'L';
+                        } else {
+                            kpiRevEl.innerText = '₹' + totalGrossRevenue.toLocaleString('en-IN');
+                        }
+                    }
+
+                    // Update platform fees collected (15%) and pending payouts
+                    const feesEl = document.getElementById('kpi-fees-collected');
+                    if (feesEl) {
+                        feesEl.innerText = '₹' + Math.round(totalGrossRevenue * 0.15).toLocaleString('en-IN');
+                    }
+                    const payoutsEl = document.getElementById('kpi-pending-payouts');
+                    if (payoutsEl) {
+                        payoutsEl.innerText = '₹0';
+                    }
+
+                    // Dynamically update active salon counts on dashboard
+                    const activeCount = vendors.filter(v => v.status === 'Active' || !v.status).length || vendors.length;
+                    const kpiEl = document.getElementById('kpi-active-salons');
+                    if (kpiEl) kpiEl.innerText = activeCount;
+                    const dirCountEl = document.getElementById('vendor-directory-count');
+                    if (dirCountEl) dirCountEl.innerText = activeCount;
+
+                    // Query client count for Total Users Base
+                    try {
+                        const clientRes = await fetch(`${API_URL}/api/clients`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (clientRes.ok) {
+                            const clientsData = await clientRes.json();
+                            const kpiUsersEl = document.getElementById('kpi-total-users');
+                            if (kpiUsersEl) {
+                                kpiUsersEl.innerText = Array.isArray(clientsData) ? clientsData.length.toString() : '0';
+                            }
+                        }
+                    } catch (e) { }
+
                     renderVendorTable();
                     renderExtendedTables();
                 } else {
@@ -3122,7 +3334,7 @@
                     renderExtendedTables();
                 }
             } catch (error) {
-                console.log("Using local mock data (backend not available).");
+                console.log("Error loading branches from server:", error);
                 renderVendorTable();
                 renderExtendedTables();
             }
@@ -3496,11 +3708,20 @@
             };
 
             try {
-                await fetch(`${API_URL}/api/branches`, {
+                const response = await fetch(`${API_URL}/api/branches`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify(reqPayload)
                 });
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    showToast(err.error || 'Failed to submit salon application', 'error');
+                    return;
+                }
 
                 // Process clients CSV file if provided
                 if (clientsFile) {
@@ -3515,8 +3736,8 @@
                             const parts = line.split(',');
                             if (parts.length >= 2) {
                                 const clientPayload = {
-                                    id: 'c' + Date.now() + i,
-                                    name: parts[0] ? parts[0].trim() : 'Unknown',
+                                    id: 'c_' + Date.now() + '_' + i,
+                                    name: parts[0] ? parts[0].trim() : 'Customer',
                                     phone: parts[1] ? parts[1].trim() : '',
                                     email: parts[2] ? parts[2].trim() : '',
                                     pts: 0,
@@ -3526,7 +3747,10 @@
                                 try {
                                     await fetch(`${API_URL}/api/clients`, {
                                         method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
+                                        headers: { 
+                                            'Content-Type': 'application/json',
+                                            'Authorization': `Bearer ${token}`
+                                        },
                                         body: JSON.stringify(clientPayload)
                                     });
                                 } catch (err) {
@@ -3538,8 +3762,9 @@
                     reader.readAsText(clientsFile);
                 }
             } catch (e) {
-                console.log("Backend offline, pushing to local pending array.");
-                pendingSalons.push(reqPayload);
+                console.error("Salon submission error:", e);
+                showToast('Network error while submitting salon application', 'error');
+                return;
             }
 
             // Clear form
@@ -3558,10 +3783,11 @@
                 if (b) b.style.display = 'none';
             });
 
-            showToast('Application submitted to KYC queue! Clients uploaded if provided.', 'success');
+            showToast('Salon onboarded successfully! Routed to Verification & KYC queue.', 'success');
 
             // Re-fetch to populate the Verification queue immediately
-            fetchRealTimeData();
+            await fetchRealTimeData();
+            switchSection('verification');
         }
 
         function renderMarketingTables() {

@@ -1299,12 +1299,18 @@ app.get('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'r
         }
 
         const { branch, branchId } = req.query;
-        const targetBranch = branch || branchId;
-        if (targetBranch && targetBranch !== 'all' && targetBranch !== 'Main Branch') {
-            clientsList = clientsList.filter(c => !c.branchId || c.branchId === targetBranch || c.location === targetBranch);
+        const targetBranch = branch || branchId || (req.user && req.user.role !== 'super' ? req.user.branchId : null);
+        if (targetBranch && targetBranch !== 'all') {
+            clientsList = clientsList.filter(c => {
+                const cBranch = String(c.branchId || c.branch || c.location || '').trim();
+                const tBranch = String(targetBranch).trim();
+                return cBranch === tBranch ||
+                    (tBranch === 'Main Branch' && (cBranch === 'b1' || cBranch === 'Main Branch')) ||
+                    (tBranch === 'b1' && (cBranch === 'b1' || cBranch === 'Main Branch'));
+            });
         }
 
-        console.log(`[CLIENTS API] Returning ${clientsList.length} clients`);
+        console.log(`[CLIENTS API] Returning ${clientsList.length} clients for branch scope: ${targetBranch || 'all'}`);
         return res.json(clientsList);
     } catch (err) {
         console.error('[CLIENTS API ERROR]', err);
@@ -1312,15 +1318,18 @@ app.get('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'r
     }
 });
 
-app.post('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'reception'), async (req, res) => {
+app.post('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'reception', 'staff'), async (req, res) => {
     try {
         const clientData = req.body || {};
         if (!clientData.id) clientData.id = 'c_' + Date.now();
         if (!clientData.pts) clientData.pts = 0;
         if (!clientData.ltv) clientData.ltv = '₹0';
+        if (!clientData.branchId) {
+            clientData.branchId = req.query.branchId || req.query.branch || (req.user && req.user.branchId) || 'b1';
+        }
 
         if (!localDb.clients) localDb.clients = [];
-        const existingIdx = localDb.clients.findIndex(c => c.id === clientData.id || (c.phone && c.phone === clientData.phone));
+        const existingIdx = localDb.clients.findIndex(c => c.id === clientData.id || (c.phone && clientData.phone && c.phone === clientData.phone && (c.branchId === clientData.branchId)));
         if (existingIdx !== -1) {
             localDb.clients[existingIdx] = { ...localDb.clients[existingIdx], ...clientData };
         } else {
@@ -2242,15 +2251,31 @@ app.get('/api/salons/search', async (req, res) => {
     res.json(enriched);
 });
 
-app.post('/api/branches', requireAuth, authMiddleware(1), async (req, res) => {
-    const data = req.body;
+app.post('/api/branches', requireAuth, authMiddleware(3), async (req, res) => {
+    const data = req.body || {};
+    if (!data.id) data.id = 'b' + Date.now();
     data.verificationStatus = data.verificationStatus || 'Pending';
-    data.status = data.verificationStatus === 'Approved' ? 'Active' : 'Suspended';
-    if (isConnected) { try { return res.json(await new Branch(data).save()); } catch (e) { } }
-    localDb.branches.push(data); saveLocal(); res.json(data);
+    data.status = data.verificationStatus === 'Approved' ? 'Active' : 'Pending Review';
+    if (isConnected) { 
+        try { 
+            const saved = await new Branch(data).save(); 
+            return res.json(saved); 
+        } catch (e) { 
+            console.error('[DB] MongoDB branch save error:', e.message); 
+        } 
+    }
+    if (!localDb.branches) localDb.branches = [];
+    const existingIdx = localDb.branches.findIndex(b => b.id === data.id);
+    if (existingIdx !== -1) {
+        localDb.branches[existingIdx] = { ...localDb.branches[existingIdx], ...data };
+    } else {
+        localDb.branches.push(data);
+    }
+    saveLocal(); 
+    res.json(data);
 });
 
-app.put('/api/branches/:id', requireAuth, authMiddleware(1), async (req, res) => {
+app.put('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res) => {
     const updateData = { ...req.body };
     if (updateData.password && !updateData.password.startsWith('scrypt:')) {
         updateData.password = hashPassword(updateData.password);
@@ -2261,7 +2286,7 @@ app.put('/api/branches/:id', requireAuth, authMiddleware(1), async (req, res) =>
     res.status(404).json({ error: 'Not found' });
 });
 
-app.put('/api/branches/:id/status', authMiddleware(1), async (req, res) => {
+app.put('/api/branches/:id/status', authMiddleware(3), async (req, res) => {
     const { id } = req.params;
     const { status } = req.body; // 'Active', 'Suspended'
 
@@ -2280,16 +2305,16 @@ app.put('/api/branches/:id/status', authMiddleware(1), async (req, res) => {
     res.status(404).json({ error: 'Branch not found' });
 });
 
-app.put('/api/branches/:id/verify', authMiddleware(1), async (req, res) => {
+app.put('/api/branches/:id/verify', authMiddleware(3), async (req, res) => {
     const { id } = req.params;
     const { verificationStatus, verificationNotes } = req.body;
-    const status = verificationStatus === 'Approved' ? 'Active' : 'Suspended';
+    const status = verificationStatus === 'Approved' ? 'Active' : (verificationStatus === 'Rejected' ? 'Suspended' : 'Pending Review');
 
     const updateData = {
         verificationStatus,
         verificationNotes: verificationNotes || '',
         verifiedAt: new Date(),
-        verifiedBy: req.user.email,
+        verifiedBy: req.user ? req.user.email : 'admin',
         status
     };
 
@@ -2319,7 +2344,7 @@ app.put('/api/branches/:id/verify', authMiddleware(1), async (req, res) => {
     res.status(404).json({ error: 'Branch not found' });
 });
 
-app.delete('/api/branches/:id', requireAuth, authMiddleware(1), async (req, res) => {
+app.delete('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res) => {
     const branchId = req.params.id;
     if (isConnected) { 
         try { 
@@ -2334,6 +2359,90 @@ app.delete('/api/branches/:id', requireAuth, authMiddleware(1), async (req, res)
         return res.json({ success: true }); 
     }
     res.status(404).json({ error: 'Not found' });
+});
+
+app.post('/api/admin/reset-portal-data', requireAuth, authMiddleware(1), async (req, res) => {
+    try {
+        const mainBranch = {
+            id: 'b1',
+            name: 'Main Branch',
+            location: 'Mumbai Central',
+            phone: '9876543210',
+            status: 'Active',
+            verificationStatus: 'Approved',
+            email: 'BR-MAIN-5511',
+            grossRevenue: 0,
+            bookingCount: 0,
+            staffCount: 0,
+            servicesCount: 0,
+            lastActivity: 'No recent activity',
+            subscription: {
+                plan: 'Basic',
+                price: '₹1,999/mo',
+                expiry: '2027-12-31',
+                status: 'Active'
+            }
+        };
+
+        if (isConnected) {
+            try {
+                // Keep only default Main Branch (b1) with 0 revenue
+                await Branch.deleteMany({ id: { $ne: 'b1' } });
+                await Branch.updateOne({ id: 'b1' }, { $set: mainBranch }, { upsert: true });
+
+                // Zero/wipe all clients
+                await Client.deleteMany({});
+
+                // Zero/wipe all bookings (resets all revenue to 0)
+                await Booking.deleteMany({});
+
+                // Zero/wipe all expenses
+                await Expense.deleteMany({});
+
+                // Zero/wipe all chains & events
+                await Chain.deleteMany({});
+                await Event.deleteMany({});
+                await LeaveRequest.deleteMany({});
+            } catch (e) {
+                console.error('[RESET DB] Mongo error:', e.message);
+            }
+        }
+
+        // Reset localDb collections
+        localDb.branches = [mainBranch];
+        localDb.clients = [];
+        localDb.bookings = [];
+        localDb.expenses = [];
+        localDb.chains = [];
+        localDb.events = [];
+        localDb.leaveRequests = [];
+        localDb.tickets = [];
+        localDb.campaigns = [];
+        localDb.ads = [];
+        localDb.billAd = null;
+        if (localDb.revenue !== undefined) localDb.revenue = 0;
+        if (localDb.transactions) localDb.transactions = [];
+        if (localDb.payouts) localDb.payouts = [];
+        saveLocal();
+
+        console.log(`[TIER 1 RESET] Executed by ${req.user.email} (Tier ${req.user.tier}). All records and revenues reset to 0.`);
+
+        return res.json({
+            success: true,
+            message: 'All records, revenues, clients, bookings, and expenses have been completely reset to zero baseline. Only Main Branch retained.',
+            tier: req.user.tier,
+            resetStats: {
+                branches: 1,
+                grossRevenue: 0,
+                bookings: 0,
+                clients: 0,
+                expenses: 0
+            }
+        });
+    } catch (err) {
+        console.error('[RESET ERROR]', err);
+        return res.status(500).json({ error: err.message });
+    }
 });
 
 // --- NEW: Chains & Multi-Salon API ---

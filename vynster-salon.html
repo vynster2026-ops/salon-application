@@ -1304,29 +1304,64 @@
 
         /* Responsive Design for Mobile / Tablets */
         @media (max-width: 1024px) {
-            body {
-                height: auto !important;
-                overflow: auto !important;
+            html, body {
+                height: 100% !important;
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
             }
 
             .app-container {
                 display: flex !important;
                 flex-direction: column !important;
                 height: 100vh !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
                 overflow: hidden !important;
             }
 
-            main {
-                height: calc(100vh - 85px) !important;
-                /* Header is ~85px */
+            main, .main-content {
+                flex: 1 1 auto !important;
+                height: auto !important;
+                min-height: 0 !important;
                 overflow-y: auto !important;
                 overflow-x: hidden !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 12px !important;
+                box-sizing: border-box !important;
             }
 
             header {
-                flex-wrap: wrap;
-                gap: 16px;
-                padding: 16px 20px;
+                flex-shrink: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+                padding: 12px 16px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .header-title {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                width: 100% !important;
+            }
+
+            .header-actions {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                justify-content: flex-start !important;
+            }
+
+            .header-actions > * {
+                font-size: 11px !important;
+                padding: 6px 10px !important;
             }
 
             .mobile-menu-btn {
@@ -1410,10 +1445,68 @@
                 display: none !important;
             }
 
-            .main-content {
+            .view-section {
                 width: 100% !important;
+                max-width: 100% !important;
+                overflow-x: hidden !important;
+                box-sizing: border-box !important;
+            }
+
+            .card {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch !important;
                 padding: 16px !important;
-                overflow-x: hidden;
+                margin-bottom: 16px !important;
+            }
+
+            .card-header,
+            div[style*="justify-content:space-between"],
+            div[style*="justify-content: space-between"] {
+                flex-wrap: wrap !important;
+                gap: 12px !important;
+                width: 100% !important;
+            }
+
+            .tab-pills {
+                max-width: 100% !important;
+                overflow-x: auto !important;
+                white-space: nowrap !important;
+                display: flex !important;
+                -webkit-overflow-scrolling: touch !important;
+            }
+
+            .data-table {
+                min-width: 540px !important;
+            }
+
+            #client-search-input,
+            input[style*="width: 350px"],
+            input[style*="width: 400px"],
+            input[style*="width: 300px"],
+            input[style*="width: 320px"] {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            #bg-3d-makeup-brush {
+                display: none !important;
+            }
+
+            .ad-banner {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 12px !important;
+                padding: 16px !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            .ad-banner > div {
+                max-width: 100% !important;
             }
 
             .view-header {
@@ -1433,6 +1526,8 @@
             .wizard-modal,
             #modal-content,
             #payslip-modal>div,
+            div[style*="width: 400px;"],
+            div[style*="width: 450px;"],
             div[style*="width: 500px;"],
             div[style*="width: 800px;"],
             div[style*="width: 900px;"],
@@ -1455,25 +1550,21 @@
                 width: 100% !important;
             }
 
-            /* Stack standard grids */
-            div[style*="grid-template-columns: repeat(4"] {
-                grid-template-columns: repeat(2, 1fr) !important;
-            }
-
-            div[style*="grid-template-columns: repeat(3"] {
-                grid-template-columns: repeat(1, 1fr) !important;
-            }
-
-            div[style*="grid-template-columns: repeat(2"] {
-                grid-template-columns: repeat(1, 1fr) !important;
-            }
-
+            /* Stack all multi-column grids */
+            div[style*="grid-template-columns: repeat("],
+            div[style*="grid-template-columns: 1fr 320px"],
             div[style*="grid-template-columns: 1fr 340px"],
             div[style*="grid-template-columns: 280px 1fr"],
             div[style*="grid-template-columns: 320px 1fr"],
-            div[style*="grid-template-columns: 350px 1fr"] {
+            div[style*="grid-template-columns: 350px 1fr"],
+            div[style*="grid-template-columns: 2fr 1fr"],
+            div[style*="grid-template-columns: 1fr 2fr"],
+            div[style*="grid-template-columns: 1fr 1fr"] {
                 display: flex !important;
                 flex-direction: column !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
             }
 
             #billing-action-buttons {
@@ -1484,29 +1575,18 @@
         }
 
         @media (max-width: 640px) {
-            div[style*="grid-template-columns: repeat(4"] {
-                grid-template-columns: repeat(1, 1fr) !important;
-            }
-
-            div[style*="grid-template-columns: 1fr 1fr"] {
-                grid-template-columns: repeat(1, 1fr) !important;
-            }
-
             .stat-card {
-                padding: 16px !important;
+                padding: 12px !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
             }
 
-            .header-actions {
-                flex-wrap: wrap !important;
-                justify-content: flex-start !important;
-            }
-
+            .dashboard-main-grid,
             .dashboard-inner-grid {
                 grid-template-columns: 1fr !important;
-            }
-
-            .header-title {
-                flex-wrap: wrap !important;
+                display: flex !important;
+                flex-direction: column !important;
+                width: 100% !important;
             }
         }
 
@@ -2474,10 +2554,46 @@
                                     });
                                 </script>
                             </div>
+                            <button class="btn" onclick="openAddClientModal()"
+                                style="display:flex; align-items:center; gap:8px; padding:8px 16px; background:linear-gradient(135deg, #1A6B8A, #2196B8); color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;">
+                                <span>➕</span> Add Client
+                            </button>
                             <button class="btn btn-primary" onclick="refreshData()"
                                 style="display:flex; align-items:center; gap:8px; padding:8px 16px;">
                                 <span>🔄</span> Sync
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Add Client to Salon Modal -->
+                    <div id="add-client-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:99999; justify-content:center; align-items:center;">
+                        <div style="background:white; width:450px; max-width:95vw; border-radius:16px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+                            <div style="background:var(--primary); padding:16px 20px; color:white; display:flex; justify-content:space-between; align-items:center;">
+                                <h3 style="margin:0; font-size:18px;">➕ Add Client to Salon</h3>
+                                <button onclick="closeAddClientModal()" style="background:none; border:none; color:white; font-size:24px; cursor:pointer; line-height:1;">&times;</button>
+                            </div>
+                            <div style="padding:20px; display:flex; flex-direction:column; gap:16px;">
+                                <div>
+                                    <label style="display:block; font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Full Name *</label>
+                                    <input type="text" id="new-client-name" placeholder="e.g. Priya Sharma" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border); outline:none;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Phone Number *</label>
+                                    <input type="text" id="new-client-phone" placeholder="e.g. +91 98765 43210" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border); outline:none;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Email (Optional)</label>
+                                    <input type="email" id="new-client-email" placeholder="e.g. priya@example.com" style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border); outline:none;">
+                                </div>
+                                <div>
+                                    <label style="display:block; font-size:12px; font-weight:700; color:var(--text-muted); margin-bottom:4px;">Preferences / Notes</label>
+                                    <textarea id="new-client-notes" placeholder="Hair texture, preferred stylist, skin allergies..." style="width:100%; padding:10px 14px; border-radius:8px; border:1px solid var(--border); outline:none; height:60px; resize:none;"></textarea>
+                                </div>
+                                <div style="display:flex; gap:10px; margin-top:8px;">
+                                    <button type="button" onclick="closeAddClientModal()" style="flex:1; padding:10px; border:1px solid var(--border); background:white; border-radius:8px; font-weight:600; cursor:pointer;">Cancel</button>
+                                    <button type="button" id="btn-submit-new-client" onclick="submitNewClientToSalon()" style="flex:1; padding:10px; background:var(--primary); color:white; border:none; border-radius:8px; font-weight:700; cursor:pointer;">Save Client</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div
@@ -8476,7 +8592,7 @@
                 }
 
                 cachedBookings = newBookings;
-                if (Array.isArray(newClients) && newClients.length > 0) cachedClients = newClients;
+                if (Array.isArray(newClients)) cachedClients = newClients;
 
                 const fetchedStaff = await sRes.json();
                 if (Array.isArray(fetchedStaff) && fetchedStaff.length > 0) STAFF = fetchedStaff;
@@ -15955,6 +16071,89 @@
                 if (cancelBtn && originalText) {
                     cancelBtn.textContent = originalText;
                     cancelBtn.disabled = false;
+                }
+            }
+        }
+
+        function openAddClientModal() {
+            const nameEl = document.getElementById('new-client-name');
+            const phoneEl = document.getElementById('new-client-phone');
+            const emailEl = document.getElementById('new-client-email');
+            const notesEl = document.getElementById('new-client-notes');
+            if (nameEl) nameEl.value = '';
+            if (phoneEl) phoneEl.value = '';
+            if (emailEl) emailEl.value = '';
+            if (notesEl) notesEl.value = '';
+            const modal = document.getElementById('add-client-modal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeAddClientModal() {
+            const modal = document.getElementById('add-client-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        async function submitNewClientToSalon() {
+            const name = (document.getElementById('new-client-name')?.value || '').trim();
+            const phone = (document.getElementById('new-client-phone')?.value || '').trim();
+            const email = (document.getElementById('new-client-email')?.value || '').trim();
+            const notes = (document.getElementById('new-client-notes')?.value || '').trim();
+
+            if (!name || !phone) {
+                if (typeof showToast === 'function') showToast('Client name and phone number are required.', 'error');
+                else alert('Client name and phone number are required.');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-new-client');
+            if (btn) {
+                btn.innerText = 'Saving...';
+                btn.disabled = true;
+            }
+
+            try {
+                const branchScope = window.currentBranch || localStorage.getItem('selectedBranch') || 'Main Branch';
+                const clientPayload = {
+                    id: 'c_' + Date.now(),
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    notes: notes,
+                    pts: 0,
+                    ltv: '₹0',
+                    branchId: branchScope,
+                    branch: branchScope,
+                    location: branchScope,
+                    createdAt: new Date().toISOString()
+                };
+
+                const res = await fetch(`${API_URL}/clients?branch=${encodeURIComponent(branchScope)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(clientPayload)
+                });
+
+                if (res.ok) {
+                    if (typeof showToast === 'function') showToast(`Client "${name}" added successfully to ${branchScope}!`);
+                    else alert(`Client "${name}" added successfully!`);
+                    closeAddClientModal();
+                    if (!cachedClients) cachedClients = [];
+                    cachedClients.unshift(clientPayload);
+                    if (typeof renderClientsView === 'function') {
+                        renderClientsView(cachedClients, document.getElementById('client-search-input')?.value || '');
+                    }
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    if (typeof showToast === 'function') showToast(err.error || 'Failed to save client.', 'error');
+                    else alert('Failed to save client.');
+                }
+            } catch (err) {
+                console.error('Error adding client:', err);
+                if (typeof showToast === 'function') showToast('Network error while saving client.', 'error');
+            } finally {
+                if (btn) {
+                    btn.innerText = 'Save Client';
+                    btn.disabled = false;
                 }
             }
         }

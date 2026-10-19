@@ -2042,7 +2042,7 @@
   "admins": [
     {
       "email": "admin@medhika.com",
-      "password": "scrypt:56cad79333f984911de998dc76b4eccd:1a29e70f032db0ef4891f07ff29224c62d3e71827234928820e462e9a3ab9c6f3fbac379a905493f038230f94744e189a91c801e05e9a9c0a2830fd1c08bc305",
+      "password": "scrypt:41a8b8acb1520481134ab9afa627e7f2:941b63918853e54d535916ca0490e6c2036405a9e806550ce732dc0c0bc9341b67a4b3690fcf38244ce533b493991bc2273bfe2813aace5fc8a97c0bd67fd453",
       "name": "Super Admin (Tier 1)",
       "role": "super",
       "tier": 1,
@@ -2050,7 +2050,7 @@
     },
     {
       "email": "admin@medhika.com",
-      "password": "scrypt:56cad79333f984911de998dc76b4eccd:1a29e70f032db0ef4891f07ff29224c62d3e71827234928820e462e9a3ab9c6f3fbac379a905493f038230f94744e189a91c801e05e9a9c0a2830fd1c08bc305",
+      "password": "scrypt:2e1d8dc242b953d19b1cbfe81cdc3e0b:c1ae9d26fec22fb9d780db6baf4413b93850fad3f1421ebc7d8292dfb804f0f763a88af58b129a35b1cbd57c4af159318461f25050b9cb0d74e5fc19977ddd28",
       "name": "Admin Manager (Tier 2)",
       "role": "super",
       "tier": 2,
@@ -2058,7 +2058,7 @@
     },
     {
       "email": "bd@medhika.com",
-      "password": "scrypt:56cad79333f984911de998dc76b4eccd:1a29e70f032db0ef4891f07ff29224c62d3e71827234928820e462e9a3ab9c6f3fbac379a905493f038230f94744e189a91c801e05e9a9c0a2830fd1c08bc305",
+      "password": "scrypt:8e6646fc601afc73a5295e595e1b54ed:a6a7b911d5406530a4d1a4016576eae64f946fe0fa471d2b46ff179c1ae45d0a33ce4176bdb1e85fd65a14660dfbb63ca3767657d22f572ae1a50d8963eab54e",
       "name": "Business Development (Tier 3)",
       "role": "super",
       "tier": 3,

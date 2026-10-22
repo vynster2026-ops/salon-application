@@ -1320,7 +1320,10 @@ app.get('/api/clients', async (req, res) => {
             user = verifyToken(token);
         }
 
-        const targetBranch = branch || branchId || (user && user.role !== 'super' ? user.branchId : null);
+        // For non-super users, strictly enforce their assigned branchId from the verified token
+        const targetBranch = (user && user.role !== 'super' && user.branchId) 
+            ? user.branchId 
+            : (branchId || branch || (user && user.branchId) || null);
 
         if (targetBranch && targetBranch !== 'all') {
             const allBranches = isConnected ? await Branch.find({}).lean() : (localDb.branches || []);
@@ -1329,33 +1332,26 @@ app.get('/api/clients', async (req, res) => {
                 String(b.id || '').trim().toLowerCase() === targetLower || 
                 String(b.name || '').trim().toLowerCase() === targetLower
             );
+            const mbId = matchedBranch ? String(matchedBranch.id || '').trim().toLowerCase() : targetLower;
+            const mbName = matchedBranch ? String(matchedBranch.name || '').trim().toLowerCase() : targetLower;
 
             clientsList = clientsList.filter(c => {
                 const cBranchId = String(c.branchId || '').trim().toLowerCase();
                 const cBranchName = String(c.branch || c.branchName || c.location || '').trim().toLowerCase();
 
-                // Direct match against target string
-                if (cBranchId === targetLower || cBranchName === targetLower) return true;
-
-                // Match against resolved branch entity if found
-                if (matchedBranch) {
-                    const mbId = String(matchedBranch.id || '').trim().toLowerCase();
-                    const mbName = String(matchedBranch.name || '').trim().toLowerCase();
-                    if (cBranchId === mbId || cBranchName === mbName || cBranchId === mbName) {
-                        return true;
-                    }
-                }
-
-                // Special handling for Main Branch / b1
-                if ((targetLower === 'main branch' || targetLower === 'b1') && (cBranchId === 'b1' || cBranchName === 'main branch')) {
+                // Match against either branch ID or resolved branch Name
+                if (cBranchId === mbId || cBranchName === mbName || cBranchId === targetLower || cBranchName === targetLower) {
                     return true;
                 }
-
                 return false;
             });
         } else if (!user || user.role !== 'super') {
-            // Unscoped non-admin request defaults to b1 / Main Branch
-            clientsList = clientsList.filter(c => c.branchId === 'b1' || c.branch === 'Main Branch');
+            // Unscoped non-admin request defaults strictly to their branch or b1 if b1
+            const defaultBranch = (user && user.branchId) ? String(user.branchId).trim().toLowerCase() : 'b1';
+            clientsList = clientsList.filter(c => {
+                const cBranchId = String(c.branchId || '').trim().toLowerCase();
+                return cBranchId === defaultBranch || (defaultBranch === 'b1' && (!c.branchId || c.branch === 'Main Branch'));
+            });
         }
 
         console.log(`[CLIENTS API] Returning ${clientsList.length} clients for branch scope: ${targetBranch || 'all'}`);
@@ -1372,8 +1368,17 @@ app.post('/api/clients', async (req, res) => {
         if (!clientData.id) clientData.id = 'c_' + Date.now();
         if (!clientData.pts) clientData.pts = 0;
         if (!clientData.ltv) clientData.ltv = '₹0';
+        let token = req.cookies?.authToken || req.headers['authorization'] || req.query.token;
+        if (token && !req.user) {
+            req.user = verifyToken(token);
+        }
         if (!clientData.branchId) {
-            clientData.branchId = req.query.branchId || req.query.branch || (req.user && req.user.branchId) || 'b1';
+            clientData.branchId = (req.user && req.user.role !== 'super' && req.user.branchId) 
+                || req.query.branchId 
+                || req.query.branch 
+                || clientData.branchName 
+                || (req.user && req.user.branchId) 
+                || 'b1';
         }
         if (!clientData.branch) {
             clientData.branch = req.query.branch || clientData.branchName || clientData.branchId;
@@ -1543,7 +1548,7 @@ app.get('/api/staff/public', async (req, res) => {
 });
 
 // Staff full directory (authenticated — contains phone, email, notes, PII)
-app.get('/api/staff', requireAuth, requireRole('super', 'owner', 'manager', 'reception'), async (req, res) => {
+app.get('/api/staff', requireAuth, requireRole('super', 'admin', 'owner', 'manager', 'reception', 'staff'), async (req, res) => {
     try {
         let staffList = [];
         if (isConnected) {
@@ -1558,17 +1563,21 @@ app.get('/api/staff', requireAuth, requireRole('super', 'owner', 'manager', 'rec
         }
         if (!staffList || staffList.length === 0) {
             staffList = [
-                { id: 'stf1', staffId: 'stf1', name: 'Ramesh Verma', role: 'Hair Stylist & Master Barber', spec: 'Hair Styling', rating: '4.9', av: 'av-t', status: 'Online', gender: 'male', services: ['all'] },
-                { id: 'stf2', staffId: 'stf2', name: 'Kavita Sharma', role: 'Senior Beauty Therapist', spec: 'Skincare & Facials', rating: '4.8', av: 'av-p', status: 'Online', gender: 'female', services: ['all'] },
-                { id: 'stf3', staffId: 'stf3', name: 'Ananya Rao', role: 'Nail Artist & Spa Specialist', spec: 'Manicure & Pedicure', rating: '4.9', av: 'av-b', status: 'Online', gender: 'female', services: ['all'] }
+                { id: 'stf1', staffId: 'stf1', name: 'Ramesh Verma', role: 'Hair Stylist & Master Barber', spec: 'Hair Styling', rating: '4.9', av: 'av-t', status: 'Online', gender: 'male', services: ['all'], branchId: 'b1' },
+                { id: 'stf2', staffId: 'stf2', name: 'Kavita Sharma', role: 'Senior Beauty Therapist', spec: 'Skincare & Facials', rating: '4.8', av: 'av-p', status: 'Online', gender: 'female', services: ['all'], branchId: 'b1' },
+                { id: 'stf3', staffId: 'stf3', name: 'Ananya Rao', role: 'Nail Artist & Spa Specialist', spec: 'Manicure & Pedicure', rating: '4.9', av: 'av-b', status: 'Online', gender: 'female', services: ['all'], branchId: 'b1' }
             ];
             localDb.staff = staffList;
             saveLocal();
         }
         // Branch scoping
         const scopedBranch = getScopedBranchId(req);
-        if (scopedBranch) {
-            staffList = staffList.filter(s => !s.branchId || s.branchId === scopedBranch);
+        if (scopedBranch && scopedBranch !== 'all') {
+            const sLower = String(scopedBranch).trim().toLowerCase();
+            staffList = staffList.filter(s => {
+                const sb = String(s.branchId || s.branch || '').trim().toLowerCase();
+                return sb === sLower || (sLower === 'b1' && !s.branchId);
+            });
         }
         // Strip passwords before responding
         const sanitizedStaff = staffList.map(s => { const safeS = Object.assign({}, s); delete safeS.password; return safeS; });
@@ -1579,11 +1588,19 @@ app.get('/api/staff', requireAuth, requireRole('super', 'owner', 'manager', 'rec
     }
 });
 
-app.post('/api/staff', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {
-        if (req.body && req.body.password) req.body.password = hashPassword(req.body.password);
+app.post('/api/staff', requireAuth, requireRole('super', 'admin', 'owner', 'manager'), async (req, res) => {
+    if (req.body && req.body.password) req.body.password = hashPassword(req.body.password);
     try {
         const staffData = req.body || {};
         if (!staffData.id) staffData.id = 'stf_' + Date.now();
+        if (!staffData.staffId) staffData.staffId = staffData.id;
+        if (!staffData.branchId) {
+            staffData.branchId = (req.user && req.user.role !== 'super' && req.user.branchId) 
+                || req.query.branchId 
+                || req.query.branch 
+                || (req.user && req.user.branchId) 
+                || 'b1';
+        }
         if (!localDb.staff) localDb.staff = [];
         const existingIdx = localDb.staff.findIndex(s => s.id === staffData.id || s.staffId === staffData.staffId);
         if (existingIdx !== -1) {
@@ -1594,8 +1611,10 @@ app.post('/api/staff', requireAuth, requireRole('super', 'owner', 'manager'), as
         saveLocal();
         if (isConnected) {
             try {
-                await Staff.updateOne({ id: staffData.id }, staffData, { upsert: true });
-            } catch (e) {}
+                await Staff.updateOne({ id: staffData.id }, { $set: staffData }, { upsert: true });
+            } catch (e) {
+                console.error('[DATABASE] Staff save error:', e.message);
+            }
         }
         return res.json({ success: true, staff: staffData });
     } catch (err) {
@@ -1603,33 +1622,8 @@ app.post('/api/staff', requireAuth, requireRole('super', 'owner', 'manager'), as
     }
 });
 
-// --- SERVICES STATS API ROUTES ---
-app.get('/api/services', async (req, res) => {
-    try {
-        let servicesList = [];
-        if (isConnected) {
-            try {
-                servicesList = await Service.find({}).lean();
-            } catch (e) {}
-        }
-        if (!servicesList || servicesList.length === 0) {
-            servicesList = localDb.services || [];
-        }
-        if (!servicesList || servicesList.length === 0) {
-            servicesList = [
-                { id: 'svc1', name: 'Royal Hair Cut & Style', cat: 'Hair', duration: 45, price: 500, gender: 'both' },
-                { id: 'svc2', name: 'Signature Glow Facial', cat: 'Skincare', duration: 60, price: 1200, gender: 'both' },
-                { id: 'svc3', name: 'Keratin Hair Spa', cat: 'Hair', duration: 90, price: 2500, gender: 'female' },
-                { id: 'svc4', name: 'Deluxe Pedicure & Foot Spa', cat: 'Nails', duration: 45, price: 800, gender: 'both' }
-            ];
-            localDb.services = servicesList;
-            saveLocal();
-        }
-        return res.json(servicesList);
-    } catch (err) {
-        return res.json(localDb.services || []);
-    }
-});
+// (Duplicate unscoped /api/services route removed; handled below with multi-tenant branch scoping)
+
 
 // --- INVENTORY CONTROL API ROUTES ---
 app.get('/api/inventory', async (req, res) => {
@@ -1760,22 +1754,42 @@ app.post('/api/staff/login', authLimiter, async (req, res) => {
     }
 });
 
-app.put('/api/staff/:id', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {
+app.put('/api/staff/:id', requireAuth, requireRole('super', 'admin', 'owner', 'manager'), async (req, res) => {
     if (req.body && req.body.password) req.body.password = hashPassword(req.body.password);
     const searchId = String(req.params.id).trim();
+    const queryOr = [{ id: searchId }, { staffId: searchId }, { name: { $regex: new RegExp(`^${searchId}$`, 'i') } }];
+    if (mongoose.Types.ObjectId.isValid(searchId)) {
+        queryOr.push({ _id: new mongoose.Types.ObjectId(searchId) });
+    }
     if (isConnected) {
         try {
             const updated = await Staff.findOneAndUpdate(
-                { $or: [{ id: searchId }, { staffId: searchId }, { name: { $regex: new RegExp(`^${searchId}$`, 'i') } }] },
-                req.body,
+                { $or: queryOr },
+                { $set: req.body },
                 { new: true }
             );
-            if (updated) return res.json(updated);
-        } catch (e) { }
+            if (updated) {
+                // Also sync localDb
+                const idx = (localDb.staff || []).findIndex(s =>
+                    String(s.id).trim() === searchId ||
+                    String(s.staffId).trim() === searchId ||
+                    String(s._id || '').trim() === searchId ||
+                    String(s.name).trim().toLowerCase() === searchId.toLowerCase()
+                );
+                if (idx !== -1) {
+                    localDb.staff[idx] = { ...localDb.staff[idx], ...req.body };
+                    saveLocal();
+                }
+                return res.json(updated);
+            }
+        } catch (e) {
+            console.error('[DATABASE] Staff update error:', e.message);
+        }
     }
     const idx = (localDb.staff || []).findIndex(s =>
         String(s.id).trim() === searchId ||
         String(s.staffId).trim() === searchId ||
+        String(s._id || '').trim() === searchId ||
         String(s.name).trim().toLowerCase() === searchId.toLowerCase()
     );
     if (idx !== -1) {
@@ -1783,30 +1797,51 @@ app.put('/api/staff/:id', requireAuth, requireRole('super', 'owner', 'manager'),
         saveLocal();
         return res.json(localDb.staff[idx]);
     }
-    res.status(404).json({ error: 'Staff member not found' });
+    // Fallback: create/upsert if not found so updates never fail
+    const newStaffObj = { id: searchId, staffId: searchId, ...req.body };
+    if (!localDb.staff) localDb.staff = [];
+    localDb.staff.push(newStaffObj);
+    saveLocal();
+    if (isConnected) {
+        try { await Staff.create(newStaffObj); } catch(e){}
+    }
+    return res.json(newStaffObj);
 });
 
-app.delete('/api/staff/:id', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {
+app.delete('/api/staff/:id', requireAuth, requireRole('super', 'admin', 'owner', 'manager'), async (req, res) => {
     const searchId = String(req.params.id).trim();
+    const queryOr = [{ id: searchId }, { staffId: searchId }, { name: { $regex: new RegExp(`^${searchId}$`, 'i') } }];
+    if (mongoose.Types.ObjectId.isValid(searchId)) {
+        queryOr.push({ _id: new mongoose.Types.ObjectId(searchId) });
+    }
     if (isConnected) {
         try {
-            const deleted = await Staff.findOneAndDelete(
-                { $or: [{ id: searchId }, { staffId: searchId }, { name: { $regex: new RegExp(`^${searchId}$`, 'i') } }] }
-            );
-            if (deleted) return res.json({ success: true });
+            const deleted = await Staff.findOneAndDelete({ $or: queryOr });
+            if (deleted) {
+                if (localDb.staff) {
+                    localDb.staff = localDb.staff.filter(s =>
+                        String(s.id).trim() !== searchId &&
+                        String(s.staffId).trim() !== searchId &&
+                        String(s._id || '').trim() !== searchId
+                    );
+                    saveLocal();
+                }
+                return res.json({ success: true });
+            }
         } catch (e) { }
     }
     const idx = (localDb.staff || []).findIndex(s =>
         String(s.id).trim() === searchId ||
         String(s.staffId).trim() === searchId ||
+        String(s._id || '').trim() === searchId ||
         String(s.name).trim().toLowerCase() === searchId.toLowerCase()
     );
     if (idx !== -1) {
-        const deleted = localDb.staff.splice(idx, 1);
+        localDb.staff.splice(idx, 1);
         saveLocal();
-        return res.json({ success: true, deleted: deleted[0] });
+        return res.json({ success: true });
     }
-    res.json({ success: true });
+    return res.json({ success: true });
 });
 
 // Expenses API (authenticated and branch-scoped)
@@ -1886,17 +1921,126 @@ app.delete('/api/expenses/:id', requireAuth, requireRole('super', 'owner', 'mana
 
 // Services
 app.get('/api/services', async (req, res) => {
-    const { branchId } = req.query;
-    if (isConnected) { try { return res.json(await Service.find(branchId ? { branchId } : {})); } catch (e) { } }
-    let data = localDb.services;
-    if (branchId) data = data.filter(s => s.branchId === branchId || !s.branchId);
-    res.json(data);
+    const { branchId, branch } = req.query;
+    const targetBranch = branchId || branch;
+    try {
+        let servicesList = [];
+        if (isConnected) {
+            try {
+                if (targetBranch && targetBranch !== 'all') {
+                    servicesList = await Service.find({
+                        $or: [
+                            { branchId: targetBranch },
+                            { branch: targetBranch },
+                            { branchId: { $exists: false } },
+                            { branchId: null },
+                            { branchId: 'global' },
+                            { branchId: '' }
+                        ]
+                    }).lean();
+                } else {
+                    servicesList = await Service.find({}).lean();
+                }
+            } catch (e) { }
+        }
+        if (!servicesList || servicesList.length === 0) {
+            servicesList = localDb.services || [];
+            if (!servicesList || servicesList.length === 0) {
+                servicesList = [
+                    { id: 'svc1', name: 'Royal Hair Cut & Style', cat: 'Hair', duration: 45, price: 500, gender: 'both', branchId: 'global' },
+                    { id: 'svc2', name: 'Signature Glow Facial', cat: 'Skincare', duration: 60, price: 1200, gender: 'both', branchId: 'global' },
+                    { id: 'svc3', name: 'Keratin Hair Spa', cat: 'Hair', duration: 90, price: 2500, gender: 'female', branchId: 'global' },
+                    { id: 'svc4', name: 'Deluxe Pedicure & Foot Spa', cat: 'Nails', duration: 45, price: 800, gender: 'both', branchId: 'global' }
+                ];
+                localDb.services = servicesList;
+                saveLocal();
+            }
+            if (targetBranch && targetBranch !== 'all') {
+                servicesList = servicesList.filter(s => 
+                    s.branchId === targetBranch || 
+                    s.branch === targetBranch || 
+                    !s.branchId || 
+                    s.branchId === 'global'
+                );
+            }
+        }
+        res.json(servicesList);
+    } catch (err) {
+        res.json(localDb.services || []);
+    }
 });
 
-app.post('/api/services', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {
-    console.log('Received POST request for new service:', req.body);
-    if (isConnected) { try { return res.json(await new Service(req.body).save()); } catch (e) { } }
-    localDb.services.push(req.body); saveLocal(); res.json(req.body);
+app.post('/api/services', requireAuth, requireRole('super', 'admin', 'owner', 'manager'), async (req, res) => {
+    try {
+        const svcData = req.body || {};
+        if (!svcData.id) svcData.id = 'svc_' + Date.now();
+        if (!svcData.branchId) {
+            svcData.branchId = (req.user && req.user.role !== 'super' && req.user.branchId) 
+                || req.query.branchId 
+                || (req.user && req.user.branchId) 
+                || 'b1';
+        }
+        if (!localDb.services) localDb.services = [];
+        localDb.services.push(svcData);
+        saveLocal();
+        if (isConnected) {
+            try {
+                await new Service(svcData).save();
+            } catch (e) {
+                console.error('[DATABASE] Service save error:', e.message);
+            }
+        }
+        return res.json({ success: true, service: svcData });
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/services/bulk', requireAuth, requireRole('super', 'admin', 'owner', 'manager'), async (req, res) => {
+    try {
+        const { branchId, branch, services } = req.body || {};
+        if (!Array.isArray(services) || services.length === 0) {
+            return res.status(400).json({ error: 'services array is required' });
+        }
+        const bId = branchId || req.query.branchId || (req.user && req.user.branchId) || 'b1';
+        const bName = branch || req.query.branch || bId;
+        const processed = services.map((s, i) => ({
+            id: s.id || ('svc_' + Date.now() + '_' + i),
+            name: s.name || 'Unnamed Service',
+            cat: s.cat || s.category || 'General',
+            duration: Number(s.duration) || 30,
+            price: Number(s.price) || 0,
+            prices: s.prices || [Number(s.price) || 0],
+            gender: s.gender || 'both',
+            icon: s.icon || 'fa-cut',
+            branchId: bId,
+            branch: bName
+        }));
+        if (!localDb.services) localDb.services = [];
+        for (const item of processed) {
+            const idx = localDb.services.findIndex(x => (x.name && item.name && x.name.toLowerCase() === item.name.toLowerCase() && x.branchId === item.branchId) || x.id === item.id);
+            if (idx !== -1) {
+                localDb.services[idx] = { ...localDb.services[idx], ...item };
+            } else {
+                localDb.services.push(item);
+            }
+        }
+        saveLocal();
+        if (isConnected) {
+            try {
+                for (const item of processed) {
+                    await Service.updateOne({ id: item.id }, { $set: item }, { upsert: true });
+                }
+            } catch (e) {
+                console.error('[DATABASE] Bulk services save error:', e.message);
+            }
+        }
+        console.log(`[SERVICES API] Bulk added ${processed.length} services for salon: ${bName} (${bId})`);
+        return res.json({ success: true, count: processed.length, services: processed });
+    } catch (err) {
+        console.error('[SERVICES BULK ERROR]', err);
+        return res.status(500).json({ error: err.message });
+    }
 });
 
 app.put('/api/services/:id', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {

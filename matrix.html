@@ -1566,6 +1566,100 @@
                             </div>
                         </div>
 
+                        <!-- Salon Services Configuration Section -->
+                        <div style="grid-column: span 2; margin-top: 1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                                <div>
+                                    <h4 style="color: var(--accent-primary); margin-bottom: 0.25rem;">
+                                        <i class="fa-solid fa-scissors" style="margin-right: 8px;"></i> Salon Services Setup
+                                    </h4>
+                                    <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0;">
+                                        Select from standard catalog or add custom services for this salon.
+                                    </p>
+                                </div>
+                                <span id="onboarding-services-counter" style="background: rgba(0, 229, 255, 0.15); color: var(--accent-primary); border: 1px solid rgba(0, 229, 255, 0.3); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;">
+                                    0 Services Added
+                                </span>
+                            </div>
+
+                            <!-- Quick Add Catalog Buttons / Checkboxes -->
+                            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.6rem;">
+                                Quick-Select Catalog Services:
+                            </label>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 0.6rem; margin-bottom: 1.25rem;">
+                                <label class="catalog-svc-item" style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; font-size: 0.85rem;">
+                                    <input type="checkbox" onchange="toggleCatalogService(this, 'Royal Haircut & Style', 'Hair', 45, 500, 'both')">
+                                    <span><strong>Haircut & Style</strong> (₹500 · 45m)</span>
+                                </label>
+                                <label class="catalog-svc-item" style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; font-size: 0.85rem;">
+                                    <input type="checkbox" onchange="toggleCatalogService(this, 'Keratin Hair Spa', 'Hair', 90, 2500, 'both')">
+                                    <span><strong>Keratin Hair Spa</strong> (₹2,500 · 90m)</span>
+                                </label>
+                                <label class="catalog-svc-item" style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; font-size: 0.85rem;">
+                                    <input type="checkbox" onchange="toggleCatalogService(this, 'Signature Glow Facial', 'Skincare', 60, 1200, 'both')">
+                                    <span><strong>Glow Facial</strong> (₹1,200 · 60m)</span>
+                                </label>
+                                <label class="catalog-svc-item" style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; font-size: 0.85rem;">
+                                    <input type="checkbox" onchange="toggleCatalogService(this, 'Deluxe Pedicure & Foot Spa', 'Nails', 45, 800, 'both')">
+                                    <span><strong>Deluxe Pedicure</strong> (₹800 · 45m)</span>
+                                </label>
+                                <label class="catalog-svc-item" style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; font-size: 0.85rem;">
+                                    <input type="checkbox" onchange="toggleCatalogService(this, 'Beard Grooming & Shape', 'Grooming', 30, 350, 'male')">
+                                    <span><strong>Beard Grooming</strong> (₹350 · 30m)</span>
+                                </label>
+                                <label class="catalog-svc-item" style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; font-size: 0.85rem;">
+                                    <input type="checkbox" onchange="toggleCatalogService(this, 'Bridal Makeup & Draping', 'Makeup', 120, 5000, 'female')">
+                                    <span><strong>Bridal Makeup</strong> (₹5,000 · 120m)</span>
+                                </label>
+                                <label class="catalog-svc-item" style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; font-size: 0.85rem;">
+                                    <input type="checkbox" onchange="toggleCatalogService(this, 'Full Arms & Legs Waxing', 'Waxing', 60, 1500, 'female')">
+                                    <span><strong>Waxing (Arms/Legs)</strong> (₹1,500 · 60m)</span>
+                                </label>
+                                <label class="catalog-svc-item" style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--glass-border); cursor: pointer; font-size: 0.85rem;">
+                                    <input type="checkbox" onchange="toggleCatalogService(this, 'Eyebrow Threading & Tint', 'Brows', 20, 150, 'both')">
+                                    <span><strong>Threading & Tint</strong> (₹150 · 20m)</span>
+                                </label>
+                            </div>
+
+                            <!-- Custom Service Input Inline Bar -->
+                            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 0.5rem;">
+                                Add Custom Service:
+                            </label>
+                            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr auto; gap: 0.5rem; align-items: center;">
+                                <input type="text" id="custom-svc-name" placeholder="Service Name (e.g. Balayage Color)"
+                                    style="padding: 0.6rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="custom-svc-cat"
+                                    style="padding: 0.6rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="Hair">Hair</option>
+                                    <option value="Skincare">Skincare</option>
+                                    <option value="Nails">Nails</option>
+                                    <option value="Grooming">Grooming</option>
+                                    <option value="Makeup">Makeup</option>
+                                    <option value="Spa">Spa</option>
+                                    <option value="General">General</option>
+                                </select>
+                                <input type="number" id="custom-svc-price" placeholder="Price (₹)" min="0"
+                                    style="padding: 0.6rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: var(--text-main); font-size: 0.85rem;">
+                                <input type="number" id="custom-svc-duration" placeholder="Mins" min="5" value="30"
+                                    style="padding: 0.6rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: var(--text-main); font-size: 0.85rem;">
+                                <select id="custom-svc-gender"
+                                    style="padding: 0.6rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.2); color: var(--text-main); font-size: 0.85rem;">
+                                    <option value="both">Unisex</option>
+                                    <option value="female">Female</option>
+                                    <option value="male">Male</option>
+                                </select>
+                                <button type="button" onclick="addCustomOnboardingService()"
+                                    style="padding: 0.6rem 1rem; border-radius: 6px; border: none; background: var(--accent-primary); color: #000; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap;">
+                                    <i class="fa-solid fa-plus"></i> Add
+                                </button>
+                            </div>
+
+                            <!-- Active Selected Services List -->
+                            <div id="onboarding-services-list" style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem; min-height: 38px; align-items: center;">
+                                <span style="font-size: 0.82rem; color: var(--text-muted); font-style: italic;">No services added yet. Choose from above or create custom services.</span>
+                            </div>
+                        </div>
+
                         <div style="grid-column: span 2; margin-top: 1.5rem;">
                             <button type="submit" class="ai-assistant-btn"
                                 style="width: 100%; justify-content: center;">
@@ -3797,6 +3891,104 @@
             }, 4000);
         });
 
+        // --- ONBOARDING SERVICES LOGIC ---
+        window.onboardingServices = [];
+
+        function toggleCatalogService(cb, name, cat, duration, price, gender) {
+            if (cb.checked) {
+                if (!window.onboardingServices.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+                    window.onboardingServices.push({
+                        name,
+                        cat,
+                        duration: Number(duration),
+                        price: Number(price),
+                        prices: [Number(price)],
+                        gender: gender || 'both'
+                    });
+                }
+            } else {
+                window.onboardingServices = window.onboardingServices.filter(s => s.name.toLowerCase() !== name.toLowerCase());
+            }
+            renderOnboardingServicesList();
+        }
+
+        function addCustomOnboardingService() {
+            const nameEl = document.getElementById('custom-svc-name');
+            const catEl = document.getElementById('custom-svc-cat');
+            const priceEl = document.getElementById('custom-svc-price');
+            const durEl = document.getElementById('custom-svc-duration');
+            const genderEl = document.getElementById('custom-svc-gender');
+
+            const name = (nameEl ? nameEl.value : '').trim();
+            const cat = catEl ? catEl.value : 'General';
+            const price = Number(priceEl ? priceEl.value : 0);
+            const duration = Number(durEl ? durEl.value : 30);
+            const gender = genderEl ? genderEl.value : 'both';
+
+            if (!name) return showToast('Please enter a service name', 'error');
+            if (isNaN(price) || price < 0) return showToast('Please enter a valid price', 'error');
+
+            if (window.onboardingServices.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+                return showToast('This service has already been added', 'warning');
+            }
+
+            window.onboardingServices.push({
+                name,
+                cat,
+                duration: duration || 30,
+                price: price || 0,
+                prices: [price || 0],
+                gender
+            });
+
+            if (nameEl) nameEl.value = '';
+            if (priceEl) priceEl.value = '';
+            if (durEl) durEl.value = '30';
+
+            renderOnboardingServicesList();
+            showToast(`Added '${name}' to onboarding services!`, 'success');
+        }
+
+        function removeOnboardingService(name) {
+            window.onboardingServices = window.onboardingServices.filter(s => s.name.toLowerCase() !== name.toLowerCase());
+            const checkboxes = document.querySelectorAll('.catalog-svc-item input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const labelText = cb.parentElement ? cb.parentElement.innerText : '';
+                if (labelText.toLowerCase().includes(name.toLowerCase())) {
+                    cb.checked = false;
+                }
+            });
+            renderOnboardingServicesList();
+        }
+
+        function renderOnboardingServicesList() {
+            const container = document.getElementById('onboarding-services-list');
+            const counter = document.getElementById('onboarding-services-counter');
+            if (counter) counter.innerText = `${window.onboardingServices.length} Services Added`;
+            if (!container) return;
+
+            if (window.onboardingServices.length === 0) {
+                container.innerHTML = '<span style="font-size: 0.82rem; color: var(--text-muted); font-style: italic;">No services added yet. Choose from above or create custom services.</span>';
+                return;
+            }
+
+            container.innerHTML = window.onboardingServices.map(s => `
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(0, 229, 255, 0.08); border: 1px solid rgba(0, 229, 255, 0.3); border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; color: var(--text-main);">
+                    <span><strong>${s.name}</strong> <span style="color: var(--accent-primary);">(₹${s.price} · ${s.duration}m · ${s.cat})</span></span>
+                    <button type="button" onclick="removeOnboardingService('${s.name.replace(/'/g, "\\'")}')" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0 2px; font-size: 0.9rem;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function resetOnboardingServices() {
+            window.onboardingServices = [];
+            const checkboxes = document.querySelectorAll('.catalog-svc-item input[type="checkbox"]');
+            checkboxes.forEach(cb => { cb.checked = false; });
+            renderOnboardingServicesList();
+        }
+
         async function submitSalonApplication() {
             const name = document.getElementById('marketing-salon-name').value;
             const owner = document.getElementById('marketing-owner-name').value;
@@ -3886,6 +4078,34 @@
                         showToast(`Notice: Salon created, but client file processing had an issue: ${parseErr.message}`, 'warning');
                     }
                 }
+
+                // Process configured salon services
+                if (window.onboardingServices && window.onboardingServices.length > 0) {
+                    try {
+                        const servicesPayload = window.onboardingServices.map(s => ({
+                            ...s,
+                            branchId: reqPayload.id,
+                            branch: reqPayload.name
+                        }));
+                        const svcRes = await fetch(`${API_URL}/api/services/bulk`, {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                branchId: reqPayload.id,
+                                branch: reqPayload.name,
+                                services: servicesPayload
+                            })
+                        });
+                        if (svcRes.ok) {
+                            console.log(`[ONBOARDING] Successfully provisioned ${servicesPayload.length} services for ${reqPayload.name}`);
+                        }
+                    } catch (svcErr) {
+                        console.error('Failed to save onboarding services:', svcErr);
+                    }
+                }
             } catch (e) {
                 console.error("Salon submission error:", e);
                 showToast('Network error while submitting salon application', 'error');
@@ -3902,17 +4122,17 @@
             document.getElementById('marketing-doc-license').value = '';
             document.getElementById('marketing-doc-clients').value = '';
             clearOwnerPhoto();
+            resetOnboardingServices();
             capturedDocImages = {};
             ['aadhaar-preview-badge', 'pan-preview-badge', 'license-preview-badge', 'clients-preview-badge'].forEach(id => {
                 const b = document.getElementById(id);
                 if (b) b.style.display = 'none';
             });
 
-            if (importedClientCount > 0) {
-                showToast(`Salon '${name}' onboarded with ${importedClientCount} clients! Routed to KYC queue.`, 'success');
-            } else {
-                showToast('Salon onboarded successfully! Routed to Verification & KYC queue.', 'success');
-            }
+            const svcCount = window.onboardingServices ? window.onboardingServices.length : 0;
+            let successMsg = `Salon '${name}' onboarded successfully!`;
+            if (importedClientCount > 0) successMsg += ` With ${importedClientCount} clients.`;
+            showToast(successMsg + ' Routed to Verification & KYC queue.', 'success');
 
             // Re-fetch to populate the Verification queue immediately
             await fetchRealTimeData();

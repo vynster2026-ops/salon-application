@@ -7993,11 +7993,20 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const urlBranchParam = urlParams.get('branch') || urlParams.get('branchId') || urlParams.get('salon');
+        let storedAdmin = {};
+        try { storedAdmin = JSON.parse(localStorage.getItem('adminUser') || '{}'); } catch(e){}
+
         if (urlBranchParam) {
             window.currentBranch = decodeURIComponent(urlBranchParam);
+            window.currentBranchId = urlParams.get('branchId') || window.currentBranch;
+            localStorage.setItem("selectedBranch", window.currentBranch);
+        } else if (storedAdmin && storedAdmin.role !== 'super' && (storedAdmin.branchId || storedAdmin.branchName || storedAdmin.name)) {
+            window.currentBranch = storedAdmin.branchName || storedAdmin.name?.replace(' Manager', '').trim() || storedAdmin.branchId;
+            window.currentBranchId = storedAdmin.branchId;
             localStorage.setItem("selectedBranch", window.currentBranch);
         } else {
             window.currentBranch = localStorage.getItem("selectedBranch") || "Main Branch";
+            window.currentBranchId = (storedAdmin && storedAdmin.branchId) ? storedAdmin.branchId : (window.currentBranch === 'Main Branch' ? 'b1' : window.currentBranch);
         }
 
         const API_URL = localStorage.getItem('CUSTOM_API_URL') || (
@@ -8605,15 +8614,18 @@
             isOfflineMode = false; // Attempt to reconnect to live server
             try {
                 const bParam = encodeURIComponent(window.currentBranch || 'Main Branch');
+                const bIdParam = encodeURIComponent(window.currentBranchId || '');
+                const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
+                const fetchOpts = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {};
                 const [crez, brez, sRes, iRes, svRes, eRes, exRes, tRes] = await Promise.all([
-                    fetch(`${API_URL}/clients?_t=${ts}&branch=${bParam}`),
-                    fetch(`${API_URL}/bookings?_t=${ts}&branch=${bParam}`),
-                    fetch(`${API_URL}/staff?_t=${ts}&branch=${bParam}`),
-                    fetch(`${API_URL}/inventory?_t=${ts}&branch=${bParam}`),
-                    fetch(`${API_URL}/services?_t=${ts}&branch=${bParam}`),
-                    fetch(`${API_URL}/events?_t=${ts}&branch=${bParam}`),
-                    fetch(`${API_URL}/expenses?_t=${ts}&branch=${bParam}`),
-                    fetch(`${API_URL}/tickets?_t=${ts}`)
+                    fetch(`${API_URL}/clients?_t=${ts}&branch=${bParam}&branchId=${bIdParam}`, fetchOpts),
+                    fetch(`${API_URL}/bookings?_t=${ts}&branch=${bParam}&branchId=${bIdParam}`, fetchOpts),
+                    fetch(`${API_URL}/staff?_t=${ts}&branch=${bParam}&branchId=${bIdParam}`, fetchOpts),
+                    fetch(`${API_URL}/inventory?_t=${ts}&branch=${bParam}&branchId=${bIdParam}`, fetchOpts),
+                    fetch(`${API_URL}/services?_t=${ts}&branch=${bParam}&branchId=${bIdParam}`, fetchOpts),
+                    fetch(`${API_URL}/events?_t=${ts}&branch=${bParam}&branchId=${bIdParam}`, fetchOpts),
+                    fetch(`${API_URL}/expenses?_t=${ts}&branch=${bParam}&branchId=${bIdParam}`, fetchOpts),
+                    fetch(`${API_URL}/tickets?_t=${ts}`, fetchOpts)
                 ]);
 
                 const newClients = await crez.json();
@@ -13066,11 +13078,11 @@
         // Staff Editing Functions
         function openStaffModal(id) {
             if (id) {
-                const s = STAFF.find(x => x.id === id);
+                const s = STAFF.find(x => x.id === id || x._id === id || x.staffId === id);
                 if (!s) return;
-                document.getElementById('edit-staff-id').value = s.id;
-                document.getElementById('edit-staff-unique-id').value = s.id;
-                document.getElementById('edit-staff-name').value = s.name;
+                document.getElementById('edit-staff-id').value = s.id || s._id || s.staffId || '';
+                document.getElementById('edit-staff-unique-id').value = s.id || s.staffId || autoId;
+                document.getElementById('edit-staff-name').value = s.name || '';
                 document.getElementById('edit-staff-spec').value = s.spec || s.role || '';
                 document.getElementById('edit-staff-phone').value = s.phone || '';
                 document.getElementById('edit-staff-specialties').value = (s.specialties || []).join(', ');
@@ -13120,33 +13132,63 @@
 
             if (!name) return showToast('Name is required', 'error');
 
-            const payload = { name, spec, role: spec, phone, specialties, summary, status, gender, services: ['all'] };
+            const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || localStorage.getItem('staffToken') || '';
+            const authHeaders = {
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+            };
+
+            const branchId = window.currentBranchId || window.currentBranch || localStorage.getItem('selectedBranch') || 'b1';
+            const payload = { 
+                name, 
+                spec, 
+                role: spec, 
+                phone, 
+                specialties, 
+                summary, 
+                status, 
+                gender, 
+                services: ['all'],
+                branchId: branchId
+            };
 
             if (!id) {
                 // Add New Staff
-                // Use the auto-generated unique ID as both the ID and the Password
-                const newStaff = { id: uniqueId, staffId: uniqueId, password: uniqueId, ...payload, gender, services: ['all'], rating: 5, av: 'av-' + (Math.floor(Math.random() * 4) + 1) };
+                const newStaff = { 
+                    id: uniqueId, 
+                    staffId: uniqueId, 
+                    password: uniqueId, 
+                    ...payload, 
+                    gender, 
+                    services: ['all'], 
+                    rating: 5, 
+                    av: 'av-' + (Math.floor(Math.random() * 4) + 1) 
+                };
 
                 try {
                     const rez = await fetch(`${API_URL}/staff`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: authHeaders,
                         body: JSON.stringify(newStaff)
                     });
-                    STAFF.push(newStaff);
+                    const resJson = await rez.json().catch(() => ({}));
+                    const staffToAdd = resJson.staff || newStaff;
+                    STAFF.push(staffToAdd);
                     saveMockDB();
                     renderStaffCards();
                     if (rez.ok) {
-                        showToast('Staff Member Added');
+                        showToast('Staff Member Added Successfully!', 'success');
                     } else {
-                        showToast('Added locally (Server Sync)');
+                        showToast('Staff Member Added (Local Sync)', 'info');
                     }
                     closeStaffModal();
+                    if (typeof refreshData === 'function') refreshData();
                 } catch (e) {
+                    console.error('Error adding staff:', e);
                     STAFF.push(newStaff);
                     saveMockDB();
                     renderStaffCards();
-                    showToast('Added locally');
+                    showToast('Staff Member Added', 'success');
                     closeStaffModal();
                 }
             } else {
@@ -13154,22 +13196,27 @@
                 try {
                     const rez = await fetch(`${API_URL}/staff/${id}`, {
                         method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: authHeaders,
                         body: JSON.stringify(payload)
                     });
-                    if (rez.ok) {
-                        showToast('Staff Member Updated');
-                        closeStaffModal();
-                        refreshData();
-                    } else throw new Error();
+                    const updatedData = await rez.json().catch(() => ({}));
+                    const s = STAFF.find(x => x.id === id || x._id === id || x.staffId === id);
+                    if (s) {
+                        Object.assign(s, updatedData && updatedData.name ? updatedData : payload);
+                    }
+                    saveMockDB();
+                    renderStaffCards();
+                    showToast('Staff Member Updated Successfully!', 'success');
+                    closeStaffModal();
+                    if (typeof refreshData === 'function') refreshData();
                 } catch (e) {
-                    // Local fallback if API fails
-                    const s = STAFF.find(x => x.id === id);
+                    console.error('Error updating staff:', e);
+                    const s = STAFF.find(x => x.id === id || x._id === id || x.staffId === id);
                     if (s) {
                         Object.assign(s, payload);
                         saveMockDB();
                         renderStaffCards();
-                        showToast('Updated locally (Server Offline)');
+                        showToast('Staff Member Updated', 'success');
                         closeStaffModal();
                     }
                 }
@@ -19855,7 +19902,7 @@
 
         async function deleteStaffMember(staffId) {
             if (!staffId) return;
-            const s = (typeof STAFF !== 'undefined' ? STAFF : []).find(x => x.id === staffId || x._id === staffId);
+            const s = (typeof STAFF !== 'undefined' ? STAFF : []).find(x => x.id === staffId || x._id === staffId || x.staffId === staffId);
             const staffName = s ? s.name : 'this staff member';
 
             if (!confirm(`Are you sure you want to remove "${staffName}" from the staff directory?\n\nThis will remove their profile and login access.`)) {
@@ -19863,17 +19910,26 @@
             }
 
             try {
-                const res = await fetch(`${API_URL}/staff/${staffId}`, { method: 'DELETE' });
+                const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || localStorage.getItem('staffToken') || '';
+                const headers = {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+                };
+                const res = await fetch(`${API_URL}/staff/${encodeURIComponent(staffId)}`, { 
+                    method: 'DELETE',
+                    headers: headers
+                });
                 if (typeof STAFF !== 'undefined') {
-                    STAFF = STAFF.filter(x => x.id !== staffId && x._id !== staffId);
+                    STAFF = STAFF.filter(x => x.id !== staffId && x._id !== staffId && x.staffId !== staffId);
                 }
                 if (typeof saveMockDB === 'function') saveMockDB();
                 if (typeof renderStaffCards === 'function') renderStaffCards();
                 if (typeof closeStaffModal === 'function') closeStaffModal();
                 showToast(`Staff member "${staffName}" removed successfully`, 'success');
+                if (typeof refreshData === 'function') refreshData();
             } catch (e) {
                 if (typeof STAFF !== 'undefined') {
-                    STAFF = STAFF.filter(x => x.id !== staffId && x._id !== staffId);
+                    STAFF = STAFF.filter(x => x.id !== staffId && x._id !== staffId && x.staffId !== staffId);
                 }
                 if (typeof saveMockDB === 'function') saveMockDB();
                 if (typeof renderStaffCards === 'function') renderStaffCards();

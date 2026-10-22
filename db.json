@@ -1,5 +1,34 @@
 {
-  "clients": [],
+  "clients": [
+    {
+      "id": "c_1792654049959_0",
+      "name": "Alpha Client 1",
+      "phone": "9991112221",
+      "email": "",
+      "notes": "Imported via Onboarding",
+      "pts": 0,
+      "ltv": "₹0",
+      "branchId": "test_salon_alpha",
+      "branch": "Salon Alpha",
+      "branchName": "Salon Alpha",
+      "location": "Salon Alpha",
+      "createdAt": "2026-10-22T07:27:29.959Z"
+    },
+    {
+      "id": "c_1792654050245_0",
+      "name": "Beta Client 1",
+      "phone": "9993334441",
+      "email": "",
+      "notes": "Imported via Onboarding",
+      "pts": 0,
+      "ltv": "₹0",
+      "branchId": "test_salon_beta",
+      "branch": "Salon Beta",
+      "branchName": "Salon Beta",
+      "location": "Salon Beta",
+      "createdAt": "2026-10-22T07:27:30.245Z"
+    }
+  ],
   "staff": [
     {
       "id": "st1",
@@ -236,6 +265,14 @@
       ],
       "rating": 5,
       "av": "av-4"
+    },
+    {
+      "id": "stf_sync_test",
+      "staffId": "stf_sync_test",
+      "name": "Rohan Master Director",
+      "spec": "Senior Hair Director & Master",
+      "phone": "9888877777",
+      "branchId": "test_branch_1"
     }
   ],
   "services": [
@@ -1827,6 +1864,34 @@
       "icon": "ðŸ‘‘",
       "gender": "unisex",
       "id": "svc-1778241632208"
+    },
+    {
+      "id": "svc_1792654460451_0",
+      "name": "Elite Signature Cut",
+      "cat": "Hair",
+      "duration": 40,
+      "price": 600,
+      "prices": [
+        600
+      ],
+      "gender": "both",
+      "icon": "fa-cut",
+      "branchId": "new_onboarded_salon",
+      "branch": "Elite Look Salon"
+    },
+    {
+      "id": "svc_1792654460451_1",
+      "name": "Moroccan Oil Spa",
+      "cat": "Hair",
+      "duration": 75,
+      "price": 2800,
+      "prices": [
+        2800
+      ],
+      "gender": "both",
+      "icon": "fa-cut",
+      "branchId": "new_onboarded_salon",
+      "branch": "Elite Look Salon"
     }
   ],
   "inventory": [

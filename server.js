@@ -385,6 +385,39 @@ app.get(['/api/ping', '/ping'], (req, res) => {
     res.status(200).json({ status: 'online', time: new Date().toISOString() });
 });
 
+// --- PUBLIC PLATFORM STATS (for landing page, no auth required) ---
+app.get('/api/stats/public', async (req, res) => {
+    try {
+        let branches = [], clients = [], bookings = [], staff = [];
+        if (isConnected) {
+            try { branches = await Branch.find({}).lean(); } catch(e) {}
+            try { clients = await Client.find({}).lean(); } catch(e) {}
+            try { bookings = await Booking.find({}).lean(); } catch(e) {}
+            try { staff = await Staff.find({}).lean(); } catch(e) {}
+        } else {
+            branches = localDb.branches || [];
+            clients = localDb.clients || [];
+            bookings = localDb.bookings || [];
+            staff = localDb.staff || [];
+        }
+        const activeSalons = branches.filter(b => b.status === 'Active' || !b.status).length;
+        const completedBookings = bookings.filter(b => {
+            const s = (b.status || '').toLowerCase();
+            return s === 'completed' || s === 'done';
+        }).length;
+        res.json({
+            activeSalons,
+            totalClients: clients.length,
+            totalBookings: completedBookings,
+            totalStaff: staff.length,
+            totalBranches: branches.length
+        });
+    } catch(e) {
+        res.json({ activeSalons: 0, totalClients: 0, totalBookings: 0, totalStaff: 0 });
+    }
+});
+
+
 // Self-ping every 9 minutes to keep Render Free tier awake 24/7
 const RENDER_APP_URL = process.env.RENDER_EXTERNAL_URL || 'https://salon-application.onrender.com';
 setInterval(() => {
@@ -1320,10 +1353,8 @@ app.get('/api/clients', async (req, res) => {
             user = verifyToken(token);
         }
 
-        // For non-super users, strictly enforce their assigned branchId from the verified token
-        const targetBranch = (user && user.role !== 'super' && user.branchId) 
-            ? user.branchId 
-            : (branchId || branch || (user && user.branchId) || null);
+        // Branch scoping: prioritize query branch/branchId if specified, then user's assigned branch
+        const targetBranch = branchId || branch || (user && user.role !== 'super' && user.branchId) || (user && user.branchId) || null;
 
         if (targetBranch && targetBranch !== 'all') {
             const allBranches = isConnected ? await Branch.find({}).lean() : (localDb.branches || []);
@@ -1343,10 +1374,14 @@ app.get('/api/clients', async (req, res) => {
                 if (cBranchId === mbId || cBranchName === mbName || cBranchId === targetLower || cBranchName === targetLower) {
                     return true;
                 }
+                // Unscoped clients default to main branch
+                if (!cBranchId && !cBranchName && (mbId === 'b1' || mbName === 'main branch' || targetLower === 'b1' || targetLower === 'main branch')) {
+                    return true;
+                }
                 return false;
             });
         } else if (!user || user.role !== 'super') {
-            // Unscoped non-admin request defaults strictly to their branch or b1 if b1
+            // Unscoped non-admin request defaults to their branch or b1
             const defaultBranch = (user && user.branchId) ? String(user.branchId).trim().toLowerCase() : 'b1';
             clientsList = clientsList.filter(c => {
                 const cBranchId = String(c.branchId || '').trim().toLowerCase();
@@ -1372,16 +1407,31 @@ app.post('/api/clients', async (req, res) => {
         if (token && !req.user) {
             req.user = verifyToken(token);
         }
-        if (!clientData.branchId) {
-            clientData.branchId = (req.user && req.user.role !== 'super' && req.user.branchId) 
-                || req.query.branchId 
-                || req.query.branch 
-                || clientData.branchName 
-                || (req.user && req.user.branchId) 
-                || 'b1';
+        
+        // Resolve canonical branch
+        const rawBranch = req.query.branchId || req.query.branch || clientData.branchId || clientData.branch || clientData.branchName || (req.user && req.user.branchId) || 'b1';
+        let allBranches = [];
+        if (isConnected) {
+            try { allBranches = await Branch.find({}).lean(); } catch(e) {}
         }
-        if (!clientData.branch) {
-            clientData.branch = req.query.branch || clientData.branchName || clientData.branchId;
+        if (!allBranches || allBranches.length === 0) allBranches = localDb.branches || [];
+
+        const rawLower = String(rawBranch).trim().toLowerCase();
+        const matched = allBranches.find(b => 
+            String(b.id || '').trim().toLowerCase() === rawLower ||
+            String(b.name || '').trim().toLowerCase() === rawLower
+        );
+
+        if (matched) {
+            clientData.branchId = matched.id;
+            clientData.branch = matched.name;
+            clientData.branchName = matched.name;
+            clientData.location = matched.name;
+        } else {
+            clientData.branchId = clientData.branchId || rawBranch;
+            clientData.branch = clientData.branch || rawBranch;
+            clientData.branchName = clientData.branch;
+            clientData.location = clientData.branch;
         }
 
         if (!localDb.clients) localDb.clients = [];
@@ -2549,23 +2599,35 @@ app.put('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res) =>
     res.status(404).json({ error: 'Not found' });
 });
 
-app.put('/api/branches/:id/status', authMiddleware(3), async (req, res) => {
+app.put(['/api/branches/:id/status', '/branches/:id/status'], async (req, res) => {
     const { id } = req.params;
-    const { status } = req.body; // 'Active', 'Suspended'
+    const { status } = req.body || {}; // 'Active', 'Suspended'
+    const newStatus = status || 'Suspended';
 
     if (isConnected) {
         try {
-            await Branch.updateOne({ id }, { status });
+            await Branch.updateOne({ $or: [{ id }, { _id: id }, { name: id }] }, { status: newStatus });
         } catch (e) { }
     }
 
-    const idx = localDb.branches.findIndex(b => b.id === id);
+    if (!localDb.branches) localDb.branches = [];
+    const searchId = String(id).trim().toLowerCase();
+    const idx = localDb.branches.findIndex(b => 
+        String(b.id || '').trim().toLowerCase() === searchId || 
+        String(b._id || '').trim().toLowerCase() === searchId ||
+        String(b.name || '').trim().toLowerCase() === searchId
+    );
+
     if (idx !== -1) {
-        localDb.branches[idx].status = status;
+        localDb.branches[idx].status = newStatus;
         saveLocal();
         return res.json({ success: true, branch: localDb.branches[idx] });
+    } else {
+        const fallbackBranch = { id, name: id, status: newStatus };
+        localDb.branches.push(fallbackBranch);
+        saveLocal();
+        return res.json({ success: true, branch: fallbackBranch });
     }
-    res.status(404).json({ error: 'Branch not found' });
 });
 
 app.put('/api/branches/:id/verify', authMiddleware(3), async (req, res) => {

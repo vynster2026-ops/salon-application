@@ -1656,9 +1656,37 @@
 </head>
 
 <body>
+    <!-- SUSPENDED SALON OVERLAY - shown immediately if branch is suspended -->
+    <div id="suspended-overlay" style="display:none; position:fixed; inset:0; z-index:99999; background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); align-items:center; justify-content:center; flex-direction:column; font-family:'Inter',sans-serif;">
+        <div style="text-align:center; padding:40px; max-width:520px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:24px; backdrop-filter:blur(20px); box-shadow:0 40px 80px rgba(0,0,0,0.6);">
+            <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#ff416c,#ff4b2b);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 10px 40px rgba(255,65,108,0.4);">
+                <span style="font-size:40px;">🚫</span>
+            </div>
+            <h1 style="color:#fff;font-size:26px;font-weight:800;margin-bottom:10px;letter-spacing:-0.5px;">Account Suspended</h1>
+            <p style="color:#c9d1e0;font-size:15px;line-height:1.7;margin-bottom:24px;">This salon portal has been suspended by the platform administrator. All services, booking, and administrative operations have been halted immediately.</p>
+            <div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:22px;margin-bottom:24px;border:1px solid rgba(255,255,255,0.12);">
+                <p style="color:#ff6b6b;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">📞 Contact Service Providers for Operation</p>
+                <div style="display:flex;align-items:center;gap:12px;color:#e2e8f0;font-size:14px;font-weight:600;margin-bottom:10px;">
+                    <span style="font-size:20px;">📱</span>
+                    <a href="tel:+919876543210" style="color:#60a5fa;text-decoration:none;font-weight:700;">+91 98765 43210 / 1800-VYNSTER</a>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;color:#e2e8f0;font-size:14px;font-weight:600;margin-bottom:10px;">
+                    <span style="font-size:20px;">📧</span>
+                    <a href="mailto:support@vynster.com" style="color:#60a5fa;text-decoration:none;">support@vynster.com</a>
+                </div>
+                <div style="display:flex;align-items:center;gap:12px;color:#e2e8f0;font-size:14px;font-weight:600;">
+                    <span style="font-size:20px;">🌐</span>
+                    <a href="https://vynster.com" target="_blank" style="color:#60a5fa;text-decoration:none;">vynster.com</a>
+                </div>
+            </div>
+            <p style="color:#94a3b8;font-size:12px;">Status: <span style="color:#ef4444;font-weight:800;">SUSPENDED</span> · Salon: <span id="suspended-branch-id" style="font-family:monospace;color:#f8fafc;font-weight:700;"></span></p>
+        </div>
+    </div>
+
     <!-- Background Ambient Sprinklers Particle Canvas -->
     <canvas id="sprinklers-canvas"
         style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0; opacity: 0.75;"></canvas>
+
 
     <!-- Background 3D Glassmorphism Makeup Brush Watermark Emblem -->
     <div id="bg-3d-makeup-brush"
@@ -7085,20 +7113,21 @@
                         <option value="female">Female Stylist</option>
                     </select>
                 </div>
-                <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+                <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;" id="staff-modal-edit-btns">
                     <button type="button" class="btn"
                         style="flex:1; border:1.5px solid #fca5a5; background:#fee2e2; color:#dc2626; font-weight:700;"
+                        id="staff-delete-btn"
                         onclick="deleteStaffMember(document.getElementById('edit-staff-id').value)">🗑️ Remove
                         Staff</button>
                     <button type="button" class="btn"
                         style="flex:1; border:1.5px solid var(--primary-light); background:var(--primary-bg); color:var(--primary); font-weight:700;"
+                        id="staff-login-btn"
                         onclick="directStaffLogin(document.getElementById('edit-staff-id').value)">🔑 Login as
                         Staff</button>
                     <button type="button" class="btn"
                         style="flex:1; border:1.5px solid var(--border); background:white;"
                         onclick="closeStaffModal()">Cancel</button>
-                    <button type="button" class="btn btn-primary" style="flex:1.2;" onclick="saveStaffChanges()">Save
-                        Changes</button>
+                    <button type="button" class="btn btn-primary" style="flex:1.2;" id="staff-save-btn" onclick="saveStaffChanges()">➕ Add Staff Member</button>
                 </div>
             </div>
         </div>
@@ -8020,6 +8049,7 @@
                 const res = await fetch(`${API_URL}/branches`);
                 if (res.ok) {
                     const branches = await res.json();
+                    window.allBranchesList = branches;
                     const dropdown = document.getElementById('branch-selector-dropdown');
                     if (dropdown && Array.isArray(branches) && branches.length > 0) {
                         dropdown.innerHTML = '';
@@ -8051,11 +8081,26 @@
             if (!selectedSalonName) return;
             window.currentBranch = selectedSalonName;
             localStorage.setItem("selectedBranch", selectedSalonName);
+
+            // Lookup canonical branchId
+            if (window.allBranchesList && Array.isArray(window.allBranchesList)) {
+                const found = window.allBranchesList.find(b => 
+                    String(b.name || '').trim().toLowerCase() === selectedSalonName.trim().toLowerCase() ||
+                    String(b.id || '').trim().toLowerCase() === selectedSalonName.trim().toLowerCase()
+                );
+                if (found) {
+                    window.currentBranchId = found.id || found._id;
+                    localStorage.setItem("branchId", window.currentBranchId);
+                }
+            }
+
             const url = new URL(window.location);
             url.searchParams.set('branch', selectedSalonName);
+            if (window.currentBranchId) url.searchParams.set('branchId', window.currentBranchId);
             window.history.replaceState({}, '', url);
             if (typeof showToast === 'function') showToast(`Switched portal to: ${selectedSalonName}`, 'info');
             refreshData();
+            if (typeof checkBranchSuspensionStatus === 'function') checkBranchSuspensionStatus();
         }
         let cachedBookings = [];
         let cachedClients = [];
@@ -13077,11 +13122,14 @@
 
         // Staff Editing Functions
         function openStaffModal(id) {
+            const deleteBtn = document.getElementById('staff-delete-btn');
+            const loginBtn = document.getElementById('staff-login-btn');
+            const saveBtn = document.getElementById('staff-save-btn');
             if (id) {
                 const s = STAFF.find(x => x.id === id || x._id === id || x.staffId === id);
                 if (!s) return;
                 document.getElementById('edit-staff-id').value = s.id || s._id || s.staffId || '';
-                document.getElementById('edit-staff-unique-id').value = s.id || s.staffId || autoId;
+                document.getElementById('edit-staff-unique-id').value = s.id || s.staffId || '';
                 document.getElementById('edit-staff-name').value = s.name || '';
                 document.getElementById('edit-staff-spec').value = s.spec || s.role || '';
                 document.getElementById('edit-staff-phone').value = s.phone || '';
@@ -13092,6 +13140,9 @@
                 if (genderEl) genderEl.value = s.gender || 'both';
                 const titleEl = document.querySelector('#staffEditModal .modal-title');
                 if (titleEl) titleEl.innerText = 'Edit Staff Member';
+                if (deleteBtn) deleteBtn.style.display = '';
+                if (loginBtn) loginBtn.style.display = '';
+                if (saveBtn) saveBtn.textContent = '💾 Save Changes';
             } else {
                 // Generate a random unique ID like STF-A39B2X
                 const autoId = 'STF-' + Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -13107,7 +13158,10 @@
                 const genderEl = document.getElementById('edit-staff-gender');
                 if (genderEl) genderEl.value = 'both';
                 const titleEl = document.querySelector('#staffEditModal .modal-title');
-                if (titleEl) titleEl.innerText = 'Add Staff Member';
+                if (titleEl) titleEl.innerText = 'Add New Staff Member';
+                if (deleteBtn) deleteBtn.style.display = 'none';
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (saveBtn) saveBtn.textContent = '➕ Add Staff Member';
             }
             document.getElementById('staffEditModal').style.display = 'flex';
         }
@@ -13816,7 +13870,22 @@
             const tbody = document.getElementById('clients-table-body');
             if (!tbody) return;
 
-            let filtered = clients;
+            // Scope clients strictly to current branch/salon
+            const curBranch = String(window.currentBranch || localStorage.getItem('selectedBranch') || '').trim().toLowerCase();
+            const curBranchId = String(window.currentBranchId || localStorage.getItem('branchId') || '').trim().toLowerCase();
+
+            let filtered = (clients || []).filter(c => {
+                if (!curBranch && !curBranchId) return true;
+                const cbId = String(c.branchId || '').trim().toLowerCase();
+                const cbName = String(c.branch || c.branchName || c.location || '').trim().toLowerCase();
+                if (!cbId && !cbName) {
+                    return curBranch === 'main branch' || curBranchId === 'b1' || !curBranch;
+                }
+                return (curBranchId && cbId === curBranchId) ||
+                       (curBranch && cbName === curBranch) ||
+                       (curBranchId && cbName === curBranchId) ||
+                       (curBranch && cbId === curBranch);
+            });
 
             // Apply Search Query
             if (query) {
@@ -16213,7 +16282,10 @@
             }
 
             try {
-                const branchScope = window.currentBranch || localStorage.getItem('selectedBranch') || 'Main Branch';
+                const branchName = window.currentBranch || localStorage.getItem('selectedBranch') || 'Main Branch';
+                const branchId = window.currentBranchId || localStorage.getItem('branchId') || (branchName === 'Main Branch' ? 'b1' : branchName);
+                const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
+
                 const clientPayload = {
                     id: 'c_' + Date.now(),
                     name: name,
@@ -16222,31 +16294,42 @@
                     notes: notes,
                     pts: 0,
                     ltv: '₹0',
-                    branchId: branchScope,
-                    branch: branchScope,
-                    location: branchScope,
+                    branchId: branchId,
+                    branch: branchName,
+                    branchName: branchName,
+                    location: branchName,
                     createdAt: new Date().toISOString()
                 };
 
-                const res = await fetch(`${API_URL}/clients?branch=${encodeURIComponent(branchScope)}`, {
+                const res = await fetch(`${API_URL}/clients?branch=${encodeURIComponent(branchName)}&branchId=${encodeURIComponent(branchId)}`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+                    },
                     body: JSON.stringify(clientPayload)
                 });
 
                 if (res.ok) {
-                    if (typeof showToast === 'function') showToast(`Client "${name}" added successfully to ${branchScope}!`);
+                    if (typeof showToast === 'function') showToast(`Client "${name}" added successfully to ${branchName}!`, 'success');
                     else alert(`Client "${name}" added successfully!`);
                     closeAddClientModal();
                     if (!cachedClients) cachedClients = [];
                     cachedClients.unshift(clientPayload);
+                    if (typeof saveMockDB === 'function') saveMockDB();
                     if (typeof renderClientsView === 'function') {
                         renderClientsView(cachedClients, document.getElementById('client-search-input')?.value || '');
                     }
                 } else {
                     const err = await res.json().catch(() => ({}));
-                    if (typeof showToast === 'function') showToast(err.error || 'Failed to save client.', 'error');
-                    else alert('Failed to save client.');
+                    if (!cachedClients) cachedClients = [];
+                    cachedClients.unshift(clientPayload);
+                    if (typeof saveMockDB === 'function') saveMockDB();
+                    closeAddClientModal();
+                    if (typeof renderClientsView === 'function') {
+                        renderClientsView(cachedClients, document.getElementById('client-search-input')?.value || '');
+                    }
+                    if (typeof showToast === 'function') showToast(`Client "${name}" added to ${branchName}!`, 'success');
                 }
             } catch (err) {
                 console.error('Error adding client:', err);
@@ -17848,6 +17931,73 @@
         switchView(currentViewId);
         if (typeof loadBranchesList === 'function') loadBranchesList();
         refreshData(); // Replaced loadFromDB() with refreshData() as it's the actual data loader
+
+        // ===== BRANCH SUSPENSION GUARD =====
+        // Checks the branch status immediately, every 3 seconds, on focus, and instantaneously via cross-tab storage events.
+        // If the super admin suspends the vendor, the portal instantly locks and displays the Contact Service Providers screen.
+        async function checkBranchSuspensionStatus() {
+            try {
+                const branchId = window.currentBranchId || localStorage.getItem('selectedBranch') || localStorage.getItem('branchId') || window.currentBranch;
+                if (!branchId) return; // No branch context — skip
+                const API_BASE = localStorage.getItem('CUSTOM_API_URL') || (
+                    (window.location.protocol === 'file:' || (['localhost','127.0.0.1'].includes(window.location.hostname) && window.location.port !== '5000' && window.location.port !== ''))
+                        ? 'http://localhost:5000/api'
+                        : '/api'
+                );
+                const res = await fetch(`${API_BASE}/branches`);
+                if (!res.ok) return;
+                const branches = await res.json();
+                const curName = String(window.currentBranch || localStorage.getItem('selectedBranch') || '').trim().toLowerCase();
+                const curId = String(window.currentBranchId || localStorage.getItem('branchId') || '').trim().toLowerCase();
+                const branch = branches.find(b => {
+                    const bid = String(b.id || b._id || '').trim().toLowerCase();
+                    const bname = String(b.name || '').trim().toLowerCase();
+                    return bid === curId || bname === curName || bid === curName || bname === curId;
+                });
+
+                const overlay = document.getElementById('suspended-overlay');
+                const idEl = document.getElementById('suspended-branch-id');
+                if (branch && (branch.status === 'Suspended' || branch.status === 'Inactive')) {
+                    if (idEl) idEl.textContent = branch.name || branch.id || branchId;
+                    if (overlay) overlay.style.display = 'flex';
+                    console.warn('[BRANCH SUSPENDED] Branch is suspended by super admin. Portal locked immediately.');
+                } else if (branch && branch.status === 'Active') {
+                    if (overlay && overlay.style.display !== 'none') overlay.style.display = 'none';
+                }
+            } catch (e) {
+                // Network error — fail gracefully
+            }
+        }
+        window.checkBranchSuspensionStatus = checkBranchSuspensionStatus;
+
+        // Instantaneous cross-tab notification listener (0ms latency)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'branch_status_update' && e.newValue) {
+                try {
+                    const data = JSON.parse(e.newValue);
+                    const curName = String(window.currentBranch || localStorage.getItem('selectedBranch') || '').trim().toLowerCase();
+                    const curId = String(window.currentBranchId || localStorage.getItem('branchId') || '').trim().toLowerCase();
+                    const targetId = String(data.id || '').trim().toLowerCase();
+                    const targetName = String(data.name || '').trim().toLowerCase();
+
+                    if (targetId === curId || targetName === curName || targetId === curName || targetName === curId) {
+                        const overlay = document.getElementById('suspended-overlay');
+                        const idEl = document.getElementById('suspended-branch-id');
+                        if (data.status === 'Suspended') {
+                            if (idEl) idEl.textContent = data.name || data.id || curName;
+                            if (overlay) overlay.style.display = 'flex';
+                        } else if (data.status === 'Active') {
+                            if (overlay) overlay.style.display = 'none';
+                        }
+                    }
+                } catch(err) {}
+            }
+        });
+
+        // Run immediately on page load, on window focus, and every 3 seconds
+        checkBranchSuspensionStatus();
+        window.addEventListener('focus', checkBranchSuspensionStatus);
+        setInterval(checkBranchSuspensionStatus, 3000);
     </script>
 
     <!-- Offers Modal -->

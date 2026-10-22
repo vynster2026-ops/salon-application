@@ -1145,6 +1145,32 @@
 </head>
 
 <body>
+  <!-- SUSPENDED SALON OVERLAY -->
+  <div id="booking-suspended-overlay" style="display:none; position:fixed; inset:0; z-index:99999; background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); align-items:center; justify-content:center; flex-direction:column; font-family:'Outfit',sans-serif;">
+    <div style="text-align:center; padding:40px; max-width:520px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:24px; backdrop-filter:blur(20px); box-shadow:0 40px 80px rgba(0,0,0,0.6);">
+      <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#ff416c,#ff4b2b);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 10px 40px rgba(255,65,108,0.4);">
+        <span style="font-size:40px;">🚫</span>
+      </div>
+      <h1 style="color:#fff;font-size:26px;font-weight:800;margin-bottom:10px;letter-spacing:-0.5px;">Account Suspended</h1>
+      <p style="color:#c9d1e0;font-size:15px;line-height:1.7;margin-bottom:24px;">This salon portal has been suspended by the platform administrator. All booking operations have been stopped immediately.</p>
+      <div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:22px;margin-bottom:24px;border:1px solid rgba(255,255,255,0.12);">
+        <p style="color:#ff6b6b;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">📞 Contact Service Providers for Operation</p>
+        <div style="display:flex;align-items:center;gap:12px;color:#e2e8f0;font-size:14px;font-weight:600;margin-bottom:10px;">
+          <span style="font-size:20px;">📱</span>
+          <a href="tel:+919876543210" style="color:#60a5fa;text-decoration:none;font-weight:700;">+91 98765 43210 / 1800-VYNSTER</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;color:#e2e8f0;font-size:14px;font-weight:600;margin-bottom:10px;">
+          <span style="font-size:20px;">📧</span>
+          <a href="mailto:support@vynster.com" style="color:#60a5fa;text-decoration:none;">support@vynster.com</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;color:#e2e8f0;font-size:14px;font-weight:600;">
+          <span style="font-size:20px;">🌐</span>
+          <a href="https://vynster.com" target="_blank" style="color:#60a5fa;text-decoration:none;">vynster.com</a>
+        </div>
+      </div>
+      <p style="color:#94a3b8;font-size:12px;">Status: <span style="color:#ef4444;font-weight:800;">SUSPENDED</span> · Salon: <span id="booking-suspended-branch-name" style="font-family:monospace;color:#f8fafc;font-weight:700;"></span></p>
+    </div>
+  </div>
 
   <h2 style="position:absolute;left:-9999px">Srijes live appointment booking module with AI slot intelligence and
     real
@@ -1162,6 +1188,36 @@
     let STAFF = [];
     let FEMALE_SERVICES_IDS = [];
     let MALE_SERVICES_IDS = [];
+
+    // Check branch suspension for bookings
+    async function checkBookingBranchSuspension() {
+      try {
+        const urlP = new URLSearchParams(window.location.search);
+        const bTarget = urlP.get('branch') || urlP.get('branchId') || localStorage.getItem('selectedBranch') || 'Main Branch';
+        const res = await fetch(`${API_URL}/branches`);
+        if (!res.ok) return;
+        const branches = await res.json();
+        const curTarget = String(bTarget).trim().toLowerCase();
+        const branch = branches.find(b => {
+          const bid = String(b.id || b._id || '').trim().toLowerCase();
+          const bname = String(b.name || '').trim().toLowerCase();
+          return bid === curTarget || bname === curTarget;
+        });
+        const overlay = document.getElementById('booking-suspended-overlay');
+        const nameEl = document.getElementById('booking-suspended-branch-name');
+        if (branch && (branch.status === 'Suspended' || branch.status === 'Inactive')) {
+          if (nameEl) nameEl.textContent = branch.name || branch.id || bTarget;
+          if (overlay) overlay.style.display = 'flex';
+        } else if (branch && branch.status === 'Active') {
+          if (overlay && overlay.style.display !== 'none') overlay.style.display = 'none';
+        }
+      } catch(e) {}
+    }
+    checkBookingBranchSuspension();
+    setInterval(checkBookingBranchSuspension, 3000);
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'branch_status_update') checkBookingBranchSuspension();
+    });
 
 
 

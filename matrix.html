@@ -2668,6 +2668,16 @@
 
         async function confirmSuspend() {
             if (salonToSuspend) {
+                // Instantaneous cross-tab notification
+                try {
+                    localStorage.setItem('branch_status_update', JSON.stringify({
+                        id: salonToSuspend.id,
+                        name: salonToSuspend.name,
+                        status: 'Suspended',
+                        timestamp: Date.now()
+                    }));
+                } catch(e) {}
+
                 try {
                     const response = await fetch(`${API_URL}/api/branches/${salonToSuspend.id}/status`, {
                         method: 'PUT',
@@ -2684,7 +2694,7 @@
 
                 salonToSuspend.status = 'Suspended';
                 renderVendorTable();
-                showToast(`${salonToSuspend.name}'s license has been suspended (locally).`, 'error');
+                showToast(`${salonToSuspend.name}'s license has been suspended.`, 'error');
                 closeModal();
             }
         }
@@ -2726,6 +2736,16 @@
         async function reactivateLicense(id) {
             const vendor = vendors.find(v => String(v.id) === String(id));
             if (vendor) {
+                // Instantaneous cross-tab notification
+                try {
+                    localStorage.setItem('branch_status_update', JSON.stringify({
+                        id: id,
+                        name: vendor.name,
+                        status: 'Active',
+                        timestamp: Date.now()
+                    }));
+                } catch(e) {}
+
                 try {
                     const response = await fetch(`${API_URL}/api/branches/${id}/status`, {
                         method: 'PUT',

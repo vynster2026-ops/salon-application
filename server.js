@@ -328,6 +328,11 @@ app.use((req, res, next) => {
     next();
 });
 
+// Lightweight health check endpoint for keep-alive pingers (cron-job.org / UptimeRobot)
+app.get(['/health', '/api/health'], (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
 // --- FRONTEND DASHBOARD ROUTE ALIASES ---
 // 1. Landing Page (Default Public Homepage)
 app.get(['/', '/landing', '/home'], (req, res) => {

@@ -1,7 +1,7 @@
 # Salon Application — Submission Build
 
 ## Project
-Srijes / MedhikaArts Salon Management & Online Booking System
+Vynster / MedhikaArts Salon Management & Online Booking System
 
 ## Verified before submission
 - Node.js backend syntax: PASS

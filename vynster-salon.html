@@ -1646,7 +1646,7 @@
                 let [resource, config] = arguments;
                 if (!config) config = {};
                 if (!config.headers) config.headers = {};
-                const pin = localStorage.getItem('srijes_admin_pin');
+                const pin = localStorage.getItem('vynster_admin_pin');
                 if (pin) config.headers['x-admin-pin'] = pin;
                 return originalFetchPerms(resource, config);
             };
@@ -1710,7 +1710,7 @@
                 <button class="toggle-btn" onclick="toggleSidebar()"
                     style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:18px;">☰</button>
                 <span class="logo-icon">✨</span>
-                <span class="logo-text">Srijes</span>
+                <span class="logo-text">Vynster</span>
             </div>
             <nav style="flex: 1; display: flex; flex-direction: column;">
                 <ul class="nav-list" style="flex: 1; display: flex; flex-direction: column;">
@@ -3047,7 +3047,7 @@
                         if (!itemId || !qty || qty <= 0) return showToast('Please select an item and valid quantity', 'error');
 
                         try {
-                            const res = await srijesFetchPatched(`${API_URL}/inventory/transfer`, {
+                            const res = await vynsterFetchPatched(`${API_URL}/inventory/transfer`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ itemId, fromBranch: source, toBranch: dest, quantity: qty })
@@ -3844,7 +3844,7 @@
                                     </svg>
                                     <input type="text" id="social-booking-link" class="pro-input"
                                         style="padding-left: 40px; padding-right: 40px; background: #fff1f2; border-color: #fbcfe8; color: #be185d; font-weight: 500;"
-                                        readonly value="https://www.srijes.com/MedhikaArts_booking_module.html">
+                                        readonly value="https://www.vynster.com/MedhikaArts_booking_module.html">
                                     <div style="position: absolute; right: 14px; top: 11px; color: #ec4899; cursor: pointer; opacity: 0.7; transition: 0.2s;"
                                         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7"
                                         onclick="document.getElementById('social-booking-link').removeAttribute('readonly'); document.getElementById('social-booking-link').focus();">
@@ -3998,14 +3998,14 @@
             <script>
                 // IIFE for Data Level Permissions
                 (() => {
-                    if (window.srijesFetchPatched) return;
-                    window.srijesFetchPatched = true;
+                    if (window.vynsterFetchPatched) return;
+                    window.vynsterFetchPatched = true;
                     const originalFetchPerms = window.fetch;
                     window.fetch = function () {
                         let [resource, config] = arguments;
                         if (!config) config = {};
                         if (!config.headers) config.headers = {};
-                        const pin = localStorage.getItem('srijes_admin_pin');
+                        const pin = localStorage.getItem('vynster_admin_pin');
                         if (pin) config.headers['x-admin-pin'] = pin;
                         const token = localStorage.getItem('adminToken') || localStorage.getItem('staffToken') || localStorage.getItem('token');
                         if (token && !config.headers['Authorization'] && !config.headers['authorization']) {
@@ -4110,7 +4110,7 @@
                 function unlockAdminSession() {
                     const pin = prompt("Enter Master Admin PIN to unlock full data view:");
                     if (pin) {
-                        localStorage.setItem('srijes_admin_pin', pin);
+                        localStorage.setItem('vynster_admin_pin', pin);
                         showToast('Session Unlocked!', 'success');
                         refreshData();
                     }
@@ -4126,8 +4126,8 @@
                             document.getElementById('setting-smtp-pass').value = data.smtpPass || '';
                         }
                         if (document.getElementById('social-booking-link')) {
-                            document.getElementById('social-booking-link').value = data.socialBookingLink || 'https://www.srijes.com/MedhikaArts_booking_module.html';
-                            document.getElementById('setting-instagram-link').value = data.instagramLink || 'https://instagram.com/srijes_salon.n.spa';
+                            document.getElementById('social-booking-link').value = data.socialBookingLink || 'https://www.vynster.com/MedhikaArts_booking_module.html';
+                            document.getElementById('setting-instagram-link').value = data.instagramLink || 'https://instagram.com/vynster_salon.n.spa';
                         }
                     } catch (e) { }
                 }
@@ -4170,7 +4170,7 @@
                     btnElem.innerText = 'Sending...';
                     btnElem.disabled = true;
                     try {
-                        const res = await srijesFetchPatched(`${API_URL}/rebooking-whatsapp`, {
+                        const res = await vynsterFetchPatched(`${API_URL}/rebooking-whatsapp`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ clientId, message })
@@ -4298,7 +4298,7 @@
                                 </div>
                                 <div>
                                     <h3 style="font-size: 15px; font-weight: 800; color: var(--text-main); margin: 0;">
-                                        Srijes AI Assistant</h3>
+                                        Vynster AI Assistant</h3>
                                     <p
                                         style="font-size: 11px; color: #22c55e; margin: 2px 0 0 0; display: flex; align-items: center; gap: 4px; font-weight: 700;">
                                         <span
@@ -4435,7 +4435,7 @@
                                 <label
                                     style="font-size:12px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:6px;">SALON
                                     NAME</label>
-                                <input type="text" id="set-salon-name" value="Srijes Salon"
+                                <input type="text" id="set-salon-name" value="Vynster Salon"
                                     style="width:100%; padding:12px; border:1.5px solid var(--border); border-radius:10px; outline:none; font-family:inherit;">
                             </div>
                             <div class="field">
@@ -7444,7 +7444,7 @@
                 style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 24px; cursor: pointer; color: var(--text-muted);">&times;</button>
             <div style="font-size: 40px; margin-bottom: 8px;">💰</div>
             <h3 style="font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">Welcome to
-                Srijes!</h3>
+                Vynster!</h3>
             <p id="edit-opening-desc" style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Please
                 enter the opening cash
                 amount in the register for today.</p>
@@ -10650,7 +10650,7 @@
         }
 
         // ==========================================
-        // Srijes Billing Hub Module Features
+        // Vynster Billing Hub Module Features
         // ==========================================
         let activeInvoiceClient = null;
         let activeBillingBookingId = null;
@@ -11544,7 +11544,7 @@
 
                                 <!-- Footer -->
                                 <div style="text-align:center; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-                                    <div style="font-size:13px; font-weight:700; color:#0f766e; margin-bottom:4px;">Thank you for choosing Srijes!</div>
+                                    <div style="font-size:13px; font-weight:700; color:#0f766e; margin-bottom:4px;">Thank you for choosing Vynster!</div>
                                     <div style="font-size:12px; color:#64748b; margin-bottom:10px;">We hope to see you again soon for your next session.</div>
                                     <div style="font-family:'Brush Script MT', cursive, sans-serif; font-size:28px; color:#14b8a6; opacity:0.6;">Stay Beautiful</div>
                                 </div>
@@ -11610,7 +11610,7 @@
                 const dataUrl = canvas.toDataURL('image/png');
 
                 const link = document.createElement('a');
-                link.download = `Srijes-Receipt-${Date.now()}.png`;
+                link.download = `Vynster-Receipt-${Date.now()}.png`;
                 link.href = dataUrl;
                 document.body.appendChild(link);
                 link.click();
@@ -11647,7 +11647,7 @@
                 }
                 if (!bId && window.lastCheckoutData) bId = window.lastCheckoutData.bookingId;
 
-                const baseUrl = window.location.origin + window.location.pathname.replace('srijes-complete-module.html', '');
+                const baseUrl = window.location.origin + window.location.pathname.replace('vynster-complete-module.html', '');
                 const billLink = `${baseUrl}digital-bill.html?id=${bId}`;
 
                 const captureArea = document.getElementById('receipt-capture-area');
@@ -11695,7 +11695,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         recipients: [phoneInput],
-                        message: `Thank you for visiting Srijes Salon! Here is your bill.\n\n👉 Write a review: ${googleReviewLink}`,
+                        message: `Thank you for visiting Vynster Salon! Here is your bill.\n\n👉 Write a review: ${googleReviewLink}`,
                         mediaBase64: dataUrl,
                         mediaUrls: []
                     })
@@ -12687,8 +12687,8 @@
             });
         }
 
-        // ------------------ Srijes Support Ticket Suite ------------------
-        // ------------------ Srijes Support Ticket Suite ------------------
+        // ------------------ Vynster Support Ticket Suite ------------------
+        // ------------------ Vynster Support Ticket Suite ------------------
         let supportTickets = [
             {
                 id: 'TKT-4921',
@@ -12929,19 +12929,19 @@
             let solutionText = "";
             switch (tkt.category) {
                 case "WhatsApp Automation":
-                    solutionText = `🤖 **Srijes AI Support Agent:** I reviewed your WhatsApp Automation inquiry. Common issues can be solved by doing the following:\n1. Navigate to the **Marketing Hub** and check the live campaign ledger.\n2. If authentication fails, close your backend CLI browser container, clear local caches, and perform a fresh re-linking.\n3. Verify that your sending delays are set to at least **2000ms** to comply with server limits.`;
+                    solutionText = `🤖 **Vynster AI Support Agent:** I reviewed your WhatsApp Automation inquiry. Common issues can be solved by doing the following:\n1. Navigate to the **Marketing Hub** and check the live campaign ledger.\n2. If authentication fails, close your backend CLI browser container, clear local caches, and perform a fresh re-linking.\n3. Verify that your sending delays are set to at least **2000ms** to comply with server limits.`;
                     break;
                 case "Stylist Payout":
-                    solutionText = `🤖 **Srijes AI Support Agent:** Stylist commission logs are driven directly by check-ins marked as **Completed** in reception:\n1. Audit the stylist profiles in **Team Management** to ensure correct commission percentages are stored.\n2. Check if the booking was check-in resolved under **Bookings**. Only fully checked-out bookings contribute to Sunday payouts.`;
+                    solutionText = `🤖 **Vynster AI Support Agent:** Stylist commission logs are driven directly by check-ins marked as **Completed** in reception:\n1. Audit the stylist profiles in **Team Management** to ensure correct commission percentages are stored.\n2. Check if the booking was check-in resolved under **Bookings**. Only fully checked-out bookings contribute to Sunday payouts.`;
                     break;
                 case "Booking Issue":
-                    solutionText = `🤖 **Srijes AI Support Agent:** To resolve booking, slotting, or calendar overlaps:\n1. Check the stylist shift calendar under **Salon Calendar**. Ensure the stylist shift is configured for the slot you want to book.\n2. If a customer check-in isn't registering, verify their phone number lookup has been registered under the **Clients Directory**.`;
+                    solutionText = `🤖 **Vynster AI Support Agent:** To resolve booking, slotting, or calendar overlaps:\n1. Check the stylist shift calendar under **Salon Calendar**. Ensure the stylist shift is configured for the slot you want to book.\n2. If a customer check-in isn't registering, verify their phone number lookup has been registered under the **Clients Directory**.`;
                     break;
                 case "Billing/Invoice":
-                    solutionText = `🤖 **Srijes AI Support Agent:** Financial check-ins and invoice printing:\n1. Verify if your **GST Percentage (GST %)** is set correctly inside **System Settings** (defaults to 18%).`;
+                    solutionText = `🤖 **Vynster AI Support Agent:** Financial check-ins and invoice printing:\n1. Verify if your **GST Percentage (GST %)** is set correctly inside **System Settings** (defaults to 18%).`;
                     break;
                 default:
-                    solutionText = `🤖 **Srijes AI Support Agent:** Thank you for logging this ticket. An operations specialist has been notified.\n- In the meantime, you can search for general system settings and diagnostic tutorials under the **System FAQs** on the left. We will review your ticket details immediately.`;
+                    solutionText = `🤖 **Vynster AI Support Agent:** Thank you for logging this ticket. An operations specialist has been notified.\n- In the meantime, you can search for general system settings and diagnostic tutorials under the **System FAQs** on the left. We will review your ticket details immediately.`;
             }
 
             const triageReply = {
@@ -15976,11 +15976,11 @@
 
             let rawMessage = '';
             if (status === 'Completed' || status === 'Paid') {
-                rawMessage = `*Srijes Appointment Completed*\n--------------------------\n*Hello ${name}*,\n\nYour appointment for *${svcs}* has been completed! 🌟\n\n📅 *Date:* ${dateStr}\n🔖 *Booking ID:* ${bookingId}\n\n_Thank you for visiting Srijes! We hope you enjoyed your service._`;
+                rawMessage = `*Vynster Appointment Completed*\n--------------------------\n*Hello ${name}*,\n\nYour appointment for *${svcs}* has been completed! 🌟\n\n📅 *Date:* ${dateStr}\n🔖 *Booking ID:* ${bookingId}\n\n_Thank you for visiting Vynster! We hope you enjoyed your service._`;
             } else if (status === 'Confirmed') {
-                rawMessage = `*Srijes Booking Confirmation*\n--------------------------\n*Hello ${name}*,\n\nYour booking for *${svcs}* is confirmed! 📅\n\n📅 *Date:* ${dateStr}\n⏰ *Time:* ${timeStr}\n🔖 *Booking ID:* ${bookingId}\n\n_Thank you for choosing Srijes!_`;
+                rawMessage = `*Vynster Booking Confirmation*\n--------------------------\n*Hello ${name}*,\n\nYour booking for *${svcs}* is confirmed! 📅\n\n📅 *Date:* ${dateStr}\n⏰ *Time:* ${timeStr}\n🔖 *Booking ID:* ${bookingId}\n\n_Thank you for choosing Vynster!_`;
             } else {
-                rawMessage = `*Srijes Booking Update*\n--------------------------\n*Hello ${name}*,\n\nYour booking status for *${svcs}* has been updated to *${status}*.\n\n📅 *Date:* ${dateStr}\n🔖 *Booking ID:* ${bookingId}\n\n_Thank you for choosing Srijes!_`;
+                rawMessage = `*Vynster Booking Update*\n--------------------------\n*Hello ${name}*,\n\nYour booking status for *${svcs}* has been updated to *${status}*.\n\n📅 *Date:* ${dateStr}\n🔖 *Booking ID:* ${bookingId}\n\n_Thank you for choosing Vynster!_`;
             }
 
             try {
@@ -16740,9 +16740,9 @@
             const safeAmount = amount || '0';
             const safeId = bookingId || 'Confirmed';
 
-            const adText = `\n\n🌐 *View Special Offer:* https://Srijes-offers.loca.lt/admin/onion-hair-spa.html`;
+            const adText = `\n\n🌐 *View Special Offer:* https://Vynster-offers.loca.lt/admin/onion-hair-spa.html`;
 
-            const msg = `*Srijes Payment Confirmed*\n--------------------------\n*Hello ${safeName}*,\n\nPayment of *Rs.${safeAmount}* for Booking *#${safeId}* was successful.\n\nThank you for choosing Srijes!${adText}`;
+            const msg = `*Vynster Payment Confirmed*\n--------------------------\n*Hello ${safeName}*,\n\nPayment of *Rs.${safeAmount}* for Booking *#${safeId}* was successful.\n\nThank you for choosing Vynster!${adText}`;
 
             // Use api.whatsapp.com for better cross-platform compatibility
             return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
@@ -17022,7 +17022,7 @@
                     'automation': 'Automation & Integrations',
                     'admin-controls': 'System Admin Controls'
                 };
-                titleEl.innerText = titles[viewId] || 'Srijes';
+                titleEl.innerText = titles[viewId] || 'Vynster';
             }
 
             if (viewId === 'calendar') renderFullCalendar();
@@ -17292,7 +17292,7 @@
         function updateMarketingPreview() {
             const msg = document.getElementById('campaign-message').value;
             const preview = document.getElementById('campaign-preview');
-            const salonName = localStorage.getItem('salon_name') || 'Srijes Salon';
+            const salonName = localStorage.getItem('salon_name') || 'Vynster Salon';
 
             if (!msg.trim() && selectedMarketingImages.length === 0) {
                 preview.innerHTML = '<span style="color:var(--text-muted); font-style:italic;">Draft your message to see preview...</span>';
@@ -17452,7 +17452,7 @@
         function applyMarketingTemplate(type) {
             const area = document.getElementById('campaign-message');
             const name = document.getElementById('campaign-name');
-            const salonName = localStorage.getItem('salon_name') || 'Srijes Salon';
+            const salonName = localStorage.getItem('salon_name') || 'Vynster Salon';
 
             let template = "";
             let campaignTitle = "";
@@ -17843,7 +17843,7 @@
                 const a = document.createElement('a');
                 a.href = dataUrl;
                 const cleanName = clientName.replace(/[^a-zA-Z0-9]/g, '_');
-                a.download = `Srijes_Promo_${cleanName}.png`;
+                a.download = `Vynster_Promo_${cleanName}.png`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -17855,7 +17855,7 @@
         async function sendSingleBulk(index, isAuto = false) {
             const client = bulkQueue[index];
             const msgTemplate = document.getElementById('campaign-message').value;
-            const salonName = localStorage.getItem('salon_name') || 'Srijes Salon';
+            const salonName = localStorage.getItem('salon_name') || 'Vynster Salon';
 
             const personalizedMsg = msgTemplate
                 .replace(/{name}/g, client.name)
@@ -18220,7 +18220,7 @@
                         style="background: white; width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #232a45; font-size: 20px;">
                         M</div>
                     <div>
-                        <div style="font-size: 16px; font-weight: 700;">Srijes</div>
+                        <div style="font-size: 16px; font-weight: 700;">Vynster</div>
                         <div style="font-size: 12px; opacity: 0.7;">Secure Checkout</div>
                     </div>
                 </div>
@@ -18278,7 +18278,7 @@
                             style="font-size: 9px; color: #22c55e; font-weight: 700; display: flex; align-items: center; gap: 3px;">
                             <span
                                 style="width: 5px; height: 5px; background: #22c55e; border-radius: 50%; display: inline-block;"></span>
-                            Srijes Your Assistant
+                            Vynster Your Assistant
                         </span>
                     </div>
                 </div>
@@ -18355,7 +18355,7 @@
             aiFullChatHistory = [
                 {
                     sender: 'ai',
-                    text: 'Hello! I am your **Srijes AI Operations Assistant** 🤖. I am fully integrated with your salon databases, stylist lists, booking registers, and WhatsApp campaigns!\n\n**Ask me to**:\n- 📊 *Calculate total sales or search customer directories.*\n- 💇 *Show stylist performance metrics & top commissions.*\n- 📝 *Write professional WhatsApp template drafts.*\n- ⚙️ *Switch active dashboard views on command.*',
+                    text: 'Hello! I am your **Vynster AI Operations Assistant** 🤖. I am fully integrated with your salon databases, stylist lists, booking registers, and WhatsApp campaigns!\n\n**Ask me to**:\n- 📊 *Calculate total sales or search customer directories.*\n- 💇 *Show stylist performance metrics & top commissions.*\n- 📝 *Write professional WhatsApp template drafts.*\n- ⚙️ *Switch active dashboard views on command.*',
                     timestamp: new Date()
                 }
             ];
@@ -18419,7 +18419,7 @@
                             ${actionBtn}
                         </div>
                         <span style="font-size: 9px; color: var(--text-muted); align-self: ${isUser ? 'flex-end' : 'flex-start'}; font-weight: 600; margin: 2px 6px;">
-                            ${isUser ? 'You' : 'Srijes AI'} • ${msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            ${isUser ? 'You' : 'Vynster AI'} • ${msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                     </div>
                 `;
@@ -18844,11 +18844,11 @@
                         message: "Hello {name}! ✨ We are thrilled to welcome you to the {salon} family. To make your first visit extra special, here is a custom welcome gift: enjoy 15% OFF on any premium hair styling or skincare treatment this week! 💇‍♀️\n\nBook a slot today or show this message at checkout. We look forward to pampering you!\n\nWarm regards,\n{salon} Team"
                     };
                 } else if (query.includes('festival') || query.includes('diwali') || query.includes('festive') || query.includes('holiday')) {
-                    reply = `✨ **Festive Glow Campaign Template Generated**:\n\n"Hello {name}! 🌟 Celebrate the festive season with a gorgeous makeover. Srijes has prepared premium Festive Packages starting at just ₹999 (Keratin Spa + Hydrating Facial + Glow Mani-Pedi)! 💅\n\nSlots are filling up rapidly this week. Tap to book your festive glow now!\n\nHappy Holidays from {salon}!"`;
+                    reply = `✨ **Festive Glow Campaign Template Generated**:\n\n"Hello {name}! 🌟 Celebrate the festive season with a gorgeous makeover. Vynster has prepared premium Festive Packages starting at just ₹999 (Keratin Spa + Hydrating Facial + Glow Mani-Pedi)! 💅\n\nSlots are filling up rapidly this week. Tap to book your festive glow now!\n\nHappy Holidays from {salon}!"`;
                     command = "setCampaignMessage";
                     data = {
                         name: "Festive Glow Special",
-                        message: "Hello {name}! 🌟 Celebrate the festive season with a gorgeous makeover. Srijes has prepared premium Festive Packages starting at just ₹999 (Keratin Spa + Hydrating Facial + Glow Mani-Pedi)! 💅\n\nSlots are filling up rapidly this week. Tap to book your festive glow now!\n\nHappy Holidays from {salon}!"
+                        message: "Hello {name}! 🌟 Celebrate the festive season with a gorgeous makeover. Vynster has prepared premium Festive Packages starting at just ₹999 (Keratin Spa + Hydrating Facial + Glow Mani-Pedi)! 💅\n\nSlots are filling up rapidly this week. Tap to book your festive glow now!\n\nHappy Holidays from {salon}!"
                     };
                 } else if (query.includes('inactive') || query.includes('miss you') || query.includes('we miss you')) {
                     reply = `💔 **Re-engagement Campaign Template Generated**:\n\n"Hello {name}! We haven't seen you around the styling chairs at {salon} lately. We miss pampering you! 💆‍♀️\n\nBook an appointment in the next 7 days and claim a **FREE relaxing scalp massage** with any hair service of your choice!\n\nBook now: {salon}"`;
@@ -18876,7 +18876,7 @@
 
             // Default
             else {
-                reply = `Hello! I am your **Srijes AI Assistant** 🤖.\n\nI am a live working module connected directly to your dashboard!\n\n**Try typing these requests**:\n- 📊 "Summarize today's revenue"\n- 📦 "Any low stock right now?"\n- 🕒 "Any upcoming bookings?"\n- 👥 "What is our occupancy rate?"\n- 📝 "Write a Diwali campaign message template"\n- ⚙️ "Switch to marketing view"`;
+                reply = `Hello! I am your **Vynster AI Assistant** 🤖.\n\nI am a live working module connected directly to your dashboard!\n\n**Try typing these requests**:\n- 📊 "Summarize today's revenue"\n- 📦 "Any low stock right now?"\n- 🕒 "Any upcoming bookings?"\n- 👥 "What is our occupancy rate?"\n- 📝 "Write a Diwali campaign message template"\n- ⚙️ "Switch to marketing view"`;
             }
 
             return { reply, command, data };
@@ -19250,7 +19250,7 @@
 
                                 const bookingLine = svcNames ? `Your booking for *${svcNames}* is confirmed!` : `Your booking is confirmed!`;
 
-                                const msg = `*Srijes Booking Confirmation*\n--------------------------\n*Hello ${newBooking.clientName}*,\n\n${bookingLine}\n\n📅 *Date:* ${newBooking.date}\n⏰ *Time:* ${newBooking.time}\n🔖 *Booking ID:* ${savedBooking.id || newBooking.id}\n\n_Thank you for choosing Srijes!_${promoText}`;
+                                const msg = `*Vynster Booking Confirmation*\n--------------------------\n*Hello ${newBooking.clientName}*,\n\n${bookingLine}\n\n📅 *Date:* ${newBooking.date}\n⏰ *Time:* ${newBooking.time}\n🔖 *Booking ID:* ${savedBooking.id || newBooking.id}\n\n_Thank you for choosing Vynster!_${promoText}`;
 
                                 fetch(`${API_URL}/whatsapp/send-direct-bulk`, {
                                     method: 'POST',

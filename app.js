@@ -995,7 +995,7 @@ function downloadPayslip(month, base, comm, net) {
 <body>
   <div class="payslip-container">
     <div class="header">
-      <div class="brand">✦ Srijes<br><span>the beauty destination</span></div>
+      <div class="brand">✦ Vynster<br><span>the beauty destination</span></div>
       <div class="title">
         <h1>PAYSLIP RECEIPT</h1>
         <p>${month}</p>
@@ -1036,7 +1036,7 @@ function downloadPayslip(month, base, comm, net) {
       <div class="val">₹${net.toLocaleString('en-IN')}</div>
     </div>
     <div class="footer">
-      <p>This is a digitally generated document. For inquiries, contact Srijes accounts department.</p>
+      <p>This is a digitally generated document. For inquiries, contact Vynster accounts department.</p>
     </div>
   </div>
   <script>
@@ -1051,7 +1051,7 @@ function downloadPayslip(month, base, comm, net) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `Srijes_Payslip_${month.replace(' ', '_')}.html`;
+  a.download = `Vynster_Payslip_${month.replace(' ', '_')}.html`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1775,7 +1775,7 @@ function buildTimeline(s, typeFilter = '') {
   const timeline = document.getElementById("timeline");
   if (!timeline) return;
 
-  // Contextual Activation of Srijes Advanced Outdoor Operational Dispatch Hub
+  // Contextual Activation of Vynster Advanced Outdoor Operational Dispatch Hub
   const outdoorHub = document.getElementById("outdoorHubContainer");
   if (outdoorHub) {
     if (typeFilter === 'outdoor') {
@@ -1964,7 +1964,7 @@ function renderApt(a) {
   let waBtn = "";
   if (st === "upcoming" && a.phone) {
     const waMsg = encodeURIComponent(
-      `Hi ${a.client}, this is a friendly reminder from Srijes, the beauty destination for your ${a.service} appointment today at ${a.time}. We look forward to seeing you! ✨`,
+      `Hi ${a.client}, this is a friendly reminder from Vynster, the beauty destination for your ${a.service} appointment today at ${a.time}. We look forward to seeing you! ✨`,
     );
     let phoneNum = String(a.phone).replace(/\D/g, '');
     if (phoneNum.length === 10) phoneNum = '91' + phoneNum;
@@ -5865,7 +5865,7 @@ window.startTransitTravel = function(aptId, e) {
   localStorage.setItem(`travelStartMins_${aptId}`, currentMins);
   
   saveAptStates();
-  showToast("Transit route started. Customer notified via Srijes app!", "info", "🚗");
+  showToast("Transit route started. Customer notified via Vynster app!", "info", "🚗");
   
   refreshTimeline();
 };

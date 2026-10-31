@@ -1,12 +1,16 @@
-try { require('dotenv').config(); } catch(e) {}
+try { require('dotenv').config(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
 const dns = require('dns');
-try { dns.setServers(['8.8.8.8', '1.1.1.1']); } catch(e) {}
+try { dns.setServers(['8.8.8.8', '1.1.1.1']); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
 // Global error handler to prevent unexpected background errors from crashing the server
 process.on('unhandledRejection', (reason, promise) => {
     console.error('[CRITICAL] Unhandled Rejection:', reason);
 });
+process.on('uncaughtException', (err) => {
+    console.error('[CRITICAL] Uncaught Exception:', err.stack || err);
+});
 
 const express = require('express');
+const compression = require('compression');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const fs = require('fs');
@@ -20,6 +24,7 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
@@ -33,9 +38,9 @@ const isOriginAllowed = (origin) => {
 };
 
 // Security Hashing & JWT Core
-const JWT_SECRET = process.env.JWT_SECRET || '3ac08d0cccd1040aac739c4d30998672a1ef78ab22651c10d775a843b2e4be8a';
-if (JWT_SECRET.length < 32 || JWT_SECRET === 'medika-secret-key-12345') {
-    console.error('[FATAL] JWT_SECRET is too short or is a known-insecure default. Server will not start.');
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.NODE_ENV !== 'production' ? '3ac08d0cccd1040aac739c4d30998672a1ef78ab22651c10d775a843b2e4be8a' : '');
+if (!JWT_SECRET || JWT_SECRET.length < 32 || JWT_SECRET === 'medika-secret-key-12345') {
+    console.error('[FATAL] JWT_SECRET is missing, too short (<32 chars) or is an insecure default. Server will not start.');
     process.exit(1);
 }
 
@@ -264,6 +269,9 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {});
 });
 
+// 0. HTTP Gzip/Deflate Compression
+app.use(compression());
+
 // 1. Helmet Security Headers (Anti-Clickjacking, Anti-Sniff, XSS Filters)
 app.use(helmet({
     contentSecurityPolicy: false, // Maintain full compatibility with inline dashboard scripts
@@ -345,7 +353,19 @@ app.get(['/index', '/index.html', '/gateway', '/portal', '/hub'], (req, res) => 
 });
 
 // Serve static assets without auto-intercepting '/' as index.html
-app.use(express.static(__dirname, { index: false }));
+app.use(express.static(__dirname, {
+    index: false,
+    maxAge: '1d',
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html')) {
+            res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+        } else if (/\.(jpg|jpeg|png|webp|gif|svg|ico|css|js|woff2|woff|ttf)$/i.test(filePath)) {
+            res.setHeader('Cache-Control', 'public, max-age=86400, stale-while-revalidate=3600');
+        }
+    }
+}));
 
 // 3. Salon Management Dashboard
 app.get(['/admin', '/salon', '/owner', '/dashboard'], (req, res) => {
@@ -383,7 +403,11 @@ const uploadsDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
-app.use('/uploads', express.static(uploadsDir));
+app.use('/uploads', (req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; sandbox");
+    next();
+}, express.static(uploadsDir, { maxAge: '7d', etag: true }));
 
 // --- 24/7 RENDER KEEP-ALIVE HEARTBEAT ROUTE ---
 app.get(['/api/ping', '/ping'], (req, res) => {
@@ -392,13 +416,14 @@ app.get(['/api/ping', '/ping'], (req, res) => {
 
 // --- PUBLIC PLATFORM STATS (for landing page, no auth required) ---
 app.get('/api/stats/public', async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=30');
     try {
         let branches = [], clients = [], bookings = [], staff = [];
         if (isConnected) {
-            try { branches = await Branch.find({}).lean(); } catch(e) {}
-            try { clients = await Client.find({}).lean(); } catch(e) {}
-            try { bookings = await Booking.find({}).lean(); } catch(e) {}
-            try { staff = await Staff.find({}).lean(); } catch(e) {}
+            try { branches = await Branch.find({}).lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
+            try { clients = await Client.find({}).lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
+            try { bookings = await Booking.find({}).lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
+            try { staff = await Staff.find({}).lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         } else {
             branches = localDb.branches || [];
             clients = localDb.clients || [];
@@ -429,7 +454,7 @@ setInterval(() => {
     try {
         const client = RENDER_APP_URL.startsWith('https') ? require('https') : require('http');
         client.get(`${RENDER_APP_URL}/api/ping`, () => {}).on('error', () => {});
-    } catch (e) {}
+    } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
 }, 9 * 60 * 1000);
 
 // --- WHATSAPP SESSION STATE VARIABLES ---
@@ -484,7 +509,7 @@ app.post(['/api/whatsapp/request-pairing-code', '/whatsapp/request-pairing-code'
 
         if (!whatsappClient) {
             console.log('[WHATSAPP PAIRING CODE] Auto-starting WhatsApp client on server...');
-            try { initWhatsAppClient(); } catch(e) {}
+            try { initWhatsAppClient(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
             return res.status(200).json({
                 success: false,
                 initializing: true,
@@ -543,8 +568,8 @@ app.post(['/api/whatsapp/logout', '/whatsapp/logout', '/api/whatsapp/disconnect'
     console.log(`[WHATSAPP LOGOUT] Disconnect requested at ${new Date().toISOString()}...`);
     try {
         if (whatsappClient) {
-            try { await whatsappClient.logout(); } catch (e) { }
-            try { await whatsappClient.destroy(); } catch (e) { }
+            try { await whatsappClient.logout(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
+            try { await whatsappClient.destroy(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         }
     } catch (err) {
         console.error('[WHATSAPP LOGOUT ERROR]', err.message);
@@ -559,7 +584,7 @@ app.post(['/api/whatsapp/logout', '/whatsapp/logout', '/api/whatsapp/disconnect'
         try {
             fs.rmSync(authDir, { recursive: true, force: true });
             console.log('[WHATSAPP SESSION REMOVED] .wwebjs_auth directory cleared.');
-        } catch (err) { }
+        } catch (err) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', err.message || err); }
     }
 
     if (typeof io !== 'undefined' && io) {
@@ -710,7 +735,7 @@ app.get('/api/bookings/remove-safe/:id', async (req, res) => {
     }
 
     if (isConnected) {
-        try { await Booking.deleteOne({ $or: [{ id: id }, { _id: id }] }); } catch (e) { }
+        try { await Booking.deleteOne({ $or: [{ id: id }, { _id: id }] }); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     const idx = localDb.bookings.findIndex(b => b.id === id || b._id === id);
     if (idx !== -1) {
@@ -748,7 +773,7 @@ app.put('/api/bookings/:id', requireAuth, requireRole('super', 'owner', 'manager
             
             if (phone && whatsappReady && whatsappClient) {
                 // Parse date nicely if needed, but assuming booking.date is display-ready based on screenshot format
-                let msg = `*Srijes Booking*\n\nHello ${booking.clientName || 'there'},\n\nYour booking for *${booking.serviceName || 'your service'}* is confirmed!\n\n🗓️ Date: ${booking.date}\n⏰ Time: ${booking.time}\n🏷️ Booking ID: ${booking.id || id}\n\nThank you for choosing Srijes!`;
+                let msg = `*Vynster Booking*\n\nHello ${booking.clientName || 'there'},\n\nYour booking for *${booking.serviceName || 'your service'}* is confirmed!\n\n🗓️ Date: ${booking.date}\n⏰ Time: ${booking.time}\n🏷️ Booking ID: ${booking.id || id}\n\nThank you for choosing Vynster!`;
                 
                 // Add Welcome Ad / Promotional Offer Image
                 const billAd = localDb.settings?.billAd;
@@ -836,7 +861,35 @@ if (fs.existsSync(DB_FILE)) {
         }
     } catch (e) { console.error('Error reading db.json'); }
 }
-const saveLocal = () => fs.writeFileSync(DB_FILE, JSON.stringify(localDb, null, 2));
+let isSavingLocal = false;
+let queuedSaveLocal = false;
+const saveLocal = () => {
+    if (isSavingLocal) {
+        queuedSaveLocal = true;
+        return;
+    }
+    isSavingLocal = true;
+    const tempFile = DB_FILE + '.tmp';
+    fs.writeFile(tempFile, JSON.stringify(localDb, null, 2), 'utf8', (err) => {
+        if (!err) {
+            fs.rename(tempFile, DB_FILE, (renameErr) => {
+                isSavingLocal = false;
+                if (renameErr) console.error('[LOCAL DB] Atomic rename error:', renameErr.message);
+                if (queuedSaveLocal) {
+                    queuedSaveLocal = false;
+                    saveLocal();
+                }
+            });
+        } else {
+            isSavingLocal = false;
+            console.error('[LOCAL DB] File write error:', err.message);
+            if (queuedSaveLocal) {
+                queuedSaveLocal = false;
+                saveLocal();
+            }
+        }
+    });
+};
 
 mongoose.set('bufferCommands', false);
 
@@ -912,6 +965,19 @@ const chainSchema = new mongoose.Schema({
     status: { type: String, default: 'Active' }
 }, { bufferCommands: false });
 
+clientSchema.index({ branchId: 1, phone: 1 });
+clientSchema.index({ id: 1 });
+staffSchema.index({ branchId: 1, staffId: 1 });
+serviceSchema.index({ branchId: 1, cat: 1 });
+inventorySchema.index({ branchId: 1 });
+bookingSchema.index({ branchId: 1, date: 1, time: 1 });
+bookingSchema.index({ staffId: 1, date: 1 });
+expenseSchema.index({ branchId: 1, date: 1 });
+branchSchema.index({ id: 1 });
+branchSchema.index({ status: 1 });
+adminSchema.index({ email: 1 });
+
+
 const leaveRequestSchema = new mongoose.Schema({
     id: String,
     staffId: String,
@@ -973,7 +1039,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
                     break;
                 }
             }
-        } catch (e) {}
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     // Check localDb admins (supports multiple tiers like Tier 1 and Tier 2 on same email)
     if (!admin && localDb.admins) {
@@ -997,7 +1063,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
             admin.password = newHash;
             saveLocal();
             if (isConnected) {
-                try { await Admin.updateOne({ email: admin.email, tier: admin.tier }, { password: newHash }); } catch(e){}
+                try { await Admin.updateOne({ email: admin.email, tier: admin.tier }, { password: newHash }); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
             }
         }
     } else {
@@ -1013,7 +1079,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
                         { phone: cleanEmail }
                     ]
                 }).lean();
-            } catch (e) {}
+            } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         }
         if (!branch && localDb.branches) {
             branch = localDb.branches.find(b => {
@@ -1035,7 +1101,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
                 branch.password = newHash;
                 saveLocal();
                 if (isConnected) {
-                    try { await Branch.updateOne({ id: branch.id }, { password: newHash }); } catch(e){}
+                    try { await Branch.updateOne({ id: branch.id }, { password: newHash }); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
                 }
             }
 
@@ -1167,7 +1233,7 @@ app.post('/api/auth/forgot-password', otpLimiter, async (req, res) => {
 
     let admin = null;
     if (isConnected) {
-        try { admin = await Admin.findOne({ email: new RegExp('^' + cleanEmail + '$', 'i') }).lean(); } catch (e) { }
+        try { admin = await Admin.findOne({ email: new RegExp('^' + cleanEmail + '$', 'i') }).lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     } else {
         admin = (localDb.admins || []).find(a => a.email && a.email.toLowerCase() === cleanEmail);
     }
@@ -1175,7 +1241,7 @@ app.post('/api/auth/forgot-password', otpLimiter, async (req, res) => {
     if (!admin) {
         let branch = null;
         if (isConnected) {
-            try { branch = await Branch.findOne({ email: new RegExp('^' + cleanEmail + '$', 'i') }).lean(); } catch (e) { }
+            try { branch = await Branch.findOne({ email: new RegExp('^' + cleanEmail + '$', 'i') }).lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         } else {
             branch = (localDb.branches || []).find(b => b.email && b.email.toLowerCase() === cleanEmail);
         }
@@ -1264,7 +1330,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
         localDb.admins[idx].password = hashedPassword;
         saveLocal();
         if (isConnected) {
-            try { await Admin.updateOne({ email: cleanEmail }, { password: hashedPassword }); } catch (e) {}
+            try { await Admin.updateOne({ email: cleanEmail }, { password: hashedPassword }); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         }
         updated = true;
     } else {
@@ -1273,7 +1339,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
             localDb.branches[branchIdx].password = hashedPassword;
             saveLocal();
             if (isConnected) {
-                try { await Branch.updateOne({ email: cleanEmail }, { password: hashedPassword }); } catch (e) {}
+                try { await Branch.updateOne({ email: cleanEmail }, { password: hashedPassword }); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
             }
             updated = true;
         }
@@ -1314,7 +1380,7 @@ app.post('/api/admins', authMiddleware(1), async (req, res) => {
     saveLocal();
 
     if (isConnected) {
-        try { await Admin.updateOne({ email: newAdmin.email }, newAdmin, { upsert: true }); } catch(e){}
+        try { await Admin.updateOne({ email: newAdmin.email }, newAdmin, { upsert: true }); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
 
     // Send a one-time activation link instead of plaintext password
@@ -1337,7 +1403,7 @@ app.put('/api/admins/status', authMiddleware(1), (req, res) => {
 });
 
 // --- CLIENT DIRECTORY API ROUTES ---
-app.get('/api/clients', async (req, res) => {
+app.get('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'reception', 'staff'), async (req, res) => {
     try {
         let clientsList = [];
         if (isConnected) {
@@ -1402,7 +1468,7 @@ app.get('/api/clients', async (req, res) => {
     }
 });
 
-app.post('/api/clients', async (req, res) => {
+app.post('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'reception'), async (req, res) => {
     try {
         const clientData = req.body || {};
         if (!clientData.id) clientData.id = 'c_' + Date.now();
@@ -1417,7 +1483,7 @@ app.post('/api/clients', async (req, res) => {
         const rawBranch = req.query.branchId || req.query.branch || clientData.branchId || clientData.branch || clientData.branchName || (req.user && req.user.branchId) || 'b1';
         let allBranches = [];
         if (isConnected) {
-            try { allBranches = await Branch.find({}).lean(); } catch(e) {}
+            try { allBranches = await Branch.find({}).lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         }
         if (!allBranches || allBranches.length === 0) allBranches = localDb.branches || [];
 
@@ -1463,7 +1529,7 @@ app.post('/api/clients', async (req, res) => {
     }
 });
 
-app.post('/api/clients/bulk', async (req, res) => {
+app.post('/api/clients/bulk', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {
     try {
         const { branchId, branch, clients } = req.body || {};
         if (!Array.isArray(clients) || clients.length === 0) {
@@ -1544,7 +1610,7 @@ app.put('/api/clients/:id', requireAuth, requireRole('super', 'owner', 'manager'
         if (isConnected) {
             try {
                 await Client.updateOne({ $or: [{ id: searchId }, { _id: searchId }] }, updateData);
-            } catch (e) {}
+            } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         }
         return res.json({ success: true });
     } catch (err) {
@@ -1561,7 +1627,7 @@ app.delete('/api/clients/:id', requireAuth, requireRole('super', 'owner', 'manag
         if (isConnected) {
             try {
                 await Client.deleteOne({ $or: [{ id: searchId }, { _id: searchId }] });
-            } catch (e) {}
+            } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         }
         return res.json({ success: true });
     } catch (err) {
@@ -1575,7 +1641,7 @@ app.get('/api/staff/public', async (req, res) => {
     try {
         let staffList = [];
         if (isConnected) {
-            try { staffList = await Staff.find({}).lean(); } catch (e) {}
+            try { staffList = await Staff.find({}).lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         }
         if (!staffList || staffList.length === 0) staffList = localDb.staff || [];
         const { branch, branchId } = req.query;
@@ -1681,13 +1747,13 @@ app.post('/api/staff', requireAuth, requireRole('super', 'admin', 'owner', 'mana
 
 
 // --- INVENTORY CONTROL API ROUTES ---
-app.get('/api/inventory', async (req, res) => {
+app.get('/api/inventory', requireAuth, requireRole('super', 'admin', 'owner', 'manager', 'reception', 'staff'), async (req, res) => {
     try {
         let inventoryList = [];
         if (isConnected) {
             try {
                 inventoryList = await Inventory.find({}).lean();
-            } catch (e) {}
+            } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         }
         if (!inventoryList || inventoryList.length === 0) {
             inventoryList = localDb.inventory || [];
@@ -1772,7 +1838,7 @@ app.post('/api/staff/login', authLimiter, async (req, res) => {
                 if (!matchUser) return false;
                 return verifyPassword(inputPassStr, s.password);
             });
-        } catch (e) {}
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     if (!staff && localDb.staff) {
         staff = localDb.staff.find(s => {
@@ -1790,7 +1856,7 @@ app.post('/api/staff/login', authLimiter, async (req, res) => {
             staff.password = newHash;
             saveLocal();
             if (isConnected) {
-                try { await Staff.updateOne({ id: staff.id }, { password: newHash }); } catch(e){}
+                try { await Staff.updateOne({ id: staff.id }, { password: newHash }); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
             }
         }
 
@@ -1858,7 +1924,7 @@ app.put('/api/staff/:id', requireAuth, requireRole('super', 'admin', 'owner', 'm
     localDb.staff.push(newStaffObj);
     saveLocal();
     if (isConnected) {
-        try { await Staff.create(newStaffObj); } catch(e){}
+        try { await Staff.create(newStaffObj); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     return res.json(newStaffObj);
 });
@@ -1883,7 +1949,7 @@ app.delete('/api/staff/:id', requireAuth, requireRole('super', 'admin', 'owner',
                 }
                 return res.json({ success: true });
             }
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     const idx = (localDb.staff || []).findIndex(s =>
         String(s.id).trim() === searchId ||
@@ -1906,7 +1972,7 @@ app.get('/api/expenses', requireAuth, requireRole('super', 'owner', 'manager', '
     if (isConnected) {
         try {
             expenses = await Expense.find(branchId ? { branchId } : {}).lean();
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     if (!expenses || expenses.length === 0) {
         expenses = localDb.expenses || [];
@@ -1957,12 +2023,35 @@ app.post('/api/expenses', requireAuth, requireRole('super', 'owner', 'manager', 
     res.json(normalized);
 });
 
+app.put('/api/expenses/:id', requireAuth, requireRole('super', 'owner', 'manager', 'finance'), async (req, res) => {
+    const searchId = String(req.params.id).trim();
+    const updateData = req.body || {};
+    if (isConnected) {
+        try {
+            const updated = await Expense.findOneAndUpdate(
+                { $or: [{ id: searchId }, { _id: searchId }] },
+                updateData,
+                { new: true }
+            );
+            if (updated) return res.json(updated);
+        } catch (e) { console.error('MongoDB expense update error:', e.message); }
+    }
+    if (!localDb.expenses) localDb.expenses = [];
+    const idx = localDb.expenses.findIndex(e => String(e.id).trim() === searchId || String(e._id).trim() === searchId);
+    if (idx !== -1) {
+        localDb.expenses[idx] = { ...localDb.expenses[idx], ...updateData };
+        saveLocal();
+        return res.json(localDb.expenses[idx]);
+    }
+    res.status(404).json({ error: 'Expense not found' });
+});
+
 app.delete('/api/expenses/:id', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {
     const searchId = String(req.params.id).trim();
     if (isConnected) {
         try {
             await Expense.deleteOne({ $or: [{ id: searchId }, { _id: searchId }] });
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     if (localDb.expenses) {
         const idx = localDb.expenses.findIndex(e => String(e.id).trim() === searchId || String(e._id).trim() === searchId);
@@ -1976,6 +2065,7 @@ app.delete('/api/expenses/:id', requireAuth, requireRole('super', 'owner', 'mana
 
 // Services
 app.get('/api/services', async (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=180, stale-while-revalidate=60');
     const { branchId, branch } = req.query;
     const targetBranch = branchId || branch;
     try {
@@ -1996,7 +2086,7 @@ app.get('/api/services', async (req, res) => {
                 } else {
                     servicesList = await Service.find({}).lean();
                 }
-            } catch (e) { }
+            } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
         }
         if (!servicesList || servicesList.length === 0) {
             servicesList = localDb.services || [];
@@ -2107,7 +2197,7 @@ app.put('/api/services/:id', requireAuth, requireRole('super', 'owner', 'manager
                 { new: true }
             );
             if (updated) return res.json(updated);
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     const idx = localDb.services.findIndex(s => s.id === req.params.id || s.name === req.params.id);
     if (idx !== -1) {
@@ -2124,7 +2214,7 @@ app.delete('/api/services/:id', requireAuth, requireRole('super', 'owner', 'mana
         try {
             const deleted = await Service.findOneAndDelete({ $or: [{ id: idOrName }, { name: idOrName }] });
             if (deleted) return res.json({ message: 'Deleted' });
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     const idx = localDb.services.findIndex(s => s.id === idOrName || s.name === idOrName);
     if (idx !== -1) {
@@ -2138,13 +2228,13 @@ app.delete('/api/services/:id', requireAuth, requireRole('super', 'owner', 'mana
 // Inventory
 app.get('/api/inventory', async (req, res) => {
     const { branchId } = req.query;
-    if (isConnected) { try { return res.json(await Inventory.find(branchId ? { branchId } : {})); } catch (e) { } }
+    if (isConnected) { try { return res.json(await Inventory.find(branchId ? { branchId } : {})); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     let data = localDb.inventory;
     if (branchId) data = data.filter(i => i.branchId === branchId || !i.branchId);
     res.json(data);
 });
 app.post('/api/inventory', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {
-    if (isConnected) { try { return res.json(await new Inventory(req.body).save()); } catch (e) { } }
+    if (isConnected) { try { return res.json(await new Inventory(req.body).save()); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     localDb.inventory.push(req.body); saveLocal(); res.json(req.body);
 });
 app.put('/api/inventory/:id', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {
@@ -2156,7 +2246,7 @@ app.put('/api/inventory/:id', requireAuth, requireRole('super', 'owner', 'manage
                 { new: true }
             );
             if (updated) return res.json(updated);
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     const idx = localDb.inventory.findIndex(i => i.id === req.params.id || i.name === req.params.id);
     if (idx !== -1) {
@@ -2172,7 +2262,7 @@ app.delete('/api/inventory/:id', requireAuth, requireRole('super', 'owner', 'man
         try {
             await Inventory.deleteOne({ $or: [{ id: req.params.id }, { name: req.params.id }] });
             return res.json({ success: true });
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     const idx = localDb.inventory.findIndex(i => i.id === req.params.id || i.name === req.params.id);
     if (idx !== -1) {
@@ -2183,69 +2273,28 @@ app.delete('/api/inventory/:id', requireAuth, requireRole('super', 'owner', 'man
     res.status(404).json({ error: 'Item not found' });
 });
 
-// Expenses
-app.get('/api/expenses', async (req, res) => {
-    const { branchId } = req.query;
-    if (isConnected) { try { return res.json(await Expense.find(branchId ? { branchId } : {})); } catch (e) { } }
-    let data = localDb.expenses || [];
-    if (branchId) data = data.filter(e => e.branchId === branchId || !e.branchId);
-    res.json(data);
-});
-app.post('/api/expenses', async (req, res) => {
-    if (isConnected) { try { return res.json(await new Expense(req.body).save()); } catch (e) { } }
-    if (!localDb.expenses) localDb.expenses = [];
-    localDb.expenses.push(req.body); saveLocal(); res.json(req.body);
-});
-app.put('/api/expenses/:id', async (req, res) => {
-    if (isConnected) {
-        try {
-            const updated = await Expense.findOneAndUpdate(
-                { id: req.params.id },
-                req.body,
-                { new: true }
-            );
-            if (updated) return res.json(updated);
-        } catch (e) { }
-    }
-    if (!localDb.expenses) localDb.expenses = [];
-    const idx = localDb.expenses.findIndex(e => e.id === req.params.id);
-    if (idx !== -1) {
-        localDb.expenses[idx] = { ...localDb.expenses[idx], ...req.body };
-        saveLocal();
-        return res.json(localDb.expenses[idx]);
-    }
-    res.status(404).json({ error: 'Not found' });
-});
-app.delete('/api/expenses/:id', async (req, res) => {
-    if (isConnected) {
-        try {
-            await Expense.deleteOne({ id: req.params.id });
-            return res.json({ success: true });
-        } catch (e) { }
-    }
-    if (!localDb.expenses) localDb.expenses = [];
-    const idx = localDb.expenses.findIndex(e => e.id === req.params.id);
-    if (idx !== -1) {
-        localDb.expenses.splice(idx, 1);
-        saveLocal();
-        return res.json({ success: true });
-    }
-    res.status(404).json({ error: 'Item not found' });
-});
+// Duplicate /api/expenses routes consolidated with authenticated endpoints above
 
 // Bookings
 app.get('/api/bookings', requireAuth, requireRole('super', 'owner', 'manager', 'reception', 'staff'), async (req, res) => {
     const targetBranch = getScopedBranchId(req);
-    if (isConnected) { try { return res.json(await Booking.find(targetBranch ? { branchId: targetBranch } : {})); } catch (e) { } }
+    if (isConnected) { try { return res.json(await Booking.find(targetBranch ? { branchId: targetBranch } : {})); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     let data = localDb.bookings || [];
     if (targetBranch) data = data.filter(b => b.branchId === targetBranch || !b.branchId);
     res.json(data);
 });
 // Public booking creation is intentionally open (client-facing booking form).
 // If this endpoint should be staff-only, add requireAuth + requireRole here.
-app.post('/api/bookings', async (req, res) => {
-    // Validate booking creation input
-    const { clientName, clientPhone, branchId, date, time } = req.body || {};
+app.post('/api/bookings', bookingLimiter, async (req, res) => {
+    const { clientName, clientPhone, branchId, date, time, staffId } = req.body || {};
+    if (staffId && staffId !== 'any' && date && time) {
+        const isSlotTaken = isConnected 
+            ? await Booking.findOne({ staffId: staffId, date: date, time: time, status: { $ne: 'Cancelled' } }).lean()
+            : (localDb.bookings || []).find(b => b.staffId === staffId && b.date === date && b.time === time && b.status !== 'Cancelled');
+        if (isSlotTaken) {
+            return res.status(409).json({ error: 'Selected time slot is already booked for this specialist. Please select another time or staff member.' });
+        }
+    }
     if (!clientName || !clientPhone) {
         return res.status(400).json({ error: 'Client name and phone number are required.' });
     }
@@ -2413,7 +2462,7 @@ app.delete('/api/bookings/:id', requireAuth, requireRole('super', 'owner', 'mana
         try {
             const result = await Booking.deleteOne({ $or: [{ id: id }, { _id: id }] });
             if (result.deletedCount > 0) return res.json({ success: true });
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     const idx = localDb.bookings.findIndex(b => b.id === id || b._id === id);
     if (idx !== -1) {
@@ -2431,7 +2480,7 @@ app.post('/api/bookings/delete/:id', requireAuth, requireRole('super', 'owner', 
         try {
             const result = await Booking.deleteOne({ $or: [{ id: id }, { _id: id }] });
             if (result.deletedCount > 0) return res.json({ success: true });
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     const idx = localDb.bookings.findIndex(b => b.id === id || b._id === id);
     if (idx !== -1) {
@@ -2447,18 +2496,18 @@ app.post('/api/bookings/delete/:id', requireAuth, requireRole('super', 'owner', 
 // Events
 app.get('/api/events', requireAuth, requireRole('super', 'owner', 'manager', 'reception', 'staff'), async (req, res) => {
     const branchId = getScopedBranchId(req);
-    if (isConnected) { try { return res.json(await Event.find(branchId ? { branchId } : {})); } catch (e) { } }
+    if (isConnected) { try { return res.json(await Event.find(branchId ? { branchId } : {})); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     let data = localDb.events || [];
     if (branchId) data = data.filter(e => e.branchId === branchId || !e.branchId);
     res.json(data);
 });
 app.post('/api/events', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {
-    if (isConnected) { try { return res.json(await new Event(req.body).save()); } catch (e) { } }
+    if (isConnected) { try { return res.json(await new Event(req.body).save()); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     if (!localDb.events) localDb.events = [];
     localDb.events.push(req.body); saveLocal(); res.json(req.body);
 });
 app.put('/api/events/:id', requireAuth, requireRole('super', 'owner', 'manager'), async (req, res) => {
-    if (isConnected) { try { return res.json(await Event.findOneAndUpdate({ id: req.params.id }, req.body, { new: true })); } catch (e) { } }
+    if (isConnected) { try { return res.json(await Event.findOneAndUpdate({ id: req.params.id }, req.body, { new: true })); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     const idx = (localDb.events || []).findIndex(e => e.id === req.params.id);
     if (idx !== -1) { localDb.events[idx] = { ...localDb.events[idx], ...req.body }; saveLocal(); return res.json(localDb.events[idx]); }
     res.status(404).json({ error: 'Not found' });
@@ -2540,7 +2589,7 @@ const enrichBranches = (branchesList) => {
 // Branches
 app.get('/api/branches', async (req, res) => {
     let branches = [];
-    if (isConnected) { try { branches = await Branch.find().lean(); } catch (e) { } }
+    if (isConnected) { try { branches = await Branch.find().lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     else { branches = JSON.parse(JSON.stringify(localDb.branches || [])); }
     res.json(enrichBranches(branches));
 });
@@ -2548,7 +2597,7 @@ app.get('/api/branches', async (req, res) => {
 app.get('/api/salons/search', async (req, res) => {
     const { query } = req.query;
     let branches = [];
-    if (isConnected) { try { branches = await Branch.find().lean(); } catch (e) { } }
+    if (isConnected) { try { branches = await Branch.find().lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     else { branches = JSON.parse(JSON.stringify(localDb.branches || [])); }
 
     let enriched = enrichBranches(branches);
@@ -2598,13 +2647,13 @@ app.put('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res) =>
     if (updateData.password && !updateData.password.startsWith('scrypt:')) {
         updateData.password = hashPassword(updateData.password);
     }
-    if (isConnected) { try { return res.json(await Branch.findOneAndUpdate({ $or: [{ id: req.params.id }, { _id: req.params.id }] }, updateData, { new: true })); } catch (e) { } }
+    if (isConnected) { try { return res.json(await Branch.findOneAndUpdate({ $or: [{ id: req.params.id }, { _id: req.params.id }] }, updateData, { new: true })); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     const idx = localDb.branches ? localDb.branches.findIndex(b => String(b.id) === String(req.params.id)) : -1;
     if (idx !== -1) { localDb.branches[idx] = { ...localDb.branches[idx], ...updateData }; saveLocal(); return res.json(localDb.branches[idx]); }
     res.status(404).json({ error: 'Not found' });
 });
 
-app.put(['/api/branches/:id/status', '/branches/:id/status'], async (req, res) => {
+app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authMiddleware(1), async (req, res) => {
     const { id } = req.params;
     const { status } = req.body || {}; // 'Active', 'Suspended'
     const newStatus = status || 'Suspended';
@@ -2612,7 +2661,7 @@ app.put(['/api/branches/:id/status', '/branches/:id/status'], async (req, res) =
     if (isConnected) {
         try {
             await Branch.updateOne({ $or: [{ id }, { _id: id }, { name: id }] }, { status: newStatus });
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
 
     if (!localDb.branches) localDb.branches = [];
@@ -2651,7 +2700,7 @@ app.put('/api/branches/:id/verify', authMiddleware(3), async (req, res) => {
     if (isConnected) {
         try {
             await Branch.updateOne({ id }, updateData);
-        } catch (e) { }
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
 
     const idx = localDb.branches.findIndex(b => b.id === id);
@@ -2680,7 +2729,7 @@ app.delete('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res)
         try { 
             await Branch.deleteOne({ $or: [{ id: branchId }, { _id: branchId }] }); 
             return res.json({ success: true }); 
-        } catch (e) { } 
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } 
     }
     const idx = localDb.branches ? localDb.branches.findIndex(b => String(b.id) === String(branchId)) : -1;
     if (idx !== -1) { 
@@ -2779,7 +2828,7 @@ app.post('/api/admin/reset-portal-data', requireAuth, authMiddleware(1), async (
 app.get('/api/chains', async (req, res) => {
     let chains = [];
     if (isConnected) {
-        try { chains = await Chain.find().lean(); } catch (e) { }
+        try { chains = await Chain.find().lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     } else {
         chains = JSON.parse(JSON.stringify(localDb.chains || []));
     }
@@ -2790,7 +2839,7 @@ app.post('/api/chains', requireAuth, authMiddleware(1), async (req, res) => {
     const data = req.body;
     data.status = data.status || 'Active';
     if (isConnected) {
-        try { return res.json(await new Chain(data).save()); } catch (e) { }
+        try { return res.json(await new Chain(data).save()); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     if (!localDb.chains) localDb.chains = [];
     localDb.chains.push(data);
@@ -2815,7 +2864,7 @@ app.post('/api/chains', requireAuth, authMiddleware(1), async (req, res) => {
             };
             localDb.admins.push(newAdmin);
             if (isConnected) {
-                try { await Admin.updateOne({ email: newAdmin.email }, newAdmin, { upsert: true }); } catch(e){}
+                try { await Admin.updateOne({ email: newAdmin.email }, newAdmin, { upsert: true }); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
             }
             saveLocal();
             // Send activation email — no plaintext password in body
@@ -2830,7 +2879,7 @@ app.put('/api/chains/:id', requireAuth, authMiddleware(1), async (req, res) => {
     const { id } = req.params;
     const data = req.body;
     if (isConnected) {
-        try { return res.json(await Chain.findOneAndUpdate({ id }, data, { new: true })); } catch (e) { }
+        try { return res.json(await Chain.findOneAndUpdate({ id }, data, { new: true })); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     if (!localDb.chains) localDb.chains = [];
     const idx = localDb.chains.findIndex(c => c.id === id);
@@ -2845,7 +2894,7 @@ app.put('/api/chains/:id', requireAuth, authMiddleware(1), async (req, res) => {
 app.delete('/api/chains/:id', requireAuth, authMiddleware(1), async (req, res) => {
     const { id } = req.params;
     if (isConnected) {
-        try { await Chain.deleteOne({ id }); } catch (e) { }
+        try { await Chain.deleteOne({ id }); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     if (!localDb.chains) localDb.chains = [];
     const idx = localDb.chains.findIndex(c => c.id === id);
@@ -3176,7 +3225,7 @@ const handleUpdateLeaveStatus = async (req, res) => {
                 updated = await LeaveRequest.findOneAndUpdate({ $or: [{ id: id }, { _id: id }] }, { status }, { new: true });
             }
             if (updated) return res.json({ success: true, leave: updated });
-        } catch(e) {}
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     
     if (!localDb.leaveRequests) localDb.leaveRequests = [];
@@ -3209,7 +3258,7 @@ app.get('/api/my-leaves', requireAuth, requireRole('super', 'owner', 'manager', 
             if (staffId && req.user.role !== 'super') query.$or = [{ staffId: staffId }];
             if (scopedBranch && req.user.role !== 'super') query.branchId = scopedBranch;
             list = await LeaveRequest.find(query).lean();
-        } catch(e) {}
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     if (!list || list.length === 0) {
         let leaves = localDb.leaveRequests || [];
@@ -3245,7 +3294,7 @@ app.get('/api/my-appointments', requireAuth, requireRole('super', 'owner', 'mana
             if (scopedBranch) query.branchId = scopedBranch;
             const bookings = await Booking.find(query);
             return res.json(bookings);
-        } catch(e) {}
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     let bookings = (localDb.bookings || []);
     if (queryStaffId) {
@@ -3268,7 +3317,7 @@ app.get('/api/notifications', requireAuth, requireRole('super', 'owner', 'manage
     if (isConnected) {
         try {
             return res.json(await Notification.find({ staffId }).sort({ timestamp: -1 }));
-        } catch(e) {}
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     const notifications = (localDb.notifications || [])
         .filter(n => String(n.staffId) === String(staffId))
@@ -3282,7 +3331,7 @@ app.put('/api/notifications/:id/read', requireAuth, requireRole('super', 'owner'
         try {
             await Notification.findByIdAndUpdate(id, { read: true });
             return res.json({ success: true });
-        } catch(e) {}
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
     if (!localDb.notifications) localDb.notifications = [];
     const idx = localDb.notifications.findIndex(n => String(n._id || n.id) === String(id));
@@ -4052,7 +4101,7 @@ cron.schedule('0 9 * * *', async () => {
                 }
                 
                 if (shouldSend) {
-                    const msg = `Happy Birthday from Srijes Salon! 🎉 We want to celebrate YOU! Book any service with us and claim your special treat.`;
+                    const msg = `Happy Birthday from Vynster Salon! 🎉 We want to celebrate YOU! Book any service with us and claim your special treat.`;
                     let cleanPhone = String(c.phone).replace(/\D/g, '');
                     if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
                     if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
@@ -4084,7 +4133,7 @@ cron.schedule('0 9 * * *', async () => {
                 }
                 
                 if (shouldSend) {
-                    const msg = `Happy Anniversary from Srijes Salon! 💖 Celebrate your special milestone with us!`;
+                    const msg = `Happy Anniversary from Vynster Salon! 💖 Celebrate your special milestone with us!`;
                     let cleanPhone = String(c.phone).replace(/\D/g, '');
                     if (cleanPhone.startsWith('0')) cleanPhone = cleanPhone.substring(1);
                     if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
@@ -4156,7 +4205,7 @@ async function sendBookingWhatsAppNotificationServer(booking) {
         const bTime = booking.time || '10:00 AM';
         const bId = booking.id || booking._id || `b-${Date.now()}`;
 
-        const msg = `*Srijes Booking Confirmation*\n--------------------------\n*Hello ${clientName}*,\n\n${bookingLine}\n\n📅 *Date:* ${bDate}\n⏰ *Time:* ${bTime}\n🔖 *Booking ID:* ${bId}\n\n_Thank you for choosing Srijes!_${promoText}`;
+        const msg = `*Vynster Booking Confirmation*\n--------------------------\n*Hello ${clientName}*,\n\n${bookingLine}\n\n📅 *Date:* ${bDate}\n⏰ *Time:* ${bTime}\n🔖 *Booking ID:* ${bId}\n\n_Thank you for choosing Vynster!_${promoText}`;
 
         const campaignId = `auto-booking-${Date.now()}`;
         const recipients = [{ name: clientName, phone: phone }];
@@ -4166,6 +4215,15 @@ async function sendBookingWhatsAppNotificationServer(booking) {
         console.error('[SERVER AUTO WA BOOKING CONFIRM ERROR]', e);
     }
 }
+
+// Central Express Error Handler
+app.use((err, req, res, next) => {
+    console.error(`[EXPRESS ERROR] ${req.method} ${req.url}:`, err.stack || err.message || err);
+    if (res.headersSent) return next(err);
+    res.status(err.status || 500).json({
+        error: process.env.NODE_ENV === 'production' ? 'An internal server error occurred.' : (err.message || 'Internal Server Error')
+    });
+});
 
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

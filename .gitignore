@@ -3,6 +3,11 @@ node_modules
 .wwebjs_auth/
 .wwebjs_cache/
 *.zip
+*.tar.gz
+*.exe
+*.log
+*.bak
+*.tmp
 temp.js
 temp_unzip/
 MyProject_OLD_BACKUP/

@@ -341,6 +341,9 @@
 
                     localStorage.setItem('adminToken', data.token);
                     localStorage.setItem('adminUser', JSON.stringify(data.user));
+                    if (data.user.branchId) {
+                        localStorage.setItem('selectedBranch', data.user.branchId);
+                    }
 
                     btnLogin.innerHTML = '<i class="fa-solid fa-check" style="margin-right: 8px;"></i> Access Granted';
                     btnLogin.style.background = 'var(--success-color)';

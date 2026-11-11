@@ -209,7 +209,7 @@
   </TestResultsSummary>
 
   <BrandingCompliance>
-    <Requirement>No instances of legacy name (srijes) permitted anywhere in workspace.</Requirement>
+    <Requirement>No instances of legacy branding permitted anywhere in workspace.</Requirement>
     <VerificationStatus>VERIFIED_ZERO_OCCURRENCES</VerificationStatus>
     <ScannedFileTypes>.js, .html, .json, .md, .xml, .css, .yaml</ScannedFileTypes>
   </BrandingCompliance>

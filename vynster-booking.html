@@ -1181,7 +1181,7 @@
 
 
   <script>
-    const API_URL = (window.location.protocol === 'file:' || window.location.port === '5500' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('loca.lt')) ? 'http://127.0.0.1:5000/api' : '/api';
+    const API_URL = localStorage.getItem('CUSTOM_API_URL') || ((window.location.protocol === 'file:' || window.location.port === '5500' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('loca.lt')) ? 'http://127.0.0.1:5000/api' : '/api');
     let CLIENTS = [];
     let BOOKINGS = [];
     let SERVICES = [];
@@ -1230,17 +1230,51 @@
 
 
 
+        window.DEFAULT_SERVICES = [
+      { id: 'svc1', name: 'Royal Hair Cut & Style', cat: 'Hair', duration: 45, price: 500, prices: [500], gender: 'both', icon: 'fa-cut' },
+      { id: 'svc2', name: 'Signature Glow Facial', cat: 'Skincare', duration: 60, price: 1200, prices: [1200], gender: 'both', icon: 'fa-spa' },
+      { id: 'svc3', name: 'Keratin Hair Spa & Treatment', cat: 'Hair', duration: 90, price: 2500, prices: [2500], gender: 'female', icon: 'fa-pump-soap' },
+      { id: 'svc4', name: 'Deluxe Pedicure & Foot Spa', cat: 'Nails', duration: 45, price: 800, prices: [800], gender: 'both', icon: 'fa-hand-sparkles' },
+      { id: 'svc5', name: 'Beard Sculpting & Royal Shave', cat: 'Grooming', duration: 30, price: 350, prices: [350], gender: 'male', icon: 'fa-scissors' },
+      { id: 'svc6', name: 'Global Hair Coloring & Highlights', cat: 'Hair', duration: 120, price: 3500, prices: [3500], gender: 'both', icon: 'fa-paint-brush' },
+      { id: 'svc7', name: 'Bridal & Occasion Makeup', cat: 'Makeup', duration: 90, price: 5000, prices: [5000], gender: 'female', icon: 'fa-wand-magic-sparkles' }
+    ];
+
+    window.DEFAULT_STAFF = [
+      { id: 'st1', staffId: 'st1', name: 'Rohan Sharma', spec: 'Senior Hair Director', rating: 4.9, av: 'av-1', status: 'Available', gender: 'both', services: ['all'] },
+      { id: 'st2', staffId: 'st2', name: 'Priya Patel', spec: 'Nail & Spa Artist', rating: 4.8, av: 'av-2', status: 'Available', gender: 'both', services: ['all'] },
+      { id: 'st3', staffId: 'st3', name: 'Anita Rao', spec: 'Skin & Facial Specialist', rating: 5.0, av: 'av-3', status: 'Available', gender: 'female', services: ['all'] },
+      { id: 'st4', staffId: 'st4', name: 'Vikram Mehta', spec: 'Master Barber & Stylist', rating: 4.7, av: 'av-4', status: 'Available', gender: 'male', services: ['all'] }
+    ];
+
     async function loadFromDB() {
       try {
         const ts = Date.now();
+        const urlParams = new URLSearchParams(window.location.search);
+        const bTarget = urlParams.get('branch') || urlParams.get('branchId') || localStorage.getItem('selectedBranch') || '';
+        const bQuery = bTarget ? `&branch=${encodeURIComponent(bTarget)}&branchId=${encodeURIComponent(bTarget)}` : '';
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
+        const fetchOpts = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {};
+
         const [cRes, bRes, sRes, svRes] = await Promise.all([
-          fetch(`${API_URL}/clients?_t=${ts}`),
-          fetch(`${API_URL}/bookings?_t=${ts}`),
-          fetch(`${API_URL}/staff?_t=${ts}`),
-          fetch(`${API_URL}/services?_t=${ts}`)
+          fetch(`${API_URL}/clients?_t=${ts}${bQuery}`, fetchOpts).catch(() => ({ ok: false })),
+          fetch(`${API_URL}/bookings?_t=${ts}${bQuery}`, fetchOpts).catch(() => ({ ok: false })),
+          fetch(`${API_URL}/staff/public?_t=${ts}${bQuery}`).catch(() => fetch(`${API_URL}/staff?_t=${ts}${bQuery}`, fetchOpts).catch(() => ({ ok: false }))),
+          fetch(`${API_URL}/services?_t=${ts}${bQuery}`).catch(() => ({ ok: false }))
         ]);
-        CLIENTS = await cRes.json();
-        let rawBookings = await bRes.json();
+
+        if (cRes.ok) {
+          const cData = await cRes.json().catch(() => []);
+          CLIENTS = Array.isArray(cData) ? cData : [];
+        } else {
+          CLIENTS = [];
+        }
+
+        let rawBookings = [];
+        if (bRes.ok) {
+          const bData = await bRes.json().catch(() => []);
+          rawBookings = Array.isArray(bData) ? bData : [];
+        }
         const now = new Date();
         BOOKINGS = rawBookings.map(b => {
           const stat = (b.status || '').toLowerCase();
@@ -1255,14 +1289,30 @@
           }
           return b;
         });
-        STAFF = await sRes.json();
-        SERVICES = await svRes.json();
 
-        FEMALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'female' || s.gender === 'unisex').map(s => s.id);
-        MALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'male' || s.gender === 'unisex').map(s => s.id);
+        if (sRes.ok) {
+          const stData = await sRes.json().catch(() => []);
+          STAFF = (Array.isArray(stData) && stData.length > 0) ? stData : window.DEFAULT_STAFF;
+        } else {
+          STAFF = window.DEFAULT_STAFF;
+        }
+
+        if (svRes.ok) {
+          const svData = await svRes.json().catch(() => []);
+          SERVICES = (Array.isArray(svData) && svData.length > 0) ? svData : window.DEFAULT_SERVICES;
+        } else {
+          SERVICES = window.DEFAULT_SERVICES;
+        }
+
+        FEMALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'female' || s.gender === 'both' || s.gender === 'unisex').map(s => s.id);
+        MALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'male' || s.gender === 'both' || s.gender === 'unisex').map(s => s.id);
         updateConnectionStatus(true);
       } catch (err) {
         console.error('API Error:', err);
+        SERVICES = window.DEFAULT_SERVICES;
+        STAFF = window.DEFAULT_STAFF;
+        FEMALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'female' || s.gender === 'both' || s.gender === 'unisex').map(s => s.id);
+        MALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'male' || s.gender === 'both' || s.gender === 'unisex').map(s => s.id);
         updateConnectionStatus(false);
       }
 

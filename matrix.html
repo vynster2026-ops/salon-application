@@ -1565,6 +1565,24 @@
                                 <span id="clients-preview-count" style="background: rgba(0,0,0,0.25); padding: 2px 8px; border-radius: 12px; font-weight: 600;">0 clients detected</span>
                             </div>
                         </div>
+                        <div style="grid-column: span 2; margin-top: 0.75rem;">
+                            <label
+                                style="display: block; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                                <i class="fa-solid fa-file-excel" style="color: #00e5ff; margin-right: 6px;"></i>
+                                Services List (<strong style="color: var(--accent-primary);">Excel .xlsx, .xls, or .csv</strong>: Name, Category, Price, Duration, Gender) - Optional
+                            </label>
+                            <input type="file" id="marketing-doc-services" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv"
+                                onchange="previewServicesDocFile(event)"
+                                style="width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px dashed var(--accent-primary); background: rgba(0,0,0,0.2); color: var(--text-main);">
+                            <div id="services-preview-badge"
+                                style="display: none; margin-top: 0.5rem; padding: 0.5rem 0.8rem; background: rgba(0, 229, 255, 0.15); border: 1px solid rgba(0, 229, 255, 0.4); border-radius: 6px; color: var(--accent-primary); font-size: 0.82rem; align-items: center; justify-content: space-between;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-file-circle-check"></i>
+                                    <span id="services-preview-name">File selected</span>
+                                </div>
+                                <span id="services-preview-count" style="background: rgba(0,0,0,0.25); padding: 2px 8px; border-radius: 12px; font-weight: 600;">0 services detected</span>
+                            </div>
+                        </div>
 
                         <!-- Salon Services Configuration Section -->
                         <div style="grid-column: span 2; margin-top: 1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1.5rem;">
@@ -2516,7 +2534,7 @@
 
         // --- Application Logic --- //
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
-        const API_URL = isLocal ? 'http://localhost:5000' : '';
+        const API_URL = localStorage.getItem('CUSTOM_API_URL') || (isLocal ? 'http://localhost:5000' : '');
 
         let token = localStorage.getItem('adminToken');
         if (!token || token === 'superadmin_active_session_token' || token === 'mock_admin_token' || token === 'adminToken') {
@@ -3774,6 +3792,117 @@
             });
         }
 
+                function parseServicesFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        let rows = [];
+                        if (typeof XLSX !== 'undefined') {
+                            try {
+                                const workbook = XLSX.read(data, { type: 'array' });
+                                if (workbook.SheetNames && workbook.SheetNames.length > 0) {
+                                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                                    rows = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+                                }
+                            } catch (xlsxErr) {
+                                console.warn('[SHEETJS WARN] Fallback to raw text parser:', xlsxErr);
+                            }
+                        }
+                        if (!rows || rows.length === 0) {
+                            const text = new TextDecoder('utf-8').decode(data);
+                            const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+                            if (lines.length > 1) {
+                                const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, ''));
+                                for (let i = 1; i < lines.length; i++) {
+                                    const cols = lines[i].split(',').map(c => c.trim().replace(/^["']|["']$/g, ''));
+                                    const obj = {};
+                                    headers.forEach((h, idx) => { obj[h] = cols[idx] || ''; });
+                                    rows.push(obj);
+                                }
+                            }
+                        }
+                        if (!rows || rows.length === 0) return resolve([]);
+
+                        const findVal = (row, patterns) => {
+                            for (const k of Object.keys(row)) {
+                                const cleanKey = k.trim().toLowerCase();
+                                if (patterns.some(p => cleanKey === p || cleanKey.includes(p))) {
+                                    return String(row[k]).trim();
+                                }
+                            }
+                            return '';
+                        };
+
+                        const services = rows.map((row, idx) => {
+                            const name = findVal(row, ['service name', 'service', 'name', 'title', 'item']) || ('Service ' + (idx + 1));
+                            const cat = findVal(row, ['category', 'cat', 'department', 'type']) || 'General';
+                            const rawPrice = findVal(row, ['price', 'rate', 'cost', 'fee', 'amount', 'charges']).replace(/[^0-9.]/g, '');
+                            const rawDur = findVal(row, ['duration', 'time', 'mins', 'min', 'minutes']).replace(/[^0-9]/g, '');
+                            const gender = findVal(row, ['gender', 'sex', 'for']) || 'both';
+
+                            return {
+                                id: 'svc_' + Date.now() + '_' + idx,
+                                name: name,
+                                cat: cat,
+                                price: Number(rawPrice) || 500,
+                                duration: Number(rawDur) || 30,
+                                gender: ['male', 'female', 'both', 'unisex'].includes(gender.toLowerCase()) ? gender.toLowerCase() : 'both',
+                                icon: 'fa-cut'
+                            };
+                        }).filter(s => s.name && s.name !== 'Service');
+
+                        resolve(services);
+                    } catch (err) {
+                        reject(err);
+                    }
+                };
+                reader.onerror = (err) => reject(err);
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function previewServicesDocFile(event) {
+            const file = event.target.files[0];
+            const badge = document.getElementById('services-preview-badge');
+            const nameEl = document.getElementById('services-preview-name');
+            const countEl = document.getElementById('services-preview-count');
+            if (!file) {
+                if (badge) badge.style.display = 'none';
+                return;
+            }
+            if (badge) {
+                badge.style.display = 'flex';
+                if (nameEl) nameEl.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                if (countEl) {
+                    countEl.textContent = 'Analyzing services spreadsheet...';
+                    countEl.style.color = '#f59e0b';
+                }
+            }
+            try {
+                const parsed = await parseServicesFile(file);
+                if (countEl) {
+                    countEl.textContent = `${parsed.length} service(s) detected & ready`;
+                    countEl.style.color = '#00e5ff';
+                }
+                if (parsed && parsed.length > 0) {
+                    parsed.forEach(s => {
+                        if (!window.onboardingServices.some(existing => existing.name.toLowerCase() === s.name.toLowerCase())) {
+                            window.onboardingServices.push(s);
+                        }
+                    });
+                    renderOnboardingServicesList();
+                    showToast(`Loaded ${parsed.length} services from spreadsheet!`, 'success');
+                }
+            } catch (err) {
+                if (countEl) {
+                    countEl.textContent = 'File attached (ready for processing)';
+                    countEl.style.color = '#00e5ff';
+                }
+            }
+        }
+
         async function previewClientsDocFile(event) {
             const file = event.target.files[0];
             const badge = document.getElementById('clients-preview-badge');
@@ -4019,6 +4148,23 @@
             const pan = document.getElementById('marketing-doc-pan').files[0];
             const license = document.getElementById('marketing-doc-license').files[0];
             const clientsFile = document.getElementById('marketing-doc-clients').files[0];
+            const servicesFileInput = document.getElementById('marketing-doc-services');
+            const servicesFile = servicesFileInput ? servicesFileInput.files[0] : null;
+            if (servicesFile) {
+                try {
+                    const parsedSvc = await parseServicesFile(servicesFile);
+                    if (parsedSvc && parsedSvc.length > 0) {
+                        parsedSvc.forEach(s => {
+                            if (!window.onboardingServices.some(existing => existing.name.toLowerCase() === s.name.toLowerCase())) {
+                                window.onboardingServices.push(s);
+                            }
+                        });
+                        renderOnboardingServicesList();
+                    }
+                } catch (sErr) {
+                    console.warn('Services file auto-parse warning:', sErr);
+                }
+            }
 
             if (!name || !owner || !phone || !location) {
                 showToast('Please fill all required fields.', 'error');
@@ -4141,6 +4287,8 @@
             document.getElementById('marketing-doc-pan').value = '';
             document.getElementById('marketing-doc-license').value = '';
             document.getElementById('marketing-doc-clients').value = '';
+            if (document.getElementById('marketing-doc-services')) document.getElementById('marketing-doc-services').value = '';
+            const sBadge = document.getElementById('services-preview-badge'); if (sBadge) sBadge.style.display = 'none';
             clearOwnerPhoto();
             resetOnboardingServices();
             capturedDocImages = {};

@@ -8652,6 +8652,7 @@
         }
 
         async function refreshData() {
+            const ts = Date.now();
             updateRegisterView();
             if (isSyncing) return;
             isSyncing = true;
@@ -8673,8 +8674,10 @@
                     fetch(`${API_URL}/tickets?_t=${ts}`, fetchOpts)
                 ]);
 
-                const newClients = await crez.json();
-                let newBookingsRaw = await brez.json();
+                const cData = await crez.json().catch(() => []);
+                const newClients = Array.isArray(cData) ? cData : [];
+                let newBookingsRaw = await brez.json().catch(() => []);
+                if (!Array.isArray(newBookingsRaw)) newBookingsRaw = [];
 
                 // Dynamic frontend status resolution (ensures immediate updates without server restart)
                 const now = new Date();

@@ -1177,6 +1177,61 @@
         // Footer Year
         document.getElementById('footerYear').textContent = '© ' + new Date().getFullYear() + ' Vynster. All rights reserved.';
     </script>
+
+    <!-- Real-Time Super Admin Landing Page Customization Sync -->
+    <script>
+        (async function initLandingConfig() {
+            try {
+                const res = await fetch('/api/admin/landing-config').catch(() => null);
+                if (res && res.ok) {
+                    const cfg = await res.json();
+                    applyLandingConfig(cfg);
+                }
+            } catch (e) {}
+
+            function applyLandingConfig(cfg) {
+                if (!cfg) return;
+                // Logo
+                if (cfg.logoUrl) {
+                    const logoImgs = document.querySelectorAll('img[src*="vynster-logo"], .landing-logo-emblem, img[alt*="Vynster"]');
+                    logoImgs.forEach(img => { img.src = cfg.logoUrl; });
+                }
+                // Brand Name
+                if (cfg.brandName) {
+                    const brandEls = document.querySelectorAll('.brand-text, .landing-brand-name');
+                    brandEls.forEach(el => { el.textContent = cfg.brandName; });
+                }
+                // Tagline / Headline
+                if (cfg.tagline) {
+                    const heroTitles = document.querySelectorAll('.hero-title, h1.tracking-tight');
+                    if (heroTitles.length > 0) {
+                        heroTitles[0].innerHTML = cfg.tagline.replace(/\n/g, '<br>');
+                    }
+                }
+                // Subtitle
+                if (cfg.heroSubtitle) {
+                    const heroSubs = document.querySelectorAll('.hero-sub, p.hero-subtitle');
+                    heroSubs.forEach(el => { el.textContent = cfg.heroSubtitle; });
+                }
+                // Primary CTA
+                if (cfg.primaryCtaText) {
+                    const cta1 = document.querySelectorAll('a[href*="index.html"]');
+                    cta1.forEach(a => { 
+                        a.textContent = cfg.primaryCtaText; 
+                        if (cfg.primaryCtaLink) a.href = cfg.primaryCtaLink;
+                    });
+                }
+            }
+
+            // Real-time Socket.IO listener for live landing config updates
+            if (typeof io !== 'undefined') {
+                try {
+                    const s = io();
+                    s.on('landing_config_updated', applyLandingConfig);
+                } catch(e) {}
+            }
+        })();
+    </script>
 </body>
 
 </html>

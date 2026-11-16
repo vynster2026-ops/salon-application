@@ -1146,29 +1146,64 @@
 
 <body>
   <!-- SUSPENDED SALON OVERLAY -->
-  <div id="booking-suspended-overlay" style="display:none; position:fixed; inset:0; z-index:99999; background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); align-items:center; justify-content:center; flex-direction:column; font-family:'Outfit',sans-serif;">
-    <div style="text-align:center; padding:40px; max-width:520px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:24px; backdrop-filter:blur(20px); box-shadow:0 40px 80px rgba(0,0,0,0.6);">
-      <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#ff416c,#ff4b2b);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;box-shadow:0 10px 40px rgba(255,65,108,0.4);">
-        <span style="font-size:40px;">🚫</span>
+  <style>
+    @keyframes blinkBookingAdmin {
+        0%, 100% {
+            opacity: 1;
+            background: #ef4444;
+            box-shadow: 0 0 35px rgba(239, 68, 68, 0.95), inset 0 0 15px rgba(255,255,255,0.4);
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.25;
+            background: #7f1d1d;
+            box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+            transform: scale(0.98);
+        }
+    }
+    @keyframes pulseBookingLogo {
+        0%, 100% {
+            transform: scale(1);
+            filter: drop-shadow(0 0 20px rgba(244,6,6,0.85)) drop-shadow(0 0 40px rgba(4,19,48,0.9));
+        }
+        50% {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 35px rgba(255,65,108,1)) drop-shadow(0 0 60px rgba(255,75,43,0.95));
+        }
+    }
+  </style>
+  <!-- SUSPENDED SALON OVERLAY - Real-Time Booking Lockout with Vynster Logo & Blinking CONTACT ADMIN -->
+  <div id="booking-suspended-overlay" style="display:none; position:fixed; inset:0; z-index:9999999; background:linear-gradient(135deg,rgba(15,12,41,0.96),rgba(48,43,99,0.96),rgba(36,36,62,0.96)); backdrop-filter:blur(25px); align-items:center; justify-content:center; flex-direction:column; font-family:'Outfit',sans-serif; pointer-events:all; user-select:none;">
+    <div style="text-align:center; padding:45px 35px; max-width:540px; width:90%; background:rgba(20,20,35,0.88); border:2px solid rgba(239,68,68,0.4); border-radius:24px; box-shadow:0 30px 80px rgba(0,0,0,0.8);">
+      <!-- Vynster Logo Emblem -->
+      <div style="width:110px; height:110px; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(244,6,6,0.12); border:1px solid rgba(244,6,6,0.3); animation:pulseBookingLogo 2s infinite ease-in-out;">
+        <img src="vynster-logo.png" alt="Vynster Logo" style="width:75px; height:75px; object-fit:contain;" onerror="this.src='../vynster-logo.png'">
       </div>
-      <h1 style="color:#fff;font-size:26px;font-weight:800;margin-bottom:10px;letter-spacing:-0.5px;">Account Suspended</h1>
-      <p style="color:#c9d1e0;font-size:15px;line-height:1.7;margin-bottom:24px;">This salon portal has been suspended by the platform administrator. All booking operations have been stopped immediately.</p>
-      <div style="background:rgba(255,255,255,0.08);border-radius:16px;padding:22px;margin-bottom:24px;border:1px solid rgba(255,255,255,0.12);">
-        <p style="color:#ff6b6b;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">📞 Contact Service Providers for Operation</p>
-        <div style="display:flex;align-items:center;gap:12px;color:#e2e8f0;font-size:14px;font-weight:600;margin-bottom:10px;">
-          <span style="font-size:20px;">📱</span>
-          <a href="tel:+919876543210" style="color:#60a5fa;text-decoration:none;font-weight:700;">+91 98765 43210 / 1800-VYNSTER</a>
+
+      <!-- Prominent Blinking Banner -->
+      <div style="animation:blinkBookingAdmin 1s infinite ease-in-out; color:#ffffff; font-size:18px; font-weight:900; letter-spacing:2px; padding:12px 20px; border-radius:12px; margin-bottom:18px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.3);">
+        ⚠️ CONTACT ADMIN IMMEDIATELY ⚠️
+      </div>
+
+      <h1 style="color:#ffffff; font-size:24px; font-weight:800; margin-bottom:10px; letter-spacing:-0.5px;">Booking Portal Suspended</h1>
+      <p style="color:#cbd5e1; font-size:14px; line-height:1.6; margin-bottom:22px;">This salon portal has been suspended by Super Admin. Client appointments and online booking have been stopped immediately.</p>
+
+      <div style="background:rgba(255,255,255,0.06); border-radius:14px; padding:18px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.12); text-align:left;">
+        <p style="color:#f87171; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; text-align:center;">Contact Super Admin for Reactivation</p>
+        <div style="display:flex; align-items:center; gap:10px; color:#f1f5f9; font-size:14px; font-weight:600; margin-bottom:8px;">
+          <span>📱</span>
+          <a href="tel:+919876543210" style="color:#38bdf8; text-decoration:none; font-weight:700;">+91 98765 43210 / 1800-VYNSTER</a>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;color:#e2e8f0;font-size:14px;font-weight:600;margin-bottom:10px;">
-          <span style="font-size:20px;">📧</span>
-          <a href="mailto:support@vynster.com" style="color:#60a5fa;text-decoration:none;">support@vynster.com</a>
+        <div style="display:flex; align-items:center; gap:10px; color:#f1f5f9; font-size:14px; font-weight:600; margin-bottom:8px;">
+          <span>📧</span>
+          <a href="mailto:support@vynster.com" style="color:#38bdf8; text-decoration:none;">support@vynster.com</a>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;color:#e2e8f0;font-size:14px;font-weight:600;">
-          <span style="font-size:20px;">🌐</span>
-          <a href="https://vynster.com" target="_blank" style="color:#60a5fa;text-decoration:none;">vynster.com</a>
+        <div style="display:flex; align-items:center; gap:10px; color:#f1f5f9; font-size:14px; font-weight:600;">
+          <span>🌐</span>
+          <a href="https://vynster.com" target="_blank" style="color:#38bdf8; text-decoration:none;">vynster.com</a>
         </div>
       </div>
-      <p style="color:#94a3b8;font-size:12px;">Status: <span style="color:#ef4444;font-weight:800;">SUSPENDED</span> · Salon: <span id="booking-suspended-branch-name" style="font-family:monospace;color:#f8fafc;font-weight:700;"></span></p>
+      <p style="color:#94a3b8; font-size:12px; margin:0;">Status: <span style="color:#ef4444; font-weight:800;">SUSPENDED</span> · Salon: <span id="booking-suspended-branch-name" style="font-family:monospace; color:#f8fafc; font-weight:700;"></span></p>
     </div>
   </div>
 
@@ -2224,12 +2259,16 @@ ${buildCategoryModal()}`;
     }
 
     function buildStep2() {
-      let filteredServices = SERVICES.filter(s => s.gender === state.selectedGender || s.gender === 'unisex');
+      let filteredServices = SERVICES.filter(s => {
+        const sg = (state.selectedGender || '').toLowerCase();
+        const g = (s.gender || 'both').toLowerCase();
+        return g === 'both' || g === 'all' || g === 'unisex' || g === sg || !sg;
+      });
       if (state.serviceQuery && state.serviceQuery.trim()) {
         const q = state.serviceQuery.toLowerCase();
-        filteredServices = filteredServices.filter(s => s.name.toLowerCase().includes(q) || s.cat.toLowerCase().includes(q));
+        filteredServices = filteredServices.filter(s => s.name.toLowerCase().includes(q) || (s.cat && s.cat.toLowerCase().includes(q)));
       }
-      const cats = ['All', ...new Set(filteredServices.map(s => s.cat))];
+      const cats = ['All', ...new Set(filteredServices.map(s => s.cat || 'General'))];
       return `<div class="card" style="display: flex; flex-direction: column; max-height: 80vh;">
   <div class="card-title" style="display:flex;justify-content:space-between;align-items:center; flex-shrink: 0; margin-bottom: 16px;">
     <span>Select category for ${state.selectedGender === 'male' ? 'Men' : 'Women'}</span>
@@ -2278,7 +2317,13 @@ ${buildCategoryModal()}`;
     function buildCategoryModal() {
       if (!state.selectedCategoryForModal) return '';
       const cat = state.selectedCategoryForModal;
-      let filteredServices = SERVICES.filter(s => (s.gender === state.selectedGender || s.gender === 'unisex') && (cat === 'All' || s.cat === cat));
+      let filteredServices = SERVICES.filter(s => {
+        const sg = (state.selectedGender || '').toLowerCase();
+        const g = (s.gender || 'both').toLowerCase();
+        const genderMatches = g === 'both' || g === 'all' || g === 'unisex' || g === sg || !sg;
+        const catMatches = cat === 'All' || s.cat === cat || (s.cat && s.cat.toLowerCase() === cat.toLowerCase());
+        return genderMatches && catMatches;
+      });
       if (state.serviceQuery && state.serviceQuery.trim()) {
         const q = state.serviceQuery.toLowerCase();
         filteredServices = filteredServices.filter(s => s.name.toLowerCase().includes(q));

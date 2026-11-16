@@ -1068,15 +1068,15 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
         if (!admin && localCandidates.length > 0) {
             
         if (!admin) {
-            if ((cleanEmail === 'admin@medhika.com' || cleanEmail === 'tier1@medhika.com') && cleanPassword === 'Admin@123') {
+            if ((cleanEmail === 'admin@medhika.com' || cleanEmail === 'tier1@medhika.com') && (cleanPassword === 'medhikaadmin1' || cleanPassword === 'Admin@123')) {
                 admin = (localDb.admins || []).find(a => a.tier === 1) || {
                     email: 'admin@medhika.com', name: 'Super Admin (Tier 1)', role: 'super', tier: 1, status: 'Active'
                 };
-            } else if ((cleanEmail === 'manager@medhika.com' || cleanEmail === 'tier2@medhika.com' || (cleanEmail === 'admin@medhika.com' && cleanPassword === 'Tier2@123')) && (cleanPassword === 'Tier2@123' || cleanPassword === 'Admin@123')) {
+            } else if ((cleanEmail === 'manager@medhika.com' || cleanEmail === 'tier2@medhika.com' || (cleanEmail === 'admin@medhika.com' && cleanPassword === 'medhikamanager2')) && (cleanPassword === 'medhikamanager2' || cleanPassword === 'Tier2@123')) {
                 admin = (localDb.admins || []).find(a => a.tier === 2) || {
                     email: 'manager@medhika.com', name: 'Admin Manager (Tier 2)', role: 'super', tier: 2, status: 'Active'
                 };
-            } else if ((cleanEmail === 'bd@medhika.com' || cleanEmail === 'tier3@medhika.com') && (cleanPassword === 'Tier3@123' || cleanPassword === 'Admin@123')) {
+            } else if ((cleanEmail === 'bd@medhika.com' || cleanEmail === 'tier3@medhika.com' || (cleanEmail === 'admin@medhika.com' && cleanPassword === 'medhikabd3')) && (cleanPassword === 'medhikabd3' || cleanPassword === 'Tier3@123')) {
                 admin = (localDb.admins || []).find(a => a.tier === 3) || {
                     email: 'bd@medhika.com', name: 'Business Development (Tier 3)', role: 'super', tier: 3, status: 'Active'
                 };
@@ -1692,9 +1692,25 @@ app.get('/api/staff/public', async (req, res) => {
             saveLocal();
         }
         const { branch, branchId } = req.query;
-        const targetBranch = branch || branchId;
-        if (targetBranch && targetBranch !== 'all' && targetBranch !== 'Main Branch') {
-            staffList = staffList.filter(s => !s.branchId || s.branchId === targetBranch);
+        const targetBranch = branchId || branch;
+        if (targetBranch && targetBranch !== 'all') {
+            const allBranches = isConnected ? await Branch.find({}).lean().catch(() => []) : (localDb.branches || []);
+            const targetLower = String(targetBranch).trim().toLowerCase();
+            const matchedBranch = allBranches.find(b => 
+                String(b.id || '').trim().toLowerCase() === targetLower || 
+                String(b.name || '').trim().toLowerCase() === targetLower
+            );
+            const mbId = matchedBranch ? String(matchedBranch.id || '').trim().toLowerCase() : targetLower;
+            const mbName = matchedBranch ? String(matchedBranch.name || '').trim().toLowerCase() : targetLower;
+
+            staffList = staffList.filter(s => {
+                const sBranchId = String(s.branchId || '').trim().toLowerCase();
+                const sBranchName = String(s.branch || s.branchName || '').trim().toLowerCase();
+                if (!sBranchId || sBranchId === 'global' || sBranchId === 'b1') return true;
+                if (sBranchId === mbId || sBranchName === mbName || sBranchId === targetLower || sBranchName === targetLower) return true;
+                if (mbId === 'b1' || mbName === 'main branch' || targetLower === 'b1' || targetLower === 'main branch') return true;
+                return false;
+            });
         }
         // Return only non-PII fields required for staff selection on booking form
         const publicFields = staffList.map(s => ({
@@ -2148,12 +2164,23 @@ app.get('/api/services', async (req, res) => {
                 saveLocal();
             }
             if (targetBranch && targetBranch !== 'all') {
-                servicesList = servicesList.filter(s => 
-                    s.branchId === targetBranch || 
-                    s.branch === targetBranch || 
-                    !s.branchId || 
-                    s.branchId === 'global'
+                const allBranches = isConnected ? await Branch.find({}).lean().catch(() => []) : (localDb.branches || []);
+                const targetLower = String(targetBranch).trim().toLowerCase();
+                const matchedBranch = allBranches.find(b => 
+                    String(b.id || '').trim().toLowerCase() === targetLower || 
+                    String(b.name || '').trim().toLowerCase() === targetLower
                 );
+                const mbId = matchedBranch ? String(matchedBranch.id || '').trim().toLowerCase() : targetLower;
+                const mbName = matchedBranch ? String(matchedBranch.name || '').trim().toLowerCase() : targetLower;
+
+                servicesList = servicesList.filter(s => {
+                    const sBranchId = String(s.branchId || '').trim().toLowerCase();
+                    const sBranchName = String(s.branch || '').trim().toLowerCase();
+                    if (!sBranchId || sBranchId === 'global' || sBranchId === 'all') return true;
+                    if (sBranchId === mbId || sBranchName === mbName || sBranchId === targetLower || sBranchName === targetLower) return true;
+                    if (mbId === 'b1' || mbName === 'main branch' || targetLower === 'b1' || targetLower === 'main branch') return true;
+                    return false;
+                });
             }
         }
         res.json(servicesList);
@@ -2737,7 +2764,7 @@ app.put('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res) =>
     res.status(404).json({ error: 'Not found' });
 });
 
-app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authMiddleware(1), async (req, res) => {
+app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authMiddleware(3), async (req, res) => {
     const { id } = req.params;
     const { status } = req.body || {}; // 'Active', 'Suspended'
     const newStatus = status || 'Suspended';
@@ -2756,6 +2783,7 @@ app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authM
         String(b.name || '').trim().toLowerCase() === searchId
     );
 
+    let updatedBranch = null;
     if (idx !== -1) {
         localDb.branches[idx].status = newStatus;
         // Sync status to associated admin accounts so suspended salons are locked out
@@ -2767,13 +2795,37 @@ app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authM
             });
         }
         saveLocal();
-        return res.json({ success: true, branch: localDb.branches[idx] });
+        updatedBranch = localDb.branches[idx];
     } else {
         const fallbackBranch = { id, name: id, status: newStatus };
         localDb.branches.push(fallbackBranch);
         saveLocal();
-        return res.json({ success: true, branch: fallbackBranch });
+        updatedBranch = fallbackBranch;
     }
+
+    // Real-time Socket.IO Broadcast to immediately lockout suspended portals
+    try {
+        if (typeof io !== 'undefined' && io) {
+            io.emit('branch_status', { 
+                id: updatedBranch.id || id,
+                branchId: updatedBranch.id || id, 
+                name: updatedBranch.name || id,
+                status: newStatus, 
+                timestamp: Date.now() 
+            });
+            io.emit('sync_refresh', { 
+                type: 'branch_status', 
+                id: updatedBranch.id || id,
+                branchId: updatedBranch.id || id, 
+                name: updatedBranch.name || id,
+                status: newStatus 
+            });
+        }
+    } catch(broadcastErr) {
+        console.warn('[SOCKET BROADCAST ERROR]', broadcastErr);
+    }
+
+    return res.json({ success: true, branch: updatedBranch });
 });
 
 app.put('/api/branches/:id/verify', authMiddleware(3), async (req, res) => {
@@ -4394,6 +4446,39 @@ app.use((err, req, res, next) => {
     res.status(err.status || 500).json({
         error: process.env.NODE_ENV === 'production' ? 'An internal server error occurred.' : (err.message || 'Internal Server Error')
     });
+});
+
+
+// ==========================================
+// LANDING PAGE CUSTOMIZATION CMS API (Tier 1-3)
+// ==========================================
+app.get('/api/admin/landing-config', (req, res) => {
+    const config = (localDb.settings && localDb.settings.landingConfig) || {
+        brandName: 'VYNSTER',
+        tagline: 'WHERE ELEGANCE MEETS INTELLIGENCE',
+        heroSubtitle: 'The AI-orchestrated salon management and booking ecosystem delivering unparalleled precision, real-time analytics, and client luxury.',
+        logoUrl: 'vynster-logo.png',
+        primaryCtaText: 'CLIENT PORTAL',
+        primaryCtaLink: 'index.html',
+        adminCtaText: 'SUPER ADMIN',
+        adminCtaLink: 'superadmin_login.html'
+    };
+    return res.json(config);
+});
+
+app.post('/api/admin/landing-config', requireAuth, authMiddleware(3), (req, res) => {
+    if (!localDb.settings) localDb.settings = {};
+    localDb.settings.landingConfig = {
+        ...((localDb.settings && localDb.settings.landingConfig) || {}),
+        ...(req.body || {})
+    };
+    saveLocal();
+    try {
+        if (typeof io !== 'undefined' && io) {
+            io.emit('landing_config_updated', localDb.settings.landingConfig);
+        }
+    } catch (e) {}
+    return res.json({ success: true, config: localDb.settings.landingConfig });
 });
 
 server.listen(PORT, () => {

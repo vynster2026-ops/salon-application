@@ -126,12 +126,30 @@
                 </button>
             </form>
             
+            <!-- Super Admin Tier Quick-Select Helper -->
+            <div style="margin-top: 1.5rem; padding: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 12px;">
+                <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-1); font-weight: 700; margin-bottom: 8px; text-align: center;">
+                    ⚡ Quick Tier Credentials Fill
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                    <button type="button" onclick="fillTierCreds('admin@medhika.com', 'medhikaadmin1')" style="padding: 6px; font-size: 11px; border-radius: 8px; border: 1px solid rgba(59,130,246,0.3); background: rgba(59,130,246,0.1); color: #93c5fd; cursor: pointer; font-weight: 600;">
+                        👑 Tier 1
+                    </button>
+                    <button type="button" onclick="fillTierCreds('manager@medhika.com', 'medhikamanager2')" style="padding: 6px; font-size: 11px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); color: #6ee7b7; cursor: pointer; font-weight: 600;">
+                        💼 Tier 2
+                    </button>
+                    <button type="button" onclick="fillTierCreds('bd@medhika.com', 'medhikabd3')" style="padding: 6px; font-size: 11px; border-radius: 8px; border: 1px solid rgba(245,158,11,0.3); background: rgba(245,158,11,0.1); color: #fcd34d; cursor: pointer; font-weight: 600;">
+                        📈 Tier 3
+                    </button>
+                </div>
+            </div>
+
             <div style="text-align: center; margin-top: 1.5rem; display: flex; flex-direction: column; align-items: center; gap: 8px;">
                 <p style="font-size: 12px; color: var(--text-secondary);">
-                    Dedicated Super Admin Console · Multi-factor Access Protection
+                    Dedicated Super Admin Console · Multi-tier Role Access Protection
                 </p>
                 <div style="font-size: 11px; color: #818cf8; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-lock" style="font-size: 10px;"></i> Secured with Clerk Enterprise Auth
+                    <i class="fa-solid fa-lock" style="font-size: 10px;"></i> Secured with Enterprise Session Auth
                 </div>
             </div>
         </div>
@@ -149,6 +167,12 @@
             alertBox.textContent = msg;
             alertBox.style.display = 'block';
         }
+
+        window.fillTierCreds = function(email, pass) {
+            document.getElementById('access-key').value = email;
+            document.getElementById('passcode').value = pass;
+            alertBox.style.display = 'none';
+        };
 
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();

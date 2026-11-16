@@ -2330,6 +2330,40 @@
                         <input type="text" id="landing-cms-cta2-link" placeholder="superadmin_login.html" style="width: 100%; padding: 0.8rem 1rem; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); color: var(--text-main); outline: none;">
                     </div>
 
+                    <!-- Partner Salon Logos Showcase (Who We Work With Section) -->
+                    <div style="grid-column: span 2; margin-top: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 1.5rem; border-radius: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                            <div>
+                                <h3 style="margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+                                    <i class="fa-solid fa-shapes" style="color: #F40606;"></i> Partner Salon Logos Showcase ("Who We Work With" Section)
+                                </h3>
+                                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">
+                                    Upload and customize salon brand logos and links for the 6 partner slots displayed on the public landing page.
+                                </p>
+                            </div>
+                            <button type="button" class="ai-assistant-btn" onclick="autoFillSalonsFromVendors()" style="background: rgba(244, 6, 6, 0.15); border: 1px solid rgba(244, 6, 6, 0.4); color: #ff6b6b; font-size: 0.8rem; padding: 6px 14px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Fill From Active Salons
+                            </button>
+                        </div>
+
+                        <!-- Section Title & Subtitle Customization -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-muted);">Showcase Section Title</label>
+                                <input type="text" id="landing-cms-brands-heading" placeholder="Space reserved for the brands we partner with." style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); color: var(--text-main); outline: none;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--text-muted);">Showcase Subtitle / Description</label>
+                                <input type="text" id="landing-cms-brands-copy" placeholder="As engagements are announced, their marks go here. Each slot below is a placeholder — swap in real client logos as they're confirmed." style="width: 100%; padding: 0.75rem 1rem; border-radius: 8px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); color: var(--text-main); outline: none;">
+                            </div>
+                        </div>
+
+                        <!-- 6 Interactive Logo Slots Matching Landing Page -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;" id="landing-cms-partner-slots-container">
+                            <!-- Rendered dynamically by renderPartnerLogoSlots() -->
+                        </div>
+                    </div>
+
                     <!-- Save CTA -->
                     <div style="grid-column: span 2; margin-top: 1rem; display: flex; gap: 1rem; justify-content: flex-end;">
                         <button type="submit" class="sync-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 0.9rem 2rem; font-weight: 700; border-radius: 10px; cursor: pointer;">
@@ -5038,6 +5072,119 @@
 
         // --- LANDING PAGE CMS LOGIC ---
         let landingLogoBase64 = '';
+        let partnerLogosState = [
+            { name: '', logoUrl: '', link: '' },
+            { name: '', logoUrl: '', link: '' },
+            { name: '', logoUrl: '', link: '' },
+            { name: '', logoUrl: '', link: '' },
+            { name: '', logoUrl: '', link: '' },
+            { name: '', logoUrl: '', link: '' }
+        ];
+
+        function renderPartnerLogoSlots() {
+            const container = document.getElementById('landing-cms-partner-slots-container');
+            if (!container) return;
+
+            let html = '';
+            for (let i = 0; i < 6; i++) {
+                const slot = partnerLogosState[i] || { name: '', logoUrl: '', link: '' };
+                const hasLogo = Boolean(slot.logoUrl);
+
+                html += `
+                    <div style="background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); border-radius: 12px; padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.8rem; font-weight: 700; color: #ff6b6b; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <i class="fa-solid fa-square-check"></i> Slot ${i + 1}
+                            </span>
+                            ${hasLogo ? `
+                                <button type="button" onclick="clearPartnerSlot(${i})" style="background: none; border: none; color: #f87171; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                                    <i class="fa-solid fa-trash-can"></i> Clear
+                                </button>
+                            ` : '<span style="font-size: 0.7rem; color: var(--text-muted);">Empty</span>'}
+                        </div>
+
+                        <!-- Preview Box -->
+                        <div style="height: 75px; border-radius: 10px; border: 2px dashed ${hasLogo ? 'rgba(0,255,136,0.3)' : 'var(--glass-border)'}; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 6px;">
+                            ${hasLogo ? `
+                                <img src="${slot.logoUrl}" alt="${slot.name || 'Salon Logo'}" style="max-height: 60px; max-width: 90%; object-fit: contain;">
+                            ` : `
+                                <span style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace;">+ Logo Slot ${i + 1}</span>
+                            `}
+                        </div>
+
+                        <!-- File Upload -->
+                        <div>
+                            <label style="display: block; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 2px;">Upload Salon Logo</label>
+                            <input type="file" accept="image/*" onchange="handlePartnerSlotUpload(${i}, event)" style="font-size: 0.75rem; color: var(--text-muted); width: 100%;">
+                        </div>
+
+                        <!-- Logo URL Input -->
+                        <div>
+                            <input type="text" placeholder="Or Custom Logo URL" value="${slot.logoUrl || ''}" oninput="updatePartnerSlotField(${i}, 'logoUrl', this.value)" style="width: 100%; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); color: var(--text-main); font-size: 0.8rem; outline: none;">
+                        </div>
+
+                        <!-- Salon Name Input -->
+                        <div>
+                            <input type="text" placeholder="Salon / Partner Name" value="${slot.name || ''}" oninput="updatePartnerSlotField(${i}, 'name', this.value)" style="width: 100%; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); color: var(--text-main); font-size: 0.8rem; outline: none;">
+                        </div>
+
+                        <!-- Target Link Input -->
+                        <div>
+                            <input type="text" placeholder="Booking URL or Link (optional)" value="${slot.link || ''}" oninput="updatePartnerSlotField(${i}, 'link', this.value)" style="width: 100%; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255,255,255,0.5); color: var(--text-main); font-size: 0.8rem; outline: none;">
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function handlePartnerSlotUpload(index, event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (!partnerLogosState[index]) partnerLogosState[index] = {};
+                partnerLogosState[index].logoUrl = e.target.result;
+                if (!partnerLogosState[index].name) {
+                    const cleanName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+                    partnerLogosState[index].name = cleanName;
+                }
+                renderPartnerLogoSlots();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updatePartnerSlotField(index, field, value) {
+            if (!partnerLogosState[index]) partnerLogosState[index] = {};
+            partnerLogosState[index][field] = value;
+            if (field === 'logoUrl') {
+                renderPartnerLogoSlots();
+            }
+        }
+
+        function clearPartnerSlot(index) {
+            if (partnerLogosState[index]) {
+                partnerLogosState[index] = { name: '', logoUrl: '', link: '' };
+                renderPartnerLogoSlots();
+            }
+        }
+
+        function autoFillSalonsFromVendors() {
+            if (!vendors || vendors.length === 0) {
+                showToast('No active vendors loaded to auto-fill.', 'warning');
+                return;
+            }
+            const activeVendors = vendors.filter(v => v.status !== 'Suspended').slice(0, 6);
+            activeVendors.forEach((v, idx) => {
+                partnerLogosState[idx] = {
+                    name: v.name || ('Salon ' + (idx + 1)),
+                    logoUrl: v.ownerPhoto || v.logo || 'vynster-logo.png',
+                    link: `vynster-booking.html?branch=${encodeURIComponent(v.name)}&branchId=${encodeURIComponent(v.id)}`
+                };
+            });
+            renderPartnerLogoSlots();
+            showToast(`Auto-filled ${activeVendors.length} salon(s) into showcase slots! Click Save to publish.`, 'success');
+        }
 
         async function loadLandingConfig() {
             try {
@@ -5053,6 +5200,21 @@
                     if (document.getElementById('landing-cms-cta2-text')) document.getElementById('landing-cms-cta2-text').value = cfg.adminCtaText || 'SUPER ADMIN';
                     if (document.getElementById('landing-cms-cta2-link')) document.getElementById('landing-cms-cta2-link').value = cfg.adminCtaLink || 'superadmin_login.html';
                     
+                    if (document.getElementById('landing-cms-brands-heading')) {
+                        document.getElementById('landing-cms-brands-heading').value = cfg.brandsHeading || 'Space reserved for the brands we partner with.';
+                    }
+                    if (document.getElementById('landing-cms-brands-copy')) {
+                        document.getElementById('landing-cms-brands-copy').value = cfg.brandsCopy || "As engagements are announced, their marks go here. Each slot below is a placeholder — swap in real client logos as they're confirmed.";
+                    }
+
+                    if (Array.isArray(cfg.partnerLogos) && cfg.partnerLogos.length > 0) {
+                        partnerLogosState = cfg.partnerLogos.slice(0, 6);
+                        while (partnerLogosState.length < 6) {
+                            partnerLogosState.push({ name: '', logoUrl: '', link: '' });
+                        }
+                    }
+                    renderPartnerLogoSlots();
+
                     const prev = document.getElementById('landing-cms-logo-preview');
                     if (prev && cfg.logoUrl) prev.src = cfg.logoUrl;
                 }
@@ -5084,9 +5246,18 @@
             const primaryCtaLink = document.getElementById('landing-cms-cta1-link')?.value || 'index.html';
             const adminCtaText = document.getElementById('landing-cms-cta2-text')?.value || 'SUPER ADMIN';
             const adminCtaLink = document.getElementById('landing-cms-cta2-link')?.value || 'superadmin_login.html';
+            const brandsHeading = document.getElementById('landing-cms-brands-heading')?.value || 'Space reserved for the brands we partner with.';
+            const brandsCopy = document.getElementById('landing-cms-brands-copy')?.value || "As engagements are announced, their marks go here. Each slot below is a placeholder — swap in real client logos as they're confirmed.";
+
+            const partnerLogos = partnerLogosState.map(slot => ({
+                name: (slot.name || '').trim(),
+                logoUrl: (slot.logoUrl || '').trim(),
+                link: (slot.link || '').trim()
+            }));
 
             const payload = {
-                logoUrl, brandName, tagline, heroSubtitle, primaryCtaText, primaryCtaLink, adminCtaText, adminCtaLink
+                logoUrl, brandName, tagline, heroSubtitle, primaryCtaText, primaryCtaLink, adminCtaText, adminCtaLink,
+                brandsHeading, brandsCopy, partnerLogos
             };
 
             try {
@@ -5099,7 +5270,7 @@
                     body: JSON.stringify(payload)
                 });
                 if (res.ok) {
-                    showToast('Landing Page configuration saved & broadcasted live!', 'success');
+                    showToast('Landing Page configuration & Salon Logos saved & broadcasted live!', 'success');
                 } else {
                     showToast('Configuration saved (Local Sync active)', 'warning');
                 }

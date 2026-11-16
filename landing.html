@@ -805,18 +805,18 @@
                     <span class="font-mono text-xs sm:text-sm font-semibold tracking-[0.2em] text-[#F40606] uppercase mb-2 block">
                         Who we work with
                     </span>
-                    <h2 class="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight max-w-3xl section-title">
+                    <h2 class="text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight max-w-3xl section-title" id="landing-brands-heading">
                         Space reserved for the brands we partner with.
                     </h2>
                 </div>
 
                 <div class="reveal mb-12">
-                    <p class="text-base sm:text-lg max-w-2xl font-light leading-relaxed opacity-75 section-copy">
+                    <p class="text-base sm:text-lg max-w-2xl font-light leading-relaxed opacity-75 section-copy" id="landing-brands-copy">
                         As engagements are announced, their marks go here. Each slot below is a placeholder — swap in real client logos as they're confirmed.
                     </p>
                 </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" id="landing-brand-logos-grid">
                     <div class="reveal"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
                     <div class="reveal"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
                     <div class="reveal"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
@@ -1220,6 +1220,47 @@
                         a.textContent = cfg.primaryCtaText; 
                         if (cfg.primaryCtaLink) a.href = cfg.primaryCtaLink;
                     });
+                }
+                // Partner Showcase Brands Heading & Copy
+                if (cfg.brandsHeading) {
+                    const bh = document.getElementById('landing-brands-heading') || document.querySelector('#brands h2');
+                    if (bh) bh.textContent = cfg.brandsHeading;
+                }
+                if (cfg.brandsCopy) {
+                    const bc = document.getElementById('landing-brands-copy') || document.querySelector('#brands p.section-copy');
+                    if (bc) bc.textContent = cfg.brandsCopy;
+                }
+
+                // Partner Salon Logos Grid (6 Featured Slots)
+                const grid = document.getElementById('landing-brand-logos-grid') || document.querySelector('#brands .grid');
+                if (grid && Array.isArray(cfg.partnerLogos)) {
+                    let html = '';
+                    for (let i = 0; i < 6; i++) {
+                        const item = cfg.partnerLogos[i];
+                        if (item && item.logoUrl) {
+                            const linkStart = item.link ? `<a href="${item.link}" target="_blank" class="block w-full h-full">` : '';
+                            const linkEnd = item.link ? `</a>` : '';
+                            html += `
+                                <div class="reveal">
+                                    ${linkStart}
+                                    <div class="aspect-[1.6/1] border border-white/20 rounded-2xl flex flex-col items-center justify-center p-3 bg-white/5 backdrop-blur-sm hover:border-[#F40606] hover:bg-white/10 transition-all duration-300 group shadow-lg cursor-pointer">
+                                        <img src="${item.logoUrl}" alt="${item.name || 'Partner Salon'}" class="max-h-12 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow">
+                                        ${item.name ? `<span class="mt-1 text-[11px] font-mono tracking-wider font-semibold text-[#D7E2EA]/70 group-hover:text-white truncate max-w-[95%]">${item.name}</span>` : ''}
+                                    </div>
+                                    ${linkEnd}
+                                </div>
+                            `;
+                        } else {
+                            html += `
+                                <div class="reveal">
+                                    <div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">
+                                        + Logo
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                    grid.innerHTML = html;
                 }
             }
 

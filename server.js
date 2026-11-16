@@ -829,7 +829,7 @@ app.put('/api/bookings/:id', requireAuth, requireRole('super', 'owner', 'manager
 });
 
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL;
-const DB_FILE = 'db.json';
+const DB_FILE = fs.existsSync(path.join(__dirname, 'db.json')) ? path.join(__dirname, 'db.json') : (fs.existsSync('db.json') ? 'db.json' : path.join(__dirname, 'db.json'));
 
 let localDb = {
     clients: [],
@@ -4527,7 +4527,17 @@ app.get('/api/admin/landing-config', (req, res) => {
         primaryCtaText: 'CLIENT PORTAL',
         primaryCtaLink: 'index.html',
         adminCtaText: 'SUPER ADMIN',
-        adminCtaLink: 'superadmin_login.html'
+        adminCtaLink: 'superadmin_login.html',
+        brandsHeading: 'Space reserved for the brands we partner with.',
+        brandsCopy: "As engagements are announced, their marks go here. Each slot below is a placeholder — swap in real client logos as they're confirmed.",
+        partnerLogos: [
+            { name: '', logoUrl: '', link: '' },
+            { name: '', logoUrl: '', link: '' },
+            { name: '', logoUrl: '', link: '' },
+            { name: '', logoUrl: '', link: '' },
+            { name: '', logoUrl: '', link: '' },
+            { name: '', logoUrl: '', link: '' }
+        ]
     };
     return res.json(config);
 });

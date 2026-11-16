@@ -3040,29 +3040,57 @@ app.post('/api/branches', requireAuth, authMiddleware(3), async (req, res) => {
 });
 
 app.put('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res) => {
+    const rawId = req.params.id;
+    const branchId = decodeURIComponent(String(rawId || '').trim());
+    const searchId = branchId.toLowerCase();
     const updateData = { ...req.body };
     if (updateData.password && !updateData.password.startsWith('scrypt:')) {
         updateData.password = hashPassword(updateData.password);
     }
-    if (isConnected) { try { return res.json(await Branch.findOneAndUpdate({ $or: [{ id: req.params.id }, { _id: req.params.id }] }, updateData, { new: true })); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
-    const idx = localDb.branches ? localDb.branches.findIndex(b => String(b.id) === String(req.params.id)) : -1;
-    if (idx !== -1) { localDb.branches[idx] = { ...localDb.branches[idx], ...updateData }; saveLocal(); return res.json(localDb.branches[idx]); }
+    if (isConnected) {
+        try {
+            await Branch.findOneAndUpdate(
+                { $or: [{ id: branchId }, { _id: branchId }, { name: branchId }] },
+                updateData,
+                { new: true }
+            );
+        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
+    }
+    if (!localDb.branches) localDb.branches = [];
+    const idx = localDb.branches.findIndex(b => 
+        String(b.id || '').trim().toLowerCase() === searchId || 
+        String(b._id || '').trim().toLowerCase() === searchId || 
+        String(b.name || '').trim().toLowerCase() === searchId
+    );
+    if (idx !== -1) {
+        localDb.branches[idx] = { ...localDb.branches[idx], ...updateData };
+        saveLocal();
+        return res.json(localDb.branches[idx]);
+    }
     res.status(404).json({ error: 'Not found' });
 });
 
 app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authMiddleware(3), async (req, res) => {
-    const { id } = req.params;
+    const rawId = req.params.id;
+    const branchId = decodeURIComponent(String(rawId || '').trim());
+    const searchId = branchId.toLowerCase();
     const { status } = req.body || {}; // 'Active', 'Suspended'
     const newStatus = status || 'Suspended';
 
     if (isConnected) {
         try {
-            await Branch.updateOne({ $or: [{ id }, { _id: id }, { name: id }] }, { status: newStatus });
+            await Branch.updateMany(
+                { $or: [{ id: branchId }, { _id: branchId }, { name: branchId }] },
+                { $set: { status: newStatus, 'subscription.status': newStatus } }
+            );
+            await Admin.updateMany(
+                { $or: [{ branchId: branchId }, { email: branchId }] },
+                { $set: { status: newStatus } }
+            );
         } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
     }
 
     if (!localDb.branches) localDb.branches = [];
-    const searchId = String(id).trim().toLowerCase();
     const idx = localDb.branches.findIndex(b => 
         String(b.id || '').trim().toLowerCase() === searchId || 
         String(b._id || '').trim().toLowerCase() === searchId ||
@@ -3072,10 +3100,16 @@ app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authM
     let updatedBranch = null;
     if (idx !== -1) {
         localDb.branches[idx].status = newStatus;
+        if (localDb.branches[idx].subscription) {
+            localDb.branches[idx].subscription.status = newStatus;
+        }
         // Sync status to associated admin accounts so suspended salons are locked out
         if (localDb.admins) {
             localDb.admins.forEach(a => {
-                if (a.branchId === localDb.branches[idx].id || (localDb.branches[idx].accessKey && a.email === localDb.branches[idx].accessKey)) {
+                if (
+                    String(a.branchId || '').toLowerCase() === String(localDb.branches[idx].id || '').toLowerCase() ||
+                    (localDb.branches[idx].accessKey && String(a.email || '').toLowerCase() === String(localDb.branches[idx].accessKey || '').toLowerCase())
+                ) {
                     a.status = newStatus;
                 }
             });
@@ -3083,7 +3117,7 @@ app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authM
         saveLocal();
         updatedBranch = localDb.branches[idx];
     } else {
-        const fallbackBranch = { id, name: id, status: newStatus };
+        const fallbackBranch = { id: branchId, name: branchId, status: newStatus };
         localDb.branches.push(fallbackBranch);
         saveLocal();
         updatedBranch = fallbackBranch;
@@ -3093,17 +3127,17 @@ app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authM
     try {
         if (typeof io !== 'undefined' && io) {
             io.emit('branch_status', { 
-                id: updatedBranch.id || id,
-                branchId: updatedBranch.id || id, 
-                name: updatedBranch.name || id,
+                id: updatedBranch.id || branchId,
+                branchId: updatedBranch.id || branchId, 
+                name: updatedBranch.name || branchId,
                 status: newStatus, 
                 timestamp: Date.now() 
             });
             io.emit('sync_refresh', { 
                 type: 'branch_status', 
-                id: updatedBranch.id || id,
-                branchId: updatedBranch.id || id, 
-                name: updatedBranch.name || id,
+                id: updatedBranch.id || branchId,
+                branchId: updatedBranch.id || branchId, 
+                name: updatedBranch.name || branchId,
                 status: newStatus 
             });
         }
@@ -3154,23 +3188,88 @@ app.put('/api/branches/:id/verify', authMiddleware(3), async (req, res) => {
 });
 
 app.delete('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res) => {
-    const branchId = req.params.id;
-    if (branchId === 'b1' || branchId === 'b_demo_sandbox') {
+    const rawId = req.params.id;
+    const branchId = decodeURIComponent(String(rawId || '').trim());
+    const searchId = branchId.toLowerCase();
+
+    if (searchId === 'b1' || searchId === 'b_demo_sandbox' || branchId === 'Main Branch' || branchId === 'Vynster Demo Salon [Sandbox]') {
         return res.status(403).json({ error: 'System protected branches (Main Branch & SuperAdmin Sandbox) cannot be deleted.' });
     }
+
+    let branchObj = null;
+    if (localDb.branches) {
+        branchObj = localDb.branches.find(b => 
+            String(b.id || '').trim().toLowerCase() === searchId || 
+            String(b._id || '').trim().toLowerCase() === searchId ||
+            String(b.name || '').trim().toLowerCase() === searchId
+        );
+    }
+
+    const targetBranchId = branchObj ? branchObj.id : branchId;
+    const targetBranchName = branchObj ? branchObj.name : branchId;
+    const targetAccessKey = branchObj ? branchObj.accessKey : null;
+
     if (isConnected) { 
         try { 
-            await Branch.deleteOne({ $or: [{ id: branchId }, { _id: branchId }] }); 
-            return res.json({ success: true }); 
-        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } 
+            await Branch.deleteMany({ 
+                $or: [
+                    { id: targetBranchId }, 
+                    { _id: targetBranchId }, 
+                    { name: targetBranchName },
+                    ...(targetAccessKey ? [{ accessKey: targetAccessKey }] : [])
+                ] 
+            });
+            await Admin.deleteMany({ 
+                $or: [
+                    { branchId: targetBranchId },
+                    ...(targetAccessKey ? [{ email: targetAccessKey }] : [])
+                ] 
+            });
+            await Staff.deleteMany({ branchId: targetBranchId });
+            await Service.deleteMany({ branchId: targetBranchId });
+            await Client.deleteMany({ branchId: targetBranchId });
+        } catch (e) { 
+            if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); 
+        } 
     }
-    const idx = localDb.branches ? localDb.branches.findIndex(b => String(b.id) === String(branchId)) : -1;
-    if (idx !== -1) { 
-        localDb.branches.splice(idx, 1); 
-        saveLocal(); 
-        return res.json({ success: true }); 
+
+    let deleted = false;
+    if (localDb.branches) {
+        const initialLen = localDb.branches.length;
+        localDb.branches = localDb.branches.filter(b => 
+            String(b.id || '').trim().toLowerCase() !== searchId && 
+            String(b._id || '').trim().toLowerCase() !== searchId &&
+            String(b.name || '').trim().toLowerCase() !== searchId &&
+            (!targetAccessKey || String(b.accessKey || '').trim().toLowerCase() !== targetAccessKey.toLowerCase())
+        );
+        if (localDb.branches.length < initialLen) deleted = true;
     }
-    res.status(404).json({ error: 'Not found' });
+
+    // Clean up associated manager accounts
+    if (localDb.admins) {
+        localDb.admins = localDb.admins.filter(a => 
+            String(a.branchId || '').toLowerCase() !== String(targetBranchId).toLowerCase() &&
+            (!targetAccessKey || String(a.email || '').toLowerCase() !== targetAccessKey.toLowerCase())
+        );
+    }
+
+    // Clean up associated staff, services, and clients
+    if (localDb.staff) {
+        localDb.staff = localDb.staff.filter(s => String(s.branchId || '').toLowerCase() !== String(targetBranchId).toLowerCase());
+    }
+    if (localDb.services) {
+        localDb.services = localDb.services.filter(s => String(s.branchId || '').toLowerCase() !== String(targetBranchId).toLowerCase());
+    }
+    if (localDb.clients) {
+        localDb.clients = localDb.clients.filter(c => String(c.branchId || '').toLowerCase() !== String(targetBranchId).toLowerCase());
+    }
+
+    saveLocal();
+
+    if (deleted || isConnected) {
+        return res.json({ success: true, message: `Branch ${targetBranchName} permanently deleted.`, deletedId: targetBranchId });
+    }
+    res.status(404).json({ error: 'Branch not found or already deleted.' });
 });
 
 app.post('/api/admin/reset-portal-data', requireAuth, authMiddleware(1), async (req, res) => {
@@ -3496,13 +3595,19 @@ app.put('/api/marketing/:id/deny', requireAuth, requireRole('super', 'owner', 'm
 });
 
 // --- Generate Branch Credentials ---
-app.post('/api/admin/generate-branch-credentials', requireAuth, authMiddleware(1), async (req, res) => {
+app.post('/api/admin/generate-branch-credentials', requireAuth, authMiddleware(3), async (req, res) => {
     const { branchId, branchName, accessKey, passcode } = req.body;
     const cleanPasscode = String(passcode || 'Branch@123').trim();
     const hashedPasscode = hashPassword(cleanPasscode);
     if (!localDb.branches) localDb.branches = [];
 
-    let branch = localDb.branches.find(b => (branchId && String(b.id) === String(branchId)) || (branchName && b.name === branchName));
+    const normBranchId = branchId ? decodeURIComponent(String(branchId).trim()).toLowerCase() : '';
+    const normBranchName = branchName ? decodeURIComponent(String(branchName).trim()).toLowerCase() : '';
+
+    let branch = localDb.branches.find(b => 
+        (normBranchId && (String(b.id || '').toLowerCase() === normBranchId || String(b._id || '').toLowerCase() === normBranchId)) || 
+        (normBranchName && String(b.name || '').toLowerCase() === normBranchName)
+    );
     if (!branch) {
         branch = {
             id: branchId || ('b' + Date.now()),
@@ -3516,12 +3621,14 @@ app.post('/api/admin/generate-branch-credentials', requireAuth, authMiddleware(1
     branch.accessKey = accessKey;
     branch.password = hashedPasscode;
     branch.displayPasscode = cleanPasscode;
-    branch.status = 'Active';
+    if (!branch.status || branch.status === 'Pending Review') {
+        branch.status = 'Active';
+    }
 
     // Synchronize to localDb.admins for instant login
     if (!localDb.admins) localDb.admins = [];
     const adminIdx = localDb.admins.findIndex(a => 
-        (branch.id && a.branchId === branch.id) || 
+        (branch.id && String(a.branchId || '').toLowerCase() === String(branch.id).toLowerCase()) || 
         (a.email && a.email.toLowerCase() === accessKey.toLowerCase())
     );
     const branchAdmin = {
@@ -3532,7 +3639,7 @@ app.post('/api/admin/generate-branch-credentials', requireAuth, authMiddleware(1
         branchId: branch.id,
         password: hashedPasscode,
         displayPasscode: cleanPasscode,
-        status: 'Active'
+        status: branch.status || 'Active'
     };
     if (adminIdx !== -1) {
         localDb.admins[adminIdx] = { ...localDb.admins[adminIdx], ...branchAdmin };
@@ -3550,7 +3657,7 @@ app.post('/api/admin/generate-branch-credentials', requireAuth, authMiddleware(1
                     accessKey: accessKey, 
                     password: hashedPasscode, 
                     displayPasscode: cleanPasscode, 
-                    status: 'Active', 
+                    status: branch.status || 'Active', 
                     verificationStatus: 'Approved' 
                 } },
                 { upsert: true }
@@ -3569,14 +3676,15 @@ app.post('/api/admin/generate-branch-credentials', requireAuth, authMiddleware(1
 
 // Dedicated secure endpoint for Super Admin to retrieve persistent salon credentials
 app.get('/api/admin/branch-credentials/:id', requireAuth, authMiddleware(3), async (req, res) => {
-    const { id } = req.params;
-    const searchId = String(id).trim().toLowerCase();
+    const rawId = req.params.id;
+    const branchId = decodeURIComponent(String(rawId || '').trim());
+    const searchId = branchId.toLowerCase();
 
     let branch = null;
     if (isConnected) {
         try {
             branch = await Branch.findOne({ 
-                $or: [{ id: id }, { name: id }, { accessKey: id }] 
+                $or: [{ id: branchId }, { name: branchId }, { accessKey: branchId }, { email: branchId }] 
             }).lean();
         } catch(e) {}
     }
@@ -3584,17 +3692,30 @@ app.get('/api/admin/branch-credentials/:id', requireAuth, authMiddleware(3), asy
         branch = localDb.branches.find(b => 
             String(b.id || '').toLowerCase() === searchId || 
             String(b.name || '').toLowerCase() === searchId ||
-            String(b.accessKey || '').toLowerCase() === searchId
+            String(b.accessKey || '').toLowerCase() === searchId ||
+            String(b.email || '').toLowerCase() === searchId
         );
     }
     if (!branch) {
         return res.status(404).json({ error: 'Branch not found' });
     }
 
+    let passcode = branch.displayPasscode;
+    if (!passcode && localDb.admins) {
+        const matchingAdmin = localDb.admins.find(a => 
+            (branch.id && String(a.branchId || '').toLowerCase() === String(branch.id).toLowerCase()) ||
+            (branch.accessKey && String(a.email || '').toLowerCase() === String(branch.accessKey).toLowerCase())
+        );
+        if (matchingAdmin && matchingAdmin.displayPasscode) {
+            passcode = matchingAdmin.displayPasscode;
+        }
+    }
+
     if (!branch.accessKey) {
         branch.accessKey = 'BR-' + (branch.name ? branch.name.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '') : 'SLN') + '-' + Math.floor(1000 + Math.random() * 9000);
-        branch.displayPasscode = branch.displayPasscode || 'Branch@123';
-        branch.password = hashPassword(branch.displayPasscode);
+        passcode = passcode || 'Branch@123';
+        branch.displayPasscode = passcode;
+        branch.password = hashPassword(passcode);
         saveLocal();
     }
 
@@ -3604,7 +3725,7 @@ app.get('/api/admin/branch-credentials/:id', requireAuth, authMiddleware(3), asy
         branchName: branch.name,
         accessKey: branch.accessKey,
         email: branch.email || branch.accessKey,
-        passcode: branch.displayPasscode || 'Branch@123',
+        passcode: passcode || branch.displayPasscode || 'Branch@123',
         status: branch.status || 'Active'
     });
 });

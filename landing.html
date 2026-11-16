@@ -369,6 +369,14 @@
             transform: translateY(0);
         }
 
+        /* Ensure partner brand logos grid is always immediately visible */
+        #landing-brand-logos-grid .reveal,
+        #landing-brand-logos-grid > div {
+            opacity: 1 !important;
+            transform: none !important;
+            visibility: visible !important;
+        }
+
         /* Custom scrollbars */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #030814; }

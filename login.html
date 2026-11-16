@@ -296,6 +296,33 @@
         const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
         const API_URL = isLocal ? 'http://localhost:5000' : '';
 
+        // Prefill credentials from Super Admin query parameters
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const keyParam = params.get('key') || params.get('accessKey') || params.get('email');
+            const passParam = params.get('pass') || params.get('passcode') || params.get('password');
+            const branchParam = params.get('branch');
+
+            if (keyParam) {
+                const keyInput = document.getElementById('access-key');
+                if (keyInput) keyInput.value = keyParam;
+            }
+            if (passParam) {
+                const passInput = document.getElementById('passcode');
+                if (passInput) passInput.value = passParam;
+            }
+            if (branchParam) {
+                const subTitle = document.querySelector('.brand-subtitle');
+                if (subTitle) subTitle.textContent = branchParam + ' · Portal Access';
+            }
+            if (keyParam && passParam) {
+                showAlert('✓ Credentials pre-filled from Super Admin. Click Authenticate to enter.');
+                alertBox.style.background = 'rgba(16, 185, 129, 0.15)';
+                alertBox.style.color = '#10b981';
+                alertBox.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+            }
+        });
+
         function showAlert(msg) {
             alertBox.textContent = msg;
             alertBox.style.display = 'block';

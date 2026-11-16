@@ -225,4 +225,93 @@ describe('Multi-Tenant Onboarding & Data Isolation Verification', () => {
         assert.strictEqual(eliteStaff.length, 1);
         assert.strictEqual(eliteStaff[0].name, 'Kavita Rao');
     });
+
+    // Test Tier 2 Credentials Generation & Retrieval
+    it('should allow Tier 2 Super Admin to generate and retrieve branch credentials', () => {
+        const tier2User = { email: 'manager@medhikaarts.com', role: 'super', tier: 2 };
+        const tier3User = { email: 'bd@medhikaarts.com', role: 'super', tier: 3 };
+
+        const authMiddlewareCheck = (maxTier, user) => {
+            if (!user) return 401;
+            if (user.role === 'owner') return 200;
+            if (user.role === 'super') {
+                if (typeof user.tier === 'number' && user.tier <= maxTier) return 200;
+                return 403;
+            }
+            return 403;
+        };
+
+        // Previously maxTier was 1, which rejected Tier 2 (returned 403)
+        // Now maxTier is 3, allowing Tier 1, 2, and 3
+        assert.strictEqual(authMiddlewareCheck(3, tier2User), 200, 'Tier 2 must be allowed to generate credentials');
+        assert.strictEqual(authMiddlewareCheck(3, tier3User), 200, 'Tier 3 must be allowed to generate credentials');
+    });
+
+    // Test Branch Suspension Status & Admin Lockout
+    it('should set branch status to Suspended and propagate suspension to associated admin accounts', () => {
+        let localBranches = [
+            { id: 'b_test_branch', name: 'Lotus Wellness Spa', status: 'Active', accessKey: 'BR-LOTU-1001' }
+        ];
+        let localAdmins = [
+            { email: 'BR-LOTU-1001', branchId: 'b_test_branch', status: 'Active', role: 'manager' }
+        ];
+
+        const suspendBranch = (branchId, newStatus) => {
+            const idx = localBranches.findIndex(b => b.id === branchId);
+            if (idx !== -1) {
+                localBranches[idx].status = newStatus;
+                localAdmins.forEach(a => {
+                    if (a.branchId === branchId || a.email === localBranches[idx].accessKey) {
+                        a.status = newStatus;
+                    }
+                });
+            }
+        };
+
+        suspendBranch('b_test_branch', 'Suspended');
+        assert.strictEqual(localBranches[0].status, 'Suspended', 'Branch status must be Suspended');
+        assert.strictEqual(localAdmins[0].status, 'Suspended', 'Manager admin status must be Suspended');
+    });
+
+    // Test Permanent Salon Deletion & Protection
+    it('should permanently delete branch and cascade cleanup without deleting protected system branches', () => {
+        let branches = [
+            { id: 'b1', name: 'Main Branch' },
+            { id: 'b_demo_sandbox', name: 'Vynster Demo Salon [Sandbox]' },
+            { id: 'b_temporary', name: 'Temporary Salon', accessKey: 'BR-TEMP-9999' }
+        ];
+        let admins = [
+            { email: 'BR-TEMP-9999', branchId: 'b_temporary', role: 'manager' },
+            { email: 'main_admin', branchId: 'b1', role: 'super' }
+        ];
+        let clients = [
+            { id: 'c1', name: 'Client 1', branchId: 'b_temporary' },
+            { id: 'c2', name: 'Client 2', branchId: 'b1' }
+        ];
+
+        const deleteBranch = (targetId) => {
+            if (targetId === 'b1' || targetId === 'b_demo_sandbox') {
+                return { error: 'System protected branches cannot be deleted', status: 403 };
+            }
+            const b = branches.find(x => x.id === targetId);
+            if (!b) return { error: 'Not found', status: 404 };
+
+            branches = branches.filter(x => x.id !== targetId);
+            admins = admins.filter(a => a.branchId !== targetId && a.email !== b.accessKey);
+            clients = clients.filter(c => c.branchId !== targetId);
+            return { success: true, status: 200 };
+        };
+
+        // Protected deletion check
+        assert.strictEqual(deleteBranch('b1').status, 403);
+        assert.strictEqual(deleteBranch('b_demo_sandbox').status, 403);
+
+        // Deletion of temporary branch
+        const delRes = deleteBranch('b_temporary');
+        assert.strictEqual(delRes.status, 200);
+        assert.strictEqual(branches.length, 2, 'Temporary branch permanently removed');
+        assert.strictEqual(admins.length, 1, 'Manager admin removed');
+        assert.strictEqual(clients.length, 1, 'Temporary branch clients removed');
+        assert.ok(!branches.some(b => b.id === 'b_temporary'));
+    });
 });

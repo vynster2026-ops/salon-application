@@ -2306,6 +2306,15 @@
       "displayPasscode": "Branch@123",
       "password": "scrypt:8879f9b8e06db5a74e52bacdcf34b7f1:aaa9f0d41eafc08ed65d0c54d07522e4f269a9be8ce3cd2f8f009ef0d30d8281572757224f866d776a408033259ca829e37f2173d474acdca8b716156a997d18",
       "status": "Active"
+    },
+    {
+      "email": "deletemelounge_admin@vynster.com",
+      "name": "Delete Me Lounge Manager",
+      "role": "manager",
+      "tier": 2,
+      "branchId": "b_delete_test_123",
+      "password": "scrypt:f08128075a1849c1c226abd88fa5f1a8:ad6d83377c7944a4120f5f83d83c0dbb95c80c48dfc1aff19f1820180dcdd1a9dd8b41b246c27ea80dd9e84dcb765b80966bd5b9246d25efe69654655d7469ae",
+      "status": "Active"
     }
   ],
   "leaveRequests": [],

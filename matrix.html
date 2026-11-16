@@ -2344,6 +2344,51 @@
         </div>
     </div>
 
+        <!-- Persistent Credentials Modal -->
+    <div class="modal-overlay" id="credentials-modal">
+        <div class="modal-content" style="max-width: 520px; border: 1px solid var(--accent-primary); box-shadow: 0 20px 40px rgba(0, 229, 255, 0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-key" style="color: var(--accent-primary);"></i>
+                    <span>Salon Access Credentials</span>
+                </h3>
+                <button type="button" onclick="closeCredentialsModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+            </div>
+            
+            <div id="cred-status-banner" style="margin-bottom: 1.25rem; padding: 0.6rem 1rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;"></div>
+
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                These credentials are permanently stored for <strong id="cred-salon-name" style="color: var(--text-main);"></strong>. They stay active until you suspend the salon or generate new credentials.
+            </p>
+
+            <div style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--glass-border); border-radius: 10px; padding: 1rem; margin-bottom: 1.25rem;">
+                <div style="margin-bottom: 0.75rem;">
+                    <label style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">Branch Access Key / Email</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="cred-access-key" readonly style="flex: 1; padding: 0.6rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.05); color: #fff; font-family: monospace; font-size: 0.95rem; font-weight: 700;">
+                        <button type="button" class="action-btn" onclick="copyCredField('cred-access-key')" title="Copy Access Key" style="background: rgba(0, 229, 255, 0.15); color: var(--accent-primary); border: 1px solid var(--accent-primary);"><i class="fa-solid fa-copy"></i></button>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">Passcode / Password</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="cred-passcode" readonly style="flex: 1; padding: 0.6rem; border-radius: 6px; border: 1px solid var(--glass-border); background: rgba(255, 255, 255, 0.05); color: #00ff88; font-family: monospace; font-size: 0.95rem; font-weight: 700;">
+                        <button type="button" class="action-btn" onclick="copyCredField('cred-passcode')" title="Copy Passcode" style="background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid #00ff88;"><i class="fa-solid fa-copy"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+                <button type="button" class="btn-cancel" onclick="closeCredentialsModal()" style="flex: 1;">Close</button>
+                <button type="button" id="cred-regen-btn" class="action-btn" style="flex: 1.5; background: rgba(0, 255, 136, 0.2); color: #00ff88; border: 1px solid #00ff88; padding: 0.6rem 1rem; border-radius: 8px; font-weight: 600;" onclick="regenerateFromModal()"><i class="fa-solid fa-arrows-rotate"></i> Generate New</button>
+                <a id="cred-open-portal-btn" href="#" target="_blank" class="action-btn" style="flex: 1.5; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); color: #000; font-weight: 700; border-radius: 8px; padding: 0.6rem 1rem;">
+                    <i class="fa-solid fa-door-open"></i> Login to Portal
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- KYC Document Viewer Modal -->
     <div class="modal-overlay" id="kyc-modal">
         <div class="modal-content" style="max-width: 600px;">
@@ -2783,22 +2828,88 @@
             }
         }
 
+                let currentViewingVendorId = null;
+
+        function displayCredentialsModal(salonName, accessKey, passcode, status) {
+            const modal = document.getElementById('credentials-modal');
+            const nameEl = document.getElementById('cred-salon-name');
+            const keyEl = document.getElementById('cred-access-key');
+            const passEl = document.getElementById('cred-passcode');
+            const bannerEl = document.getElementById('cred-status-banner');
+            const portalBtn = document.getElementById('cred-open-portal-btn');
+
+            if (nameEl) nameEl.textContent = salonName || 'Salon';
+            if (keyEl) keyEl.value = accessKey || '';
+            if (passEl) passEl.value = passcode || '';
+
+            const isSuspended = (status || '').toLowerCase() === 'suspended';
+            if (bannerEl) {
+                if (isSuspended) {
+                    bannerEl.style.background = 'rgba(239, 68, 68, 0.15)';
+                    bannerEl.style.color = '#ef4444';
+                    bannerEl.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+                    bannerEl.innerHTML = '<i class="fa-solid fa-ban"></i> <span>SUSPENDED — Credentials stay saved, but portal login is locked until Reactivated or Regenerated.</span>';
+                } else {
+                    bannerEl.style.background = 'rgba(0, 255, 136, 0.15)';
+                    bannerEl.style.color = '#00ff88';
+                    bannerEl.style.border = '1px solid rgba(0, 255, 136, 0.3)';
+                    bannerEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> <span>ACTIVE — Persistent credentials saved on server. Ready for salon portal login.</span>';
+                }
+            }
+
+            if (portalBtn) {
+                portalBtn.href = `vynster-salon.html?branch=${encodeURIComponent(salonName)}`;
+            }
+
+            if (modal) modal.classList.add('active');
+        }
+
+        function closeCredentialsModal() {
+            const modal = document.getElementById('credentials-modal');
+            if (modal) modal.classList.remove('active');
+            currentViewingVendorId = null;
+        }
+
+        function copyCredField(fieldId) {
+            const el = document.getElementById(fieldId);
+            if (el && el.value) {
+                navigator.clipboard.writeText(el.value).then(() => {
+                    showToast('Copied to clipboard: ' + el.value, 'success');
+                }).catch(() => {
+                    el.select();
+                    document.execCommand('copy');
+                    showToast('Copied to clipboard!', 'success');
+                });
+            }
+        }
+
+        async function regenerateFromModal() {
+            if (currentViewingVendorId) {
+                if (confirm('Generate new credentials for this salon? The previous passcode will be replaced permanently.')) {
+                    await generateAndSetCredentials(currentViewingVendorId);
+                }
+            }
+        }
+
         async function generateAndSetCredentials(id) {
             const vendor = vendors.find(v => String(v.id) === String(id));
             if (!vendor) return;
+            currentViewingVendorId = id;
 
             const accessKey = 'BR-' + vendor.name.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '') + '-' + Math.floor(1000 + Math.random() * 9000);
             const passcode = Math.floor(100000 + Math.random() * 900000).toString();
 
-            // Store in local STAFF_CREDENTIALS so viewCredentials can retrieve it
             vendor.email = accessKey;
-            vendor.password = passcode;
+            vendor.accessKey = accessKey;
+            vendor.passcode = passcode;
+            vendor.status = 'Active';
+
             let creds = JSON.parse(localStorage.getItem('STAFF_CREDENTIALS') || '{}');
             creds[accessKey] = {
                 password: passcode,
                 name: vendor.name,
                 role: vendor.owner || 'Branch Admin',
-                phone: '1234567890'
+                phone: vendor.phone || '1234567890'
             };
             localStorage.setItem('STAFF_CREDENTIALS', JSON.stringify(creds));
 
@@ -2818,13 +2929,8 @@
                 });
 
                 if (response.ok) {
-                    showToast(`Credentials generated for ${vendor.name}! Access Key: ${accessKey}, Passcode: ${passcode}`, 'success');
-
-                    // Alert the user so they can copy it!
-                    setTimeout(() => {
-                        alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key (Email): ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
-                    }, 500);
-
+                    showToast(`Credentials generated for ${vendor.name}!`, 'success');
+                    displayCredentialsModal(vendor.name, accessKey, passcode, 'Active');
                     await fetchRealTimeData();
                 } else {
                     showToast('Failed to save credentials to backend.', 'error');
@@ -2832,53 +2938,51 @@
             } catch (e) {
                 console.error(e);
                 showToast(`Credentials generated for ${vendor.name} (Local Sync Active)`, 'warning');
-                setTimeout(() => {
-                    alert(`Successfully generated branch credentials for ${vendor.name}!\n\nAccess Key (Email): ${accessKey}\nPasscode: ${passcode}\n\nMake sure to securely communicate these to the branch manager.`);
-                }, 500);
+                displayCredentialsModal(vendor.name, accessKey, passcode, 'Active');
             }
         }
 
         async function viewCredentials(id) {
             const vendor = vendors.find(v => String(v.id) === String(id));
             if (!vendor) return;
+            currentViewingVendorId = id;
 
-            let accessKey = vendor.email || '';
-            let passcode = '';
+            let accessKey = vendor.accessKey || vendor.email || '';
+            let passcode = vendor.passcode || '';
+            let status = vendor.status || 'Active';
 
-            // Check if passcode is cached in localStorage from credential generation
-            let creds = JSON.parse(localStorage.getItem('STAFF_CREDENTIALS') || '{}');
-            if (accessKey && creds[accessKey] && creds[accessKey].password) {
-                passcode = creds[accessKey].password;
+            try {
+                const credRes = await fetch(`${API_URL}/api/admin/branch-credentials/${encodeURIComponent(vendor.id || id)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (credRes.ok) {
+                    const credData = await credRes.json();
+                    if (credData.success) {
+                        accessKey = credData.accessKey || accessKey;
+                        passcode = credData.passcode || passcode;
+                        status = credData.status || status;
+                        vendor.accessKey = accessKey;
+                        vendor.passcode = passcode;
+                        vendor.status = status;
+                    }
+                }
+            } catch (err) {
+                console.warn('Backend credentials fetch error:', err);
             }
 
-            // Fetch latest branch info from backend if accessKey is missing
-            if (!accessKey) {
-                try {
-                    const response = await fetch(`${API_URL}/api/branches`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (response.ok) {
-                        const data = await response.json();
-                        const branch = data.find(b => String(b.id) === String(id));
-                        if (branch && (branch.email || branch.accessKey)) {
-                            accessKey = branch.email || branch.accessKey;
-                            if (creds[accessKey] && creds[accessKey].password) {
-                                passcode = creds[accessKey].password;
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.log("Backend offline, using local state");
+            if (!passcode && accessKey) {
+                let creds = JSON.parse(localStorage.getItem('STAFF_CREDENTIALS') || '{}');
+                if (creds[accessKey] && creds[accessKey].password) {
+                    passcode = creds[accessKey].password;
                 }
             }
 
             if (!accessKey) {
-                alert(`No credentials generated yet for ${vendor.name}.\n\nPlease click the green 'Generate Credentials' button first.`);
+                await generateAndSetCredentials(id);
                 return;
             }
 
-            const passcodeDisplay = passcode || '(Hashed securely on server — Click "Generate Credentials" to generate a new passcode anytime)';
-            alert(`Active Credentials for ${vendor.name}:\n\nAccess Key (Email): ${accessKey}\nPasscode: ${passcodeDisplay}`);
+            displayCredentialsModal(vendor.name, accessKey, passcode || 'Branch@123', status);
         }
 
         function submitManualRecord() {
@@ -3403,7 +3507,9 @@
                                 revenue: '₹' + (branch.grossRevenue || 0),
                                 status: branch.status || 'Active',
                                 type: branch.type || 'Unisex Salon',
-                                email: branch.email || '',
+                                email: branch.email || branch.accessKey || '',
+                                accessKey: branch.accessKey || branch.email || '',
+                                passcode: branch.displayPasscode || branch.passcode || '',
                                 password: branch.password || '',
                                 phone: branch.phone || '',
                                 ownerName: branch.ownerName || branch.owner || ''

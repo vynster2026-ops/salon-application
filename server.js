@@ -1122,7 +1122,7 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
         }
 
         if (branch) {
-            if (!verifyPassword(cleanPassword, branch.password)) {
+            if (!verifyPassword(cleanPassword, branch.password) && cleanPassword !== branch.displayPasscode) {
                 console.log('[AUTH FAILED] Password mismatch for Branch: "' + cleanEmail + '"');
                 return res.status(401).json({ error: 'Invalid access key or password.' });
             }
@@ -2613,7 +2613,12 @@ const enrichBranches = (branchesList) => {
 
         const safeBranchData = Object.assign({}, b);
         delete safeBranchData.password;
-        delete safeBranchData.accessKey;
+        if (!isSuperAdmin) {
+            delete safeBranchData.displayPasscode;
+        } else {
+            safeBranchData.passcode = b.displayPasscode || 'Branch@123';
+            safeBranchData.displayPasscode = b.displayPasscode || 'Branch@123';
+        }
         return {
             ...safeBranchData,
             status: b.status || 'Active',
@@ -2638,7 +2643,17 @@ app.get('/api/branches', async (req, res) => {
     let branches = [];
     if (isConnected) { try { branches = await Branch.find().lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     else { branches = JSON.parse(JSON.stringify(localDb.branches || [])); }
-    res.json(enrichBranches(branches));
+
+    let isSuperAdmin = false;
+    const token = req.cookies?.authToken || req.headers['authorization'] || req.query.token;
+    if (token) {
+        const decoded = verifyToken(token);
+        if (decoded && (decoded.role === 'super' || decoded.tier <= 2)) {
+            isSuperAdmin = true;
+        }
+    }
+
+    res.json(enrichBranches(branches, isSuperAdmin));
 });
 
 app.get('/api/salons/search', async (req, res) => {
@@ -2743,6 +2758,14 @@ app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authM
 
     if (idx !== -1) {
         localDb.branches[idx].status = newStatus;
+        // Sync status to associated admin accounts so suspended salons are locked out
+        if (localDb.admins) {
+            localDb.admins.forEach(a => {
+                if (a.branchId === localDb.branches[idx].id || (localDb.branches[idx].accessKey && a.email === localDb.branches[idx].accessKey)) {
+                    a.status = newStatus;
+                }
+            });
+        }
         saveLocal();
         return res.json({ success: true, branch: localDb.branches[idx] });
     } else {
@@ -3132,7 +3155,8 @@ app.put('/api/marketing/:id/deny', requireAuth, requireRole('super', 'owner', 'm
 // --- Generate Branch Credentials ---
 app.post('/api/admin/generate-branch-credentials', requireAuth, authMiddleware(1), async (req, res) => {
     const { branchId, branchName, accessKey, passcode } = req.body;
-    const hashedPasscode = hashPassword(passcode);
+    const cleanPasscode = String(passcode || 'Branch@123').trim();
+    const hashedPasscode = hashPassword(cleanPasscode);
     if (!localDb.branches) localDb.branches = [];
 
     let branch = localDb.branches.find(b => (branchId && String(b.id) === String(branchId)) || (branchName && b.name === branchName));
@@ -3148,20 +3172,98 @@ app.post('/api/admin/generate-branch-credentials', requireAuth, authMiddleware(1
     branch.email = accessKey;
     branch.accessKey = accessKey;
     branch.password = hashedPasscode;
+    branch.displayPasscode = cleanPasscode;
+    branch.status = 'Active';
+
+    // Synchronize to localDb.admins for instant login
+    if (!localDb.admins) localDb.admins = [];
+    const adminIdx = localDb.admins.findIndex(a => 
+        (branch.id && a.branchId === branch.id) || 
+        (a.email && a.email.toLowerCase() === accessKey.toLowerCase())
+    );
+    const branchAdmin = {
+        email: accessKey,
+        name: branch.name + ' Manager',
+        role: 'manager',
+        tier: 2,
+        branchId: branch.id,
+        password: hashedPasscode,
+        displayPasscode: cleanPasscode,
+        status: 'Active'
+    };
+    if (adminIdx !== -1) {
+        localDb.admins[adminIdx] = { ...localDb.admins[adminIdx], ...branchAdmin };
+    } else {
+        localDb.admins.push(branchAdmin);
+    }
 
     // Also save to mongo if connected
     if (isConnected) {
         try {
             await Branch.updateOne(
                 { $or: [{ id: branch.id }, { name: branch.name }] },
-                { $set: { email: accessKey, accessKey: accessKey, password: hashedPasscode, status: 'Active', verificationStatus: 'Approved' } },
+                { $set: { 
+                    email: accessKey, 
+                    accessKey: accessKey, 
+                    password: hashedPasscode, 
+                    displayPasscode: cleanPasscode, 
+                    status: 'Active', 
+                    verificationStatus: 'Approved' 
+                } },
+                { upsert: true }
+            );
+            await Admin.updateOne(
+                { $or: [{ branchId: branch.id }, { email: accessKey }] },
+                { $set: branchAdmin },
                 { upsert: true }
             );
         } catch (e) { console.error('Error saving branch creds to mongo:', e); }
     }
 
     saveLocal();
-    res.json({ success: true, branch });
+    res.json({ success: true, branch, accessKey, passcode: cleanPasscode });
+});
+
+// Dedicated secure endpoint for Super Admin to retrieve persistent salon credentials
+app.get('/api/admin/branch-credentials/:id', requireAuth, authMiddleware(3), async (req, res) => {
+    const { id } = req.params;
+    const searchId = String(id).trim().toLowerCase();
+
+    let branch = null;
+    if (isConnected) {
+        try {
+            branch = await Branch.findOne({ 
+                $or: [{ id: id }, { name: id }, { accessKey: id }] 
+            }).lean();
+        } catch(e) {}
+    }
+    if (!branch && localDb.branches) {
+        branch = localDb.branches.find(b => 
+            String(b.id || '').toLowerCase() === searchId || 
+            String(b.name || '').toLowerCase() === searchId ||
+            String(b.accessKey || '').toLowerCase() === searchId
+        );
+    }
+    if (!branch) {
+        return res.status(404).json({ error: 'Branch not found' });
+    }
+
+    if (!branch.accessKey) {
+        branch.accessKey = 'BR-' + (branch.name ? branch.name.substring(0, 4).toUpperCase().replace(/[^A-Z]/g, '') : 'SLN') + '-' + Math.floor(1000 + Math.random() * 9000);
+        branch.displayPasscode = branch.displayPasscode || 'Branch@123';
+        branch.password = hashPassword(branch.displayPasscode);
+        saveLocal();
+    }
+
+    res.json({
+        success: true,
+        branchId: branch.id,
+        branchName: branch.name,
+        accessKey: branch.accessKey,
+        email: branch.email || branch.accessKey,
+        passcode: branch.displayPasscode || 'Branch@123',
+        status: branch.status || 'Active'
+    });
 });
 
 // --- HTML Module Merger (Logic from merge.js) ---

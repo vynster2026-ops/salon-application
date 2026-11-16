@@ -2063,7 +2063,10 @@
         "price": "₹1,999/mo",
         "expiry": "2027-12-31",
         "status": "Active"
-      }
+      },
+      "accessKey": "BR-MAIN-1001",
+      "displayPasscode": "Branch@123",
+      "password": "scrypt:8879f9b8e06db5a74e52bacdcf34b7f1:aaa9f0d41eafc08ed65d0c54d07522e4f269a9be8ce3cd2f8f009ef0d30d8281572757224f866d776a408033259ca829e37f2173d474acdca8b716156a997d18"
     }
   ],
   "chains": [],
@@ -2127,6 +2130,16 @@
       "name": "Business Development (Tier 3)",
       "role": "super",
       "tier": 3,
+      "status": "Active"
+    },
+    {
+      "email": "BR-MAIN-1001",
+      "name": "Main Branch Manager",
+      "role": "manager",
+      "tier": 2,
+      "branchId": "b1",
+      "displayPasscode": "Branch@123",
+      "password": "scrypt:8879f9b8e06db5a74e52bacdcf34b7f1:aaa9f0d41eafc08ed65d0c54d07522e4f269a9be8ce3cd2f8f009ef0d30d8281572757224f866d776a408033259ca829e37f2173d474acdca8b716156a997d18",
       "status": "Active"
     }
   ],

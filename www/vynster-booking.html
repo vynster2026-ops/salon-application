@@ -5,6 +5,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Vynster Salon | Online Client Booking</title>
+  <!-- Socket.IO for real-time live synchronization across all 4 dashboards -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    var socket = null;
+    try {
+      socket = io();
+      socket.on('connect', function() {
+        console.log('[REALTIME SOCKET.IO] Connected in Reception Booking Dashboard (vynster-booking.html)');
+      });
+      socket.on('sync_refresh', function(event) {
+        console.log('[REALTIME SYNC EVENT RECEIVE]', event);
+        if (typeof fetchServices === 'function') fetchServices();
+        if (typeof fetchStaff === 'function') fetchStaff();
+      });
+    } catch(e) {}
+  </script>
   <!-- Clerk Authentication SDK -->
   <script async crossorigin="anonymous" data-clerk-publishable-key="pk_test_Y2xlcmsubWVkaGlrYWFydHMuY29tJA"
     src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"></script>
@@ -1129,6 +1145,67 @@
 </head>
 
 <body>
+  <!-- SUSPENDED SALON OVERLAY -->
+  <style>
+    @keyframes blinkBookingAdmin {
+        0%, 100% {
+            opacity: 1;
+            background: #ef4444;
+            box-shadow: 0 0 35px rgba(239, 68, 68, 0.95), inset 0 0 15px rgba(255,255,255,0.4);
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.25;
+            background: #7f1d1d;
+            box-shadow: 0 0 5px rgba(239, 68, 68, 0.2);
+            transform: scale(0.98);
+        }
+    }
+    @keyframes pulseBookingLogo {
+        0%, 100% {
+            transform: scale(1);
+            filter: drop-shadow(0 0 20px rgba(244,6,6,0.85)) drop-shadow(0 0 40px rgba(4,19,48,0.9));
+        }
+        50% {
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 35px rgba(255,65,108,1)) drop-shadow(0 0 60px rgba(255,75,43,0.95));
+        }
+    }
+  </style>
+  <!-- SUSPENDED SALON OVERLAY - Real-Time Booking Lockout with Vynster Logo & Blinking CONTACT ADMIN -->
+  <div id="booking-suspended-overlay" style="display:none; position:fixed; inset:0; z-index:9999999; background:linear-gradient(135deg,rgba(15,12,41,0.96),rgba(48,43,99,0.96),rgba(36,36,62,0.96)); backdrop-filter:blur(25px); align-items:center; justify-content:center; flex-direction:column; font-family:'Outfit',sans-serif; pointer-events:all; user-select:none;">
+    <div style="text-align:center; padding:45px 35px; max-width:540px; width:90%; background:rgba(20,20,35,0.88); border:2px solid rgba(239,68,68,0.4); border-radius:24px; box-shadow:0 30px 80px rgba(0,0,0,0.8);">
+      <!-- Vynster Logo Emblem -->
+      <div style="width:110px; height:110px; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(244,6,6,0.12); border:1px solid rgba(244,6,6,0.3); animation:pulseBookingLogo 2s infinite ease-in-out;">
+        <img src="vynster-logo.png" alt="Vynster Logo" style="width:75px; height:75px; object-fit:contain;" onerror="this.src='../vynster-logo.png'">
+      </div>
+
+      <!-- Prominent Blinking Banner -->
+      <div style="animation:blinkBookingAdmin 1s infinite ease-in-out; color:#ffffff; font-size:18px; font-weight:900; letter-spacing:2px; padding:12px 20px; border-radius:12px; margin-bottom:18px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.3);">
+        ⚠️ CONTACT ADMIN IMMEDIATELY ⚠️
+      </div>
+
+      <h1 style="color:#ffffff; font-size:24px; font-weight:800; margin-bottom:10px; letter-spacing:-0.5px;">Booking Portal Suspended</h1>
+      <p style="color:#cbd5e1; font-size:14px; line-height:1.6; margin-bottom:22px;">This salon portal has been suspended by Super Admin. Client appointments and online booking have been stopped immediately.</p>
+
+      <div style="background:rgba(255,255,255,0.06); border-radius:14px; padding:18px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.12); text-align:left;">
+        <p style="color:#f87171; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; text-align:center;">Contact Super Admin for Reactivation</p>
+        <div style="display:flex; align-items:center; gap:10px; color:#f1f5f9; font-size:14px; font-weight:600; margin-bottom:8px;">
+          <span>📱</span>
+          <a href="tel:+919876543210" style="color:#38bdf8; text-decoration:none; font-weight:700;">+91 98765 43210 / 1800-VYNSTER</a>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; color:#f1f5f9; font-size:14px; font-weight:600; margin-bottom:8px;">
+          <span>📧</span>
+          <a href="mailto:support@vynster.com" style="color:#38bdf8; text-decoration:none;">support@vynster.com</a>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; color:#f1f5f9; font-size:14px; font-weight:600;">
+          <span>🌐</span>
+          <a href="https://vynster.com" target="_blank" style="color:#38bdf8; text-decoration:none;">vynster.com</a>
+        </div>
+      </div>
+      <p style="color:#94a3b8; font-size:12px; margin:0;">Status: <span style="color:#ef4444; font-weight:800;">SUSPENDED</span> · Salon: <span id="booking-suspended-branch-name" style="font-family:monospace; color:#f8fafc; font-weight:700;"></span></p>
+    </div>
+  </div>
 
   <h2 style="position:absolute;left:-9999px">Vynster live appointment booking module with AI slot intelligence and
     real
@@ -1139,7 +1216,7 @@
 
 
   <script>
-    const API_URL = (window.location.protocol === 'file:' || window.location.port === '5500' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('loca.lt')) ? 'http://127.0.0.1:5000/api' : '/api';
+    const API_URL = localStorage.getItem('CUSTOM_API_URL') || ((window.location.protocol === 'file:' || window.location.port === '5500' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('loca.lt')) ? 'http://127.0.0.1:5000/api' : '/api');
     let CLIENTS = [];
     let BOOKINGS = [];
     let SERVICES = [];
@@ -1147,6 +1224,35 @@
     let FEMALE_SERVICES_IDS = [];
     let MALE_SERVICES_IDS = [];
 
+    // Check branch suspension for bookings
+    async function checkBookingBranchSuspension() {
+      try {
+        const urlP = new URLSearchParams(window.location.search);
+        const bTarget = urlP.get('branch') || urlP.get('branchId') || localStorage.getItem('selectedBranch') || 'Main Branch';
+        const res = await fetch(`${API_URL}/branches`);
+        if (!res.ok) return;
+        const branches = await res.json();
+        const curTarget = String(bTarget).trim().toLowerCase();
+        const branch = branches.find(b => {
+          const bid = String(b.id || b._id || '').trim().toLowerCase();
+          const bname = String(b.name || '').trim().toLowerCase();
+          return bid === curTarget || bname === curTarget;
+        });
+        const overlay = document.getElementById('booking-suspended-overlay');
+        const nameEl = document.getElementById('booking-suspended-branch-name');
+        if (branch && (branch.status === 'Suspended' || branch.status === 'Inactive')) {
+          if (nameEl) nameEl.textContent = branch.name || branch.id || bTarget;
+          if (overlay) overlay.style.display = 'flex';
+        } else if (branch && branch.status === 'Active') {
+          if (overlay && overlay.style.display !== 'none') overlay.style.display = 'none';
+        }
+      } catch(e) {}
+    }
+    checkBookingBranchSuspension();
+    setInterval(checkBookingBranchSuspension, 3000);
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'branch_status_update') checkBookingBranchSuspension();
+    });
 
 
 
@@ -1157,18 +1263,53 @@
 
 
 
+
+
+        window.DEFAULT_SERVICES = [
+      { id: 'svc1', name: 'Royal Hair Cut & Style', cat: 'Hair', duration: 45, price: 500, prices: [500], gender: 'both', icon: 'fa-cut' },
+      { id: 'svc2', name: 'Signature Glow Facial', cat: 'Skincare', duration: 60, price: 1200, prices: [1200], gender: 'both', icon: 'fa-spa' },
+      { id: 'svc3', name: 'Keratin Hair Spa & Treatment', cat: 'Hair', duration: 90, price: 2500, prices: [2500], gender: 'female', icon: 'fa-pump-soap' },
+      { id: 'svc4', name: 'Deluxe Pedicure & Foot Spa', cat: 'Nails', duration: 45, price: 800, prices: [800], gender: 'both', icon: 'fa-hand-sparkles' },
+      { id: 'svc5', name: 'Beard Sculpting & Royal Shave', cat: 'Grooming', duration: 30, price: 350, prices: [350], gender: 'male', icon: 'fa-scissors' },
+      { id: 'svc6', name: 'Global Hair Coloring & Highlights', cat: 'Hair', duration: 120, price: 3500, prices: [3500], gender: 'both', icon: 'fa-paint-brush' },
+      { id: 'svc7', name: 'Bridal & Occasion Makeup', cat: 'Makeup', duration: 90, price: 5000, prices: [5000], gender: 'female', icon: 'fa-wand-magic-sparkles' }
+    ];
+
+    window.DEFAULT_STAFF = [
+      { id: 'st1', staffId: 'st1', name: 'Rohan Sharma', spec: 'Senior Hair Director', rating: 4.9, av: 'av-1', status: 'Available', gender: 'both', services: ['all'] },
+      { id: 'st2', staffId: 'st2', name: 'Priya Patel', spec: 'Nail & Spa Artist', rating: 4.8, av: 'av-2', status: 'Available', gender: 'both', services: ['all'] },
+      { id: 'st3', staffId: 'st3', name: 'Anita Rao', spec: 'Skin & Facial Specialist', rating: 5.0, av: 'av-3', status: 'Available', gender: 'female', services: ['all'] },
+      { id: 'st4', staffId: 'st4', name: 'Vikram Mehta', spec: 'Master Barber & Stylist', rating: 4.7, av: 'av-4', status: 'Available', gender: 'male', services: ['all'] }
+    ];
 
     async function loadFromDB() {
       try {
         const ts = Date.now();
+        const urlParams = new URLSearchParams(window.location.search);
+        const bTarget = urlParams.get('branch') || urlParams.get('branchId') || localStorage.getItem('selectedBranch') || '';
+        const bQuery = bTarget ? `&branch=${encodeURIComponent(bTarget)}&branchId=${encodeURIComponent(bTarget)}` : '';
+        const token = localStorage.getItem('adminToken') || localStorage.getItem('token') || '';
+        const fetchOpts = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {};
+
         const [cRes, bRes, sRes, svRes] = await Promise.all([
-          fetch(`${API_URL}/clients?_t=${ts}`),
-          fetch(`${API_URL}/bookings?_t=${ts}`),
-          fetch(`${API_URL}/staff?_t=${ts}`),
-          fetch(`${API_URL}/services?_t=${ts}`)
+          fetch(`${API_URL}/clients?_t=${ts}${bQuery}`, fetchOpts).catch(() => ({ ok: false })),
+          fetch(`${API_URL}/bookings?_t=${ts}${bQuery}`, fetchOpts).catch(() => ({ ok: false })),
+          fetch(`${API_URL}/staff/public?_t=${ts}${bQuery}`).catch(() => fetch(`${API_URL}/staff?_t=${ts}${bQuery}`, fetchOpts).catch(() => ({ ok: false }))),
+          fetch(`${API_URL}/services?_t=${ts}${bQuery}`).catch(() => ({ ok: false }))
         ]);
-        CLIENTS = await cRes.json();
-        let rawBookings = await bRes.json();
+
+        if (cRes.ok) {
+          const cData = await cRes.json().catch(() => []);
+          CLIENTS = Array.isArray(cData) ? cData : [];
+        } else {
+          CLIENTS = [];
+        }
+
+        let rawBookings = [];
+        if (bRes.ok) {
+          const bData = await bRes.json().catch(() => []);
+          rawBookings = Array.isArray(bData) ? bData : [];
+        }
         const now = new Date();
         BOOKINGS = rawBookings.map(b => {
           const stat = (b.status || '').toLowerCase();
@@ -1183,14 +1324,30 @@
           }
           return b;
         });
-        STAFF = await sRes.json();
-        SERVICES = await svRes.json();
 
-        FEMALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'female' || s.gender === 'unisex').map(s => s.id);
-        MALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'male' || s.gender === 'unisex').map(s => s.id);
+        if (sRes.ok) {
+          const stData = await sRes.json().catch(() => []);
+          STAFF = (Array.isArray(stData) && stData.length > 0) ? stData : window.DEFAULT_STAFF;
+        } else {
+          STAFF = window.DEFAULT_STAFF;
+        }
+
+        if (svRes.ok) {
+          const svData = await svRes.json().catch(() => []);
+          SERVICES = (Array.isArray(svData) && svData.length > 0) ? svData : window.DEFAULT_SERVICES;
+        } else {
+          SERVICES = window.DEFAULT_SERVICES;
+        }
+
+        FEMALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'female' || s.gender === 'both' || s.gender === 'unisex').map(s => s.id);
+        MALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'male' || s.gender === 'both' || s.gender === 'unisex').map(s => s.id);
         updateConnectionStatus(true);
       } catch (err) {
         console.error('API Error:', err);
+        SERVICES = window.DEFAULT_SERVICES;
+        STAFF = window.DEFAULT_STAFF;
+        FEMALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'female' || s.gender === 'both' || s.gender === 'unisex').map(s => s.id);
+        MALE_SERVICES_IDS = SERVICES.filter(s => s.gender === 'male' || s.gender === 'both' || s.gender === 'unisex').map(s => s.id);
         updateConnectionStatus(false);
       }
 
@@ -2102,12 +2259,16 @@ ${buildCategoryModal()}`;
     }
 
     function buildStep2() {
-      let filteredServices = SERVICES.filter(s => s.gender === state.selectedGender || s.gender === 'unisex');
+      let filteredServices = SERVICES.filter(s => {
+        const sg = (state.selectedGender || '').toLowerCase();
+        const g = (s.gender || 'both').toLowerCase();
+        return g === 'both' || g === 'all' || g === 'unisex' || g === sg || !sg;
+      });
       if (state.serviceQuery && state.serviceQuery.trim()) {
         const q = state.serviceQuery.toLowerCase();
-        filteredServices = filteredServices.filter(s => s.name.toLowerCase().includes(q) || s.cat.toLowerCase().includes(q));
+        filteredServices = filteredServices.filter(s => s.name.toLowerCase().includes(q) || (s.cat && s.cat.toLowerCase().includes(q)));
       }
-      const cats = ['All', ...new Set(filteredServices.map(s => s.cat))];
+      const cats = ['All', ...new Set(filteredServices.map(s => s.cat || 'General'))];
       return `<div class="card" style="display: flex; flex-direction: column; max-height: 80vh;">
   <div class="card-title" style="display:flex;justify-content:space-between;align-items:center; flex-shrink: 0; margin-bottom: 16px;">
     <span>Select category for ${state.selectedGender === 'male' ? 'Men' : 'Women'}</span>
@@ -2156,7 +2317,13 @@ ${buildCategoryModal()}`;
     function buildCategoryModal() {
       if (!state.selectedCategoryForModal) return '';
       const cat = state.selectedCategoryForModal;
-      let filteredServices = SERVICES.filter(s => (s.gender === state.selectedGender || s.gender === 'unisex') && (cat === 'All' || s.cat === cat));
+      let filteredServices = SERVICES.filter(s => {
+        const sg = (state.selectedGender || '').toLowerCase();
+        const g = (s.gender || 'both').toLowerCase();
+        const genderMatches = g === 'both' || g === 'all' || g === 'unisex' || g === sg || !sg;
+        const catMatches = cat === 'All' || s.cat === cat || (s.cat && s.cat.toLowerCase() === cat.toLowerCase());
+        return genderMatches && catMatches;
+      });
       if (state.serviceQuery && state.serviceQuery.trim()) {
         const q = state.serviceQuery.toLowerCase();
         filteredServices = filteredServices.filter(s => s.name.toLowerCase().includes(q));
@@ -2890,12 +3057,14 @@ ${buildCategoryModal()}`;
       const ssi = document.getElementById('serviceSearchInput');
       if (ssi) {
         ssi.addEventListener('input', e => {
+          const currentScrollY = window.scrollY || document.documentElement.scrollTop;
           state.serviceQuery = e.target.value;
           render();
+          window.scrollTo(0, currentScrollY);
           const newSsi = document.getElementById('serviceSearchInput');
           if (newSsi) {
-            newSsi.focus();
-            newSsi.selectionStart = newSsi.selectionEnd = newSsi.value.length;
+            newSsi.focus({ preventScroll: true });
+            try { newSsi.selectionStart = newSsi.selectionEnd = newSsi.value.length; } catch(err){}
           }
         });
       }

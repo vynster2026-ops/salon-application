@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Super Admin Portal | MedhikaArts</title>
+    <title>Super Admin Portal | Vynster</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -1194,7 +1194,7 @@
                 </button>
                 <div class="greeting">
                     <h1 id="page-title">Super Admin Headquarters</h1>
-                    <p id="page-subtitle">Welcome back, Chief. Here is the global overview of MedhikaArts.</p>
+                    <p id="page-subtitle">Welcome back, Chief. Here is the global overview of Vynster Salon Platform Network.</p>
                 </div>
             </div>
 
@@ -1417,7 +1417,7 @@
             <div class="glass-panel" style="padding: 2rem;">
                 <h2>Salon Verification & KYC</h2>
                 <p style="color: var(--text-muted); margin-top: 1rem; margin-bottom: 2rem;">Review newly registered
-                    salons, verify their owner identity (Aadhaar, PAN), and approve their listing on MedhikaArts.</p>
+                    salons, verify their owner identity (Aadhaar, PAN), and approve their listing on Vynster.</p>
 
                 <h3 style="margin-bottom: 1rem; color: var(--accent-primary);">Pending Salon Approvals</h3>
                 <div id="verification-queue"
@@ -1753,7 +1753,7 @@
                             <h3 style="color: #166534; margin-bottom: 1rem;">Platform Fees Collected</h3>
                             <h1 id="kpi-fees-collected" style="font-size: 3rem; color: #00ff88;">₹0</h1>
                             <p style="color: var(--text-muted); margin-top: 1rem; line-height: 1.5;">Total gross
-                                platform fees accumulated from all successful procedures and bookings across MedhikaArts
+                                platform fees accumulated from all successful procedures and bookings across Vynster Platform Network
                                 vendor network.</p>
                         </div>
                     </div>
@@ -2439,7 +2439,7 @@
             <h3><i class="fa-solid fa-triangle-exclamation" style="color:#ff007a; margin-right:10px;"></i>Suspend
                 License?</h3>
             <p>Are you sure you want to suspend the license for <strong id="modal-salon-name"></strong>? They will
-                immediately lose access to the MedhikaArts platform.</p>
+                immediately lose access to the Vynster platform.</p>
             <div class="modal-actions">
                 <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
                 <button type="button" class="btn-confirm-suspend" onclick="confirmSuspend()">Yes, Suspend</button>
@@ -3211,7 +3211,7 @@
 
             // Enforce Tier 3 Restrictions: ONLY Overview, Onboarding, Business Analysis, and Ad Management
             if (tier === 3) {
-                const allowed = ['overview', 'marketing', 'business-analysis', 'ad-manager'];
+                const allowed = ['overview', 'marketing', 'business-analysis', 'ad-manager', 'landing-cms'];
                 document.querySelectorAll('.nav-item').forEach(item => {
                     const target = item.getAttribute('data-target');
                     if (target && !allowed.includes(target)) {
@@ -3230,7 +3230,7 @@
                             e.preventDefault();
                             e.stopPropagation();
                             if (typeof showToast === 'function') {
-                                showToast('Tier 3 Restriction: You only have access to Overview, Onboarding, Business Analysis, and Ad Management.', 'error');
+                                showToast('Tier 3 Restriction: You have access to Overview, Onboarding, Business Analysis, Ad Management, and Landing Page CMS.', 'error');
                             }
                         };
                     }
@@ -3342,10 +3342,10 @@
             try { currentAdmin = JSON.parse(localStorage.getItem('adminUser') || '{}'); } catch(e) {}
             const userTier = Number(currentAdmin.tier) || 1;
             if (userTier === 3) {
-                const allowedTier3 = ['overview', 'marketing', 'business-analysis', 'ad-manager'];
+                const allowedTier3 = ['overview', 'marketing', 'business-analysis', 'ad-manager', 'landing-cms'];
                 if (!allowedTier3.includes(target)) {
                     if (typeof showToast === 'function') {
-                        showToast('Access Restricted: Tier 3 is limited to Overview, Onboarding, Business Analysis, and Ad Management.', 'error');
+                        showToast('Access Restricted: Tier 3 is limited to Overview, Onboarding, Business Analysis, Ad Management, and Landing Page CMS.', 'error');
                     }
                     return;
                 }
@@ -3357,7 +3357,7 @@
             const pageSubtitle = document.getElementById('page-subtitle');
 
             const sectionTitles = {
-                'overview': { title: 'Super Admin Headquarters', subtitle: 'Welcome back, Chief. Here is the global overview of MedhikaArts.' },
+                'overview': { title: 'Super Admin Headquarters', subtitle: 'Welcome back, Chief. Here is the global overview of Vynster Salon Platform Network.' },
                 'salons': { title: 'Salons & Vendors', subtitle: 'Manage active platform vendors and their subscriptions.' },
                 'verification': { title: 'Verification & KYC', subtitle: 'Review and approve new salon applications and documents.' },
                 'users': { title: 'Annual Report', subtitle: 'Analyze annual financial performance, growth trajectories, and yearly metrics.' },
@@ -4698,7 +4698,7 @@
         }
 
         function signOut() {
-            showToast('Signing out of MedhikaArts Super Admin...', 'success');
+            showToast('Signing out of Vynster Super Admin...', 'success');
             localStorage.removeItem('adminToken');
             localStorage.removeItem('adminUser');
             setTimeout(() => {
@@ -4966,7 +4966,7 @@
         }
 
         function exportBusinessAnalysisReport(type) {
-            alert(`Exporting Business Development Analytics Report as ${type.toUpperCase()}...`);
+            alert(`Exporting Salon Business Analytics Report as ${type.toUpperCase()}...`);
         }
 
         const originalFetchRealTimeData = fetchRealTimeData;

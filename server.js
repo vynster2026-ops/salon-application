@@ -1035,8 +1035,19 @@ const saveLocal = () => {
     fs.writeFile(tempFile, JSON.stringify(localDb, null, 2), 'utf8', (err) => {
         if (!err) {
             fs.rename(tempFile, DB_FILE, (renameErr) => {
+                if (renameErr) {
+                    fs.copyFile(tempFile, DB_FILE, (copyErr) => {
+                        try { fs.unlinkSync(tempFile); } catch (e) {}
+                        isSavingLocal = false;
+                        if (copyErr) console.error('[LOCAL DB] Fallback copy error:', copyErr.message);
+                        if (queuedSaveLocal) {
+                            queuedSaveLocal = false;
+                            saveLocal();
+                        }
+                    });
+                    return;
+                }
                 isSavingLocal = false;
-                if (renameErr) console.error('[LOCAL DB] Atomic rename error:', renameErr.message);
                 if (queuedSaveLocal) {
                     queuedSaveLocal = false;
                     saveLocal();

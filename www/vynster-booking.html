@@ -1241,8 +1241,15 @@
         const overlay = document.getElementById('booking-suspended-overlay');
         const nameEl = document.getElementById('booking-suspended-branch-name');
         if (branch && (branch.status === 'Suspended' || branch.status === 'Inactive')) {
-          if (nameEl) nameEl.textContent = branch.name || branch.id || bTarget;
+          const bDisplayName = branch.name || branch.id || bTarget;
+          if (nameEl) nameEl.textContent = bDisplayName;
           if (overlay) overlay.style.display = 'flex';
+          localStorage.setItem("selectedBranch", bDisplayName);
+          if (branch.id) localStorage.setItem("branchId", branch.id);
+          const url = new URL(window.location);
+          url.searchParams.set('branch', bDisplayName);
+          if (branch.id) url.searchParams.set('branchId', branch.id);
+          window.history.replaceState({}, '', url);
         } else if (branch && branch.status === 'Active') {
           if (overlay && overlay.style.display !== 'none') overlay.style.display = 'none';
         }

@@ -8085,6 +8085,19 @@
                 if (res.ok) {
                     const branches = await res.json();
                     window.allBranchesList = branches;
+
+                    // Also resolve window.currentBranchId if currently undefined
+                    if (window.currentBranch) {
+                        const cur = branches.find(b => 
+                            String(b.name || '').trim().toLowerCase() === String(window.currentBranch).trim().toLowerCase() ||
+                            String(b.id || '').trim().toLowerCase() === String(window.currentBranch).trim().toLowerCase()
+                        );
+                        if (cur) {
+                            window.currentBranchId = cur.id || cur._id;
+                            localStorage.setItem("branchId", window.currentBranchId);
+                        }
+                    }
+
                     const dropdown = document.getElementById('branch-selector-dropdown');
                     if (dropdown && Array.isArray(branches) && branches.length > 0) {
                         dropdown.innerHTML = '';
@@ -8105,6 +8118,9 @@
                             }
                             dropdown.appendChild(opt);
                         });
+                        if (window.isPortalSuspended) {
+                            dropdown.disabled = true;
+                        }
                     }
                 }
             } catch (e) {
@@ -8114,6 +8130,12 @@
 
         function onSwitchActiveSalon(selectedSalonName) {
             if (!selectedSalonName) return;
+            if (window.isPortalSuspended) {
+                console.warn('[SUSPENDED] Switching branch blocked: salon operations are suspended by Super Admin.');
+                const dropdown = document.getElementById('branch-selector-dropdown');
+                if (dropdown && window.currentBranch) dropdown.value = window.currentBranch;
+                return;
+            }
             window.currentBranch = selectedSalonName;
             localStorage.setItem("selectedBranch", selectedSalonName);
 
@@ -8743,8 +8765,11 @@
                 cachedBookings = newBookings;
                 if (Array.isArray(newClients)) cachedClients = newClients;
 
-                const fetchedStaff = await sRes.json();
-                if (Array.isArray(fetchedStaff) && fetchedStaff.length > 0) STAFF = fetchedStaff;
+                const fetchedStaff = await sRes.json().catch(() => null);
+                if (Array.isArray(fetchedStaff)) {
+                    STAFF = fetchedStaff;
+                    if (typeof renderStaffCards === 'function') renderStaffCards();
+                }
 
                 const fetchedInventory = await iRes.json();
                 if (Array.isArray(fetchedInventory) && fetchedInventory.length > 0) cachedInventory = fetchedInventory;
@@ -13230,7 +13255,20 @@
                 ...(token ? { 'Authorization': 'Bearer ' + token } : {})
             };
 
-            const branchId = window.currentBranchId || window.currentBranch || localStorage.getItem('selectedBranch') || 'b1';
+            // Accurately resolve branch name and branch id
+            const curBranchName = window.currentBranch || localStorage.getItem('selectedBranch') || 'Main Branch';
+            let bId = window.currentBranchId || localStorage.getItem('branchId') || '';
+            if (window.allBranchesList && Array.isArray(window.allBranchesList)) {
+                const found = window.allBranchesList.find(b => 
+                    String(b.name || '').trim().toLowerCase() === curBranchName.trim().toLowerCase() ||
+                    String(b.id || '').trim().toLowerCase() === String(bId).trim().toLowerCase()
+                );
+                if (found) {
+                    bId = found.id || found._id;
+                }
+            }
+            if (!bId) bId = curBranchName === 'Main Branch' ? 'b1' : curBranchName;
+
             const payload = { 
                 name, 
                 spec, 
@@ -13241,7 +13279,9 @@
                 status, 
                 gender, 
                 services: ['all'],
-                branchId: branchId
+                branchId: bId,
+                branch: curBranchName,
+                branchName: curBranchName
             };
 
             if (!id) {
@@ -13258,7 +13298,7 @@
                 };
 
                 try {
-                    const rez = await fetch(`${API_URL}/staff`, {
+                    const rez = await fetch(`${API_URL}/staff?branch=${encodeURIComponent(curBranchName)}&branchId=${encodeURIComponent(bId)}`, {
                         method: 'POST',
                         headers: authHeaders,
                         body: JSON.stringify(newStaff)
@@ -14116,7 +14156,29 @@
             const container = document.getElementById('staff-cards-container');
             if (!container) return;
 
-            container.innerHTML = STAFF.map(s => `
+            const curName = String(window.currentBranch || localStorage.getItem('selectedBranch') || '').trim().toLowerCase();
+            const curId = String(window.currentBranchId || localStorage.getItem('branchId') || '').trim().toLowerCase();
+
+            const scopedStaff = (STAFF || []).filter(s => {
+                if (!curName && !curId) return true;
+                const sbId = String(s.branchId || '').trim().toLowerCase();
+                const sbName = String(s.branch || s.branchName || '').trim().toLowerCase();
+                if (!sbId && !sbName) {
+                    return curName === 'main branch' || curId === 'b1' || !curName;
+                }
+                return (curId && sbId === curId) ||
+                       (curName && sbName === curName) ||
+                       (curId && sbName === curId) ||
+                       (curName && sbId === curName);
+            });
+
+            if (scopedStaff.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1 / -1; padding: 2.5rem; text-align: center; color: var(--text-muted); background: white; border: 1px dashed var(--border); border-radius: var(--radius-lg);"><i class="fa-solid fa-users" style="font-size: 2rem; margin-bottom: 0.5rem; display: block; opacity: 0.4;"></i>No staff members registered for ${window.currentBranch || 'this salon'} yet. Click "Add Staff Member" to add team members.</div>`;
+                renderStaffCommissionTable();
+                return;
+            }
+
+            container.innerHTML = scopedStaff.map(s => `
             <div style="border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; transition: 0.2s; background: white;">
                 <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
                     <div style="display: flex; gap: 12px; align-items: center;">
@@ -17997,11 +18059,27 @@
 
                 const overlay = document.getElementById('suspended-overlay');
                 const idEl = document.getElementById('suspended-branch-id');
+                const dropdown = document.getElementById('branch-selector-dropdown');
+
                 if (branch && (branch.status === 'Suspended' || branch.status === 'Inactive')) {
-                    if (idEl) idEl.textContent = branch.name || branch.id || branchId;
+                    window.isPortalSuspended = true;
+                    const bDisplayName = branch.name || branch.id || curName;
+                    if (idEl) idEl.textContent = bDisplayName;
                     if (overlay) overlay.style.display = 'flex';
-                    console.warn('[BRANCH SUSPENDED] Branch is suspended by super admin. Portal locked immediately.');
+                    if (dropdown) {
+                        dropdown.value = bDisplayName;
+                        dropdown.disabled = true;
+                    }
+                    localStorage.setItem("selectedBranch", bDisplayName);
+                    if (branch.id) localStorage.setItem("branchId", branch.id);
+                    const url = new URL(window.location);
+                    url.searchParams.set('branch', bDisplayName);
+                    if (branch.id) url.searchParams.set('branchId', branch.id);
+                    window.history.replaceState({}, '', url);
+                    console.warn('[BRANCH SUSPENDED] Branch is suspended by super admin. Portal locked on this salon until reactivated.');
                 } else if (branch && branch.status === 'Active') {
+                    window.isPortalSuspended = false;
+                    if (dropdown) dropdown.disabled = false;
                     if (overlay && overlay.style.display !== 'none') overlay.style.display = 'none';
                 }
             } catch (e) {
@@ -18024,11 +18102,26 @@
                     if (targetId === curId || targetName === curName || targetId === curName || targetName === curId || !curId) {
                         const overlay = document.getElementById('suspended-overlay');
                         const idEl = document.getElementById('suspended-branch-id');
+                        const dropdown = document.getElementById('branch-selector-dropdown');
                         if (data.status === 'Suspended') {
-                            if (idEl) idEl.textContent = data.name || data.id || curName;
+                            window.isPortalSuspended = true;
+                            const bDisplayName = data.name || data.id || curName;
+                            if (idEl) idEl.textContent = bDisplayName;
                             if (overlay) overlay.style.display = 'flex';
-                            console.warn('[REALTIME SOCKET LOCKOUT] Salon suspended by Super Admin.');
+                            if (dropdown) {
+                                dropdown.value = bDisplayName;
+                                dropdown.disabled = true;
+                            }
+                            localStorage.setItem("selectedBranch", bDisplayName);
+                            if (data.id) localStorage.setItem("branchId", data.id);
+                            const url = new URL(window.location);
+                            url.searchParams.set('branch', bDisplayName);
+                            if (data.id) url.searchParams.set('branchId', data.id);
+                            window.history.replaceState({}, '', url);
+                            console.warn('[REALTIME SOCKET LOCKOUT] Salon suspended by Super Admin. Locked on suspended salon.');
                         } else if (data.status === 'Active') {
+                            window.isPortalSuspended = false;
+                            if (dropdown) dropdown.disabled = false;
                             if (overlay) overlay.style.display = 'none';
                         }
                     }
@@ -18050,10 +18143,25 @@
                     if (targetId === curId || targetName === curName || targetId === curName || targetName === curId) {
                         const overlay = document.getElementById('suspended-overlay');
                         const idEl = document.getElementById('suspended-branch-id');
+                        const dropdown = document.getElementById('branch-selector-dropdown');
                         if (data.status === 'Suspended') {
-                            if (idEl) idEl.textContent = data.name || data.id || curName;
+                            window.isPortalSuspended = true;
+                            const bDisplayName = data.name || data.id || curName;
+                            if (idEl) idEl.textContent = bDisplayName;
                             if (overlay) overlay.style.display = 'flex';
+                            if (dropdown) {
+                                dropdown.value = bDisplayName;
+                                dropdown.disabled = true;
+                            }
+                            localStorage.setItem("selectedBranch", bDisplayName);
+                            if (data.id) localStorage.setItem("branchId", data.id);
+                            const url = new URL(window.location);
+                            url.searchParams.set('branch', bDisplayName);
+                            if (data.id) url.searchParams.set('branchId', data.id);
+                            window.history.replaceState({}, '', url);
                         } else if (data.status === 'Active') {
+                            window.isPortalSuspended = false;
+                            if (dropdown) dropdown.disabled = false;
                             if (overlay) overlay.style.display = 'none';
                         }
                     }

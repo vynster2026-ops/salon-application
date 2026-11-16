@@ -61,7 +61,9 @@
         }
       ],
       "phone": "9876540001",
-      "password": "scrypt:79c7b7f339d2eb166896d8e2a575a6fa:4cc42522446df493b6d7ad4e1df5121dda163c21caa4ffe48752f636e1726088d5e663d8bf64e81a778881b42f44a362e163d896216f3d05b22c51062c650526"
+      "password": "scrypt:79c7b7f339d2eb166896d8e2a575a6fa:4cc42522446df493b6d7ad4e1df5121dda163c21caa4ffe48752f636e1726088d5e663d8bf64e81a778881b42f44a362e163d896216f3d05b22c51062c650526",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "id": "st2",
@@ -88,7 +90,9 @@
         }
       ],
       "phone": "9876540002",
-      "password": "scrypt:c59375b735d099b46de0b53207c1549f:d99f6e0de533f08297d490f75c91404bc45d50be95a08e15fcea226e05b50a1f66e03d401c62e4c4e5b7883b18019b99fd8c7ab3baf0978b8247a307661dddbe"
+      "password": "scrypt:c59375b735d099b46de0b53207c1549f:d99f6e0de533f08297d490f75c91404bc45d50be95a08e15fcea226e05b50a1f66e03d401c62e4c4e5b7883b18019b99fd8c7ab3baf0978b8247a307661dddbe",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "id": "st3",
@@ -109,7 +113,9 @@
         }
       ],
       "phone": "9876540003",
-      "password": "scrypt:224f7093fc1afc00f6b148998ec82745:d4759d06e449fa3dd30d70c29d5f5a8944ea85be5903e94e1bd0450fee17ab403b14de23a9cd8135bb6e57ef0d5cae30fb2f827ab98795b34095368d800205f9"
+      "password": "scrypt:224f7093fc1afc00f6b148998ec82745:d4759d06e449fa3dd30d70c29d5f5a8944ea85be5903e94e1bd0450fee17ab403b14de23a9cd8135bb6e57ef0d5cae30fb2f827ab98795b34095368d800205f9",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "id": "st4",
@@ -132,7 +138,9 @@
       "payoutStatus": "Paid",
       "commissionRate": 9,
       "phone": "9876540004",
-      "password": "scrypt:a3e3742dcbcbdc751a15c0e03b1bdcab:40b027ef4081372d9876869b4cb93dc279315b69ce9599d202b0f1dc3460351a8f9a3641af27196bbf6c5a0d2ab9cea7f9a7014790cf45667790276f308a1421"
+      "password": "scrypt:a3e3742dcbcbdc751a15c0e03b1bdcab:40b027ef4081372d9876869b4cb93dc279315b69ce9599d202b0f1dc3460351a8f9a3641af27196bbf6c5a0d2ab9cea7f9a7014790cf45667790276f308a1421",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "id": "st5",
@@ -153,7 +161,9 @@
         }
       ],
       "phone": "9876540005",
-      "password": "scrypt:4f8fb3050d7942cb9e15b0b1b944219f:1d83a56d1829d10764ac12a817dde8901e18f372c798a27d8042dc40056dc48a613d3a3c5fedb4be5c9a35723243b21f505b31fff26d97e34ee7d2d7ac0a37e9"
+      "password": "scrypt:4f8fb3050d7942cb9e15b0b1b944219f:1d83a56d1829d10764ac12a817dde8901e18f372c798a27d8042dc40056dc48a613d3a3c5fedb4be5c9a35723243b21f505b31fff26d97e34ee7d2d7ac0a37e9",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "id": "st6",
@@ -174,7 +184,9 @@
         }
       ],
       "phone": "9876540006",
-      "password": "scrypt:58520ce5fc09a94f090048061185c155:63335d47b63a771b6c4df2bd53db1038812ca17e50212abb570dcc35d1593bbfa6208a15e49d8cbf97560b968ec7e00fdbc1de90ba5e18b449771193f48f4088"
+      "password": "scrypt:58520ce5fc09a94f090048061185c155:63335d47b63a771b6c4df2bd53db1038812ca17e50212abb570dcc35d1593bbfa6208a15e49d8cbf97560b968ec7e00fdbc1de90ba5e18b449771193f48f4088",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "id": "st7",
@@ -204,7 +216,9 @@
         }
       ],
       "phone": "9876540007",
-      "password": "scrypt:07ce5b1e1e93f402b11c34acfeb54527:267ce6042fed9caf853fad5120b29f5a6a360fb1b4dbb5c1ea58dadba27bf7b0864e531095a275090ede87ecfd22c95ff0715e8d703e4633ebe5b4c3013566f9"
+      "password": "scrypt:07ce5b1e1e93f402b11c34acfeb54527:267ce6042fed9caf853fad5120b29f5a6a360fb1b4dbb5c1ea58dadba27bf7b0864e531095a275090ede87ecfd22c95ff0715e8d703e4633ebe5b4c3013566f9",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "name": "Sarah Jenkins",
@@ -212,7 +226,9 @@
       "salary": 25000,
       "role": "Senior Stylist",
       "phone": "9876540011",
-      "password": "scrypt:1a53bc30fcaa8073518fab891ecd1cdb:8750f6e9068173737881eb8554990a2bd3f1fb0a8a311d7901254e2fa8212187bb4a0ec8114409d9d513319d79500326ff91ff6ba0616cde6d4718e189614002"
+      "password": "scrypt:1a53bc30fcaa8073518fab891ecd1cdb:8750f6e9068173737881eb8554990a2bd3f1fb0a8a311d7901254e2fa8212187bb4a0ec8114409d9d513319d79500326ff91ff6ba0616cde6d4718e189614002",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "name": "Michael Chen",
@@ -220,7 +236,9 @@
       "salary": 18000,
       "role": "Hair Colorist",
       "phone": "9876540012",
-      "password": "scrypt:35bad0a6e56d6efb66bcb9cea52ec5f5:edaa99c20d03c9f517d09394a2c884559bdc368042b6cbd225dbe07acb78397e5e77074fbc4e9d09a22cc4f7d7aaa12927ffe910df1a0eb0adb4f92161edfef1"
+      "password": "scrypt:35bad0a6e56d6efb66bcb9cea52ec5f5:edaa99c20d03c9f517d09394a2c884559bdc368042b6cbd225dbe07acb78397e5e77074fbc4e9d09a22cc4f7d7aaa12927ffe910df1a0eb0adb4f92161edfef1",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "name": "Emma Wilson",
@@ -228,7 +246,9 @@
       "salary": 15000,
       "role": "Nail Technician",
       "phone": "9876540013",
-      "password": "scrypt:01c3305293d403eedf448bdbd9e126b5:27ca0099e1c3fafb495d3ecd3f5d005aac8b5ff08b8a9465a4503c7f5ea332115876de7396985ad2d93504f09275ddd1f4f2a2372a2146366d7f3df21be9dba3"
+      "password": "scrypt:01c3305293d403eedf448bdbd9e126b5:27ca0099e1c3fafb495d3ecd3f5d005aac8b5ff08b8a9465a4503c7f5ea332115876de7396985ad2d93504f09275ddd1f4f2a2372a2146366d7f3df21be9dba3",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "id": "STF-FNNAOB",
@@ -244,7 +264,9 @@
       "summary": "asdfghj\nwertgh\nasdfghjkl\nsdfghjnm,",
       "status": "Online",
       "rating": 5,
-      "av": "av-4"
+      "av": "av-4",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "id": "STF-JWY61K",
@@ -264,7 +286,9 @@
         "all"
       ],
       "rating": 5,
-      "av": "av-4"
+      "av": "av-4",
+      "branchId": "b1",
+      "branch": "Main Branch"
     },
     {
       "id": "stf_sync_test",
@@ -272,7 +296,8 @@
       "name": "Rohan Master Director",
       "spec": "Senior Hair Director & Master",
       "phone": "9888877777",
-      "branchId": "test_branch_1"
+      "branchId": "test_branch_1",
+      "branch": "test_branch_1"
     }
   ],
   "services": [

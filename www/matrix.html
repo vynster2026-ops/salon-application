@@ -1148,6 +1148,11 @@
                 <i class="fa-solid fa-file-invoice-dollar"></i>
                 Annual Report
             </a>
+            <a href="javascript:void(0)" class="nav-item" data-target="landing-cms"
+                onclick="switchSection('landing-cms')">
+                <i class="fa-solid fa-palette"></i>
+                Landing Page CMS
+            </a>
             <a href="javascript:void(0)" class="nav-item" data-target="business-analysis"
                 onclick="switchSection('business-analysis')">
                 <i class="fa-solid fa-chart-pie"></i>
@@ -1157,11 +1162,6 @@
                 onclick="switchSection('ad-manager')">
                 <i class="fa-solid fa-bullhorn"></i>
                 Ad Management
-            </a>
-            <a href="javascript:void(0)" class="nav-item" data-target="landing-cms"
-                onclick="switchSection('landing-cms')">
-                <i class="fa-solid fa-palette"></i>
-                Landing Page CMS
             </a>
             <a href="javascript:void(0)" class="nav-item" data-target="settings" onclick="switchSection('settings')">
                 <i class="fa-solid fa-gear"></i>
@@ -2963,7 +2963,7 @@
             }
 
             if (portalBtn) {
-                portalBtn.href = `vynster-salon.html?branch=${encodeURIComponent(salonName)}`;
+                portalBtn.href = `vynster-salon.html?branch=${encodeURIComponent(salonName)}&branchId=${encodeURIComponent(salonId || '')}`;
             }
 
             if (modal) modal.classList.add('active');
@@ -3365,6 +3365,7 @@
                 'revenue': { title: 'Revenue & Finances', subtitle: 'Track GMV, platform fees, and pending payouts.' },
                 'transactions': { title: 'Transaction Ledger', subtitle: 'Detailed records of all payments, payouts, and platform fees.' },
                 'manual-record': { title: 'Manual Business Records', subtitle: 'Log offline payments, direct expenditures, and adjustments.' },
+                'landing-cms': { title: 'Landing Page CMS & Customization', subtitle: 'Live branding, hero logo, headlines, and portal action links.' },
                 'business-analysis': { title: 'Business Analysis Engine', subtitle: 'Real-time diagnostics and AI-driven growth recommendations.' },
                 'ad-manager': { title: 'Network Ad Management', subtitle: 'Push promotional banners and announcements to all connected salons globally.' },
                 'settings': { title: 'System Configuration', subtitle: 'Manage core platform settings and integrations.' }
@@ -3467,7 +3468,7 @@
                                 <button type="button" class="action-btn btn-suspend" style="flex: 1;" onclick="rejectSalon('${salon.id}')">Reject</button>
                             </div>
                             <div style="text-align: center;">
-                                <a href="vynster-salon.html?branch=${encodeURIComponent(salon.name)}" target="_blank" style="color: var(--accent-secondary); font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+                                <a href="vynster-salon.html?branch=${encodeURIComponent(salon.name)}&branchId=${encodeURIComponent(salon.id)}" target="_blank" style="color: var(--accent-secondary); font-size: 0.85rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                                     <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Salon Portal (${salon.name})
                                 </a>
                             </div>

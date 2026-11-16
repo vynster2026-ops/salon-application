@@ -1568,8 +1568,26 @@ app.post('/api/clients/bulk', requireAuth, requireRole('super', 'owner', 'manage
             return res.status(400).json({ error: 'clients array is required' });
         }
 
-        const bId = branchId || req.query.branchId || req.query.branch || (req.user && req.user.branchId) || 'b1';
-        const bName = branch || req.query.branch || bId;
+        let token = req.cookies?.authToken || req.headers['authorization'] || req.query.token;
+        if (token && !req.user) {
+            req.user = verifyToken(token);
+        }
+
+        const rawBranch = branchId || branch || req.query.branchId || req.query.branch || (req.user && req.user.role !== 'super' && req.user.branchId) || (req.user && req.user.branchId) || 'b1';
+        let allBranches = [];
+        if (isConnected) {
+            try { allBranches = await Branch.find({}).lean(); } catch (e) {}
+        }
+        if (!allBranches || allBranches.length === 0) allBranches = localDb.branches || [];
+
+        const rawLower = String(rawBranch).trim().toLowerCase();
+        const matched = allBranches.find(b => 
+            String(b.id || '').trim().toLowerCase() === rawLower ||
+            String(b.name || '').trim().toLowerCase() === rawLower
+        );
+
+        const bId = matched ? matched.id : (branchId || rawBranch);
+        const bName = matched ? matched.name : (branch || rawBranch);
 
         const processed = clients.map((c, i) => ({
             id: c.id || ('c_' + Date.now() + '_' + i),
@@ -1756,12 +1774,36 @@ app.get('/api/staff', requireAuth, requireRole('super', 'admin', 'owner', 'manag
             saveLocal();
         }
         // Branch scoping
-        const scopedBranch = getScopedBranchId(req);
-        if (scopedBranch && scopedBranch !== 'all') {
-            const sLower = String(scopedBranch).trim().toLowerCase();
+        let user = null;
+        const token = req.cookies?.authToken || req.headers['authorization'] || req.query.token;
+        if (token) {
+            user = verifyToken(token);
+        }
+        const targetBranch = req.query.branchId || req.query.branch || (user && user.role !== 'super' && user.branchId) || (user && user.branchId) || null;
+
+        if (targetBranch && targetBranch !== 'all') {
+            const allBranches = isConnected ? await Branch.find({}).lean() : (localDb.branches || []);
+            const targetLower = String(targetBranch).trim().toLowerCase();
+            const matchedBranch = allBranches.find(b => 
+                String(b.id || '').trim().toLowerCase() === targetLower || 
+                String(b.name || '').trim().toLowerCase() === targetLower
+            );
+            const mbId = matchedBranch ? String(matchedBranch.id || '').trim().toLowerCase() : targetLower;
+            const mbName = matchedBranch ? String(matchedBranch.name || '').trim().toLowerCase() : targetLower;
+
             staffList = staffList.filter(s => {
-                const sb = String(s.branchId || s.branch || '').trim().toLowerCase();
-                return sb === sLower || (sLower === 'b1' && !s.branchId);
+                const sBranchId = String(s.branchId || '').trim().toLowerCase();
+                const sBranchName = String(s.branch || s.branchName || '').trim().toLowerCase();
+
+                // Match against branch ID or branch Name
+                if (sBranchId === mbId || sBranchName === mbName || sBranchId === targetLower || sBranchName === targetLower) {
+                    return true;
+                }
+                // Only unscoped legacy staff fall into Main Branch when explicitly querying Main Branch
+                if (!sBranchId && !sBranchName && (mbId === 'b1' || mbName === 'main branch' || targetLower === 'b1' || targetLower === 'main branch')) {
+                    return true;
+                }
+                return false;
             });
         }
         // Strip passwords before responding
@@ -1779,13 +1821,36 @@ app.post('/api/staff', (req, res, next) => { const t = req.cookies?.authToken ||
         const staffData = req.body || {};
         if (!staffData.id) staffData.id = 'stf_' + Date.now();
         if (!staffData.staffId) staffData.staffId = staffData.id;
-        if (!staffData.branchId) {
-            staffData.branchId = (req.user && req.user.role !== 'super' && req.user.branchId) 
-                || req.query.branchId 
-                || req.query.branch 
-                || (req.user && req.user.branchId) 
-                || 'b1';
+
+        let token = req.cookies?.authToken || req.headers['authorization'] || req.query.token;
+        if (token && !req.user) {
+            req.user = verifyToken(token);
         }
+
+        // Canonical branch resolution
+        const rawBranch = staffData.branchId || staffData.branch || req.query.branchId || req.query.branch || (req.user && req.user.role !== 'super' && req.user.branchId) || (req.user && req.user.branchId) || 'b1';
+        let allBranches = [];
+        if (isConnected) {
+            try { allBranches = await Branch.find({}).lean(); } catch (e) {}
+        }
+        if (!allBranches || allBranches.length === 0) allBranches = localDb.branches || [];
+
+        const rawLower = String(rawBranch).trim().toLowerCase();
+        const matched = allBranches.find(b => 
+            String(b.id || '').trim().toLowerCase() === rawLower ||
+            String(b.name || '').trim().toLowerCase() === rawLower
+        );
+
+        if (matched) {
+            staffData.branchId = matched.id;
+            staffData.branch = matched.name;
+            staffData.branchName = matched.name;
+        } else {
+            staffData.branchId = staffData.branchId || rawBranch;
+            staffData.branch = staffData.branch || rawBranch;
+            staffData.branchName = staffData.branch;
+        }
+
         if (!localDb.staff) localDb.staff = [];
         const existingIdx = localDb.staff.findIndex(s => s.id === staffData.id || s.staffId === staffData.staffId);
         if (existingIdx !== -1) {

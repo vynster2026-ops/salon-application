@@ -2219,9 +2219,9 @@
     },
     "openingAmount_2026-08-07": "1000",
     "openingAmount_2026-08-08": "100",
-    "fee": "15",
-    "tax": "18",
-    "maint": "off",
+    "fee": "15%",
+    "tax": "18%",
+    "maint": "Active",
     "razorpay": "live",
     "autoApprove": false,
     "billAds": {

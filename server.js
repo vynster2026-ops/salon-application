@@ -1606,8 +1606,11 @@ app.get('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'r
             user = verifyToken(token);
         }
 
-        // Branch scoping: prioritize query branch/branchId if specified, then user's assigned branch
-        const targetBranch = branchId || branch || (user && user.role !== 'super' && user.branchId) || (user && user.branchId) || null;
+        // Branch scoping: Super Admins can query any branch; salon managers are strictly locked to their assigned branch
+        const isSuperAdmin = user && (user.role === 'super' || (typeof user.tier === 'number' && user.tier <= 3));
+        const targetBranch = isSuperAdmin 
+            ? (branchId || branch || null) 
+            : (user && user.branchId ? user.branchId : 'b1');
 
         if (targetBranch && targetBranch !== 'all') {
             const allBranches = isConnected ? await Branch.find({}).lean() : (localDb.branches || []);
@@ -1627,14 +1630,14 @@ app.get('/api/clients', requireAuth, requireRole('super', 'owner', 'manager', 'r
                 if (cBranchId === mbId || cBranchName === mbName || cBranchId === targetLower || cBranchName === targetLower) {
                     return true;
                 }
-                // Unscoped clients default to main branch
+                // Unscoped clients default to main branch only
                 if (!cBranchId && !cBranchName && (mbId === 'b1' || mbName === 'main branch' || targetLower === 'b1' || targetLower === 'main branch')) {
                     return true;
                 }
                 return false;
             });
-        } else if (!user || user.role !== 'super') {
-            // Unscoped non-admin request defaults to their branch or b1
+        } else if (!isSuperAdmin) {
+            // Unscoped non-admin request defaults strictly to their branch or b1
             const defaultBranch = (user && user.branchId) ? String(user.branchId).trim().toLowerCase() : 'b1';
             clientsList = clientsList.filter(c => {
                 const cBranchId = String(c.branchId || '').trim().toLowerCase();
@@ -1875,9 +1878,8 @@ app.get('/api/staff/public', async (req, res) => {
             staffList = staffList.filter(s => {
                 const sBranchId = String(s.branchId || '').trim().toLowerCase();
                 const sBranchName = String(s.branch || s.branchName || '').trim().toLowerCase();
-                if (!sBranchId || sBranchId === 'global' || sBranchId === 'b1') return true;
                 if (sBranchId === mbId || sBranchName === mbName || sBranchId === targetLower || sBranchName === targetLower) return true;
-                if (mbId === 'b1' || mbName === 'main branch' || targetLower === 'b1' || targetLower === 'main branch') return true;
+                if (!sBranchId && !sBranchName && (mbId === 'b1' || mbName === 'main branch' || targetLower === 'b1' || targetLower === 'main branch')) return true;
                 return false;
             });
         }
@@ -1929,7 +1931,10 @@ app.get('/api/staff', requireAuth, requireRole('super', 'admin', 'owner', 'manag
         if (token) {
             user = verifyToken(token);
         }
-        const targetBranch = req.query.branchId || req.query.branch || (user && user.role !== 'super' && user.branchId) || (user && user.branchId) || null;
+        const isSuperAdmin = user && (user.role === 'super' || (typeof user.tier === 'number' && user.tier <= 3));
+        const targetBranch = isSuperAdmin 
+            ? (req.query.branchId || req.query.branch || null) 
+            : (user && user.branchId ? user.branchId : 'b1');
 
         if (targetBranch && targetBranch !== 'all') {
             const allBranches = isConnected ? await Branch.find({}).lean() : (localDb.branches || []);
@@ -1978,7 +1983,10 @@ app.post('/api/staff', (req, res, next) => { const t = req.cookies?.authToken ||
         }
 
         // Canonical branch resolution
-        const rawBranch = staffData.branchId || staffData.branch || req.query.branchId || req.query.branch || (req.user && req.user.role !== 'super' && req.user.branchId) || (req.user && req.user.branchId) || 'b1';
+        const isSuperAdmin = req.user && (req.user.role === 'super' || (typeof req.user.tier === 'number' && req.user.tier <= 3));
+        const rawBranch = isSuperAdmin 
+            ? (staffData.branchId || staffData.branch || req.query.branchId || req.query.branch || 'b1')
+            : (req.user && req.user.branchId ? req.user.branchId : 'b1');
         let allBranches = [];
         if (isConnected) {
             try { allBranches = await Branch.find({}).lean(); } catch (e) {}
@@ -2085,7 +2093,14 @@ app.get('/api/settings', (req, res) => {
     res.json(localDb.settings || {});
 });
 
-app.post('/api/settings', requireAuth, requireRole('super', 'owner'), (req, res) => {
+app.post('/api/settings', requireAuth, (req, res) => {
+    const isSuperOrOwner = req.user && (
+        req.user.role === 'owner' ||
+        (req.user.role === 'super' && (!req.user.tier || req.user.tier <= 2))
+    );
+    if (!isSuperOrOwner) {
+        return res.status(403).json({ error: 'Access denied: Requires Tier 1 or Tier 2 Super Admin privileges.' });
+    }
     if (!localDb.settings) localDb.settings = {};
     localDb.settings = { ...localDb.settings, ...req.body };
     saveLocal();
@@ -2352,7 +2367,11 @@ app.delete('/api/expenses/:id', requireAuth, requireRole('super', 'owner', 'mana
 app.get('/api/services', async (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=180, stale-while-revalidate=60');
     const { branchId, branch } = req.query;
-    const targetBranch = branchId || branch;
+    let user = null;
+    const token = req.cookies?.authToken || req.headers['authorization'] || req.query.token;
+    if (token) user = verifyToken(token);
+    const isSuperAdmin = user && (user.role === 'super' || (typeof user.tier === 'number' && user.tier <= 3));
+    const targetBranch = isSuperAdmin ? (branchId || branch) : (user && user.branchId ? user.branchId : (branchId || branch));
     try {
         let servicesList = [];
         if (isConnected) {
@@ -2400,7 +2419,6 @@ app.get('/api/services', async (req, res) => {
                     const sBranchName = String(s.branch || '').trim().toLowerCase();
                     if (!sBranchId || sBranchId === 'global' || sBranchId === 'all') return true;
                     if (sBranchId === mbId || sBranchName === mbName || sBranchId === targetLower || sBranchName === targetLower) return true;
-                    if (mbId === 'b1' || mbName === 'main branch' || targetLower === 'b1' || targetLower === 'main branch') return true;
                     return false;
                 });
             }
@@ -2576,7 +2594,7 @@ app.get('/api/bookings', requireAuth, requireRole('super', 'owner', 'manager', '
     const targetBranch = getScopedBranchId(req);
     if (isConnected) { try { return res.json(await Booking.find(targetBranch ? { branchId: targetBranch } : {})); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     let data = localDb.bookings || [];
-    if (targetBranch) data = data.filter(b => b.branchId === targetBranch || !b.branchId);
+    if (targetBranch) data = data.filter(b => b.branchId === targetBranch || (!b.branchId && targetBranch === 'b1'));
     res.json(data);
 });
 // Public booking creation is intentionally open (client-facing booking form).
@@ -2809,11 +2827,22 @@ app.put('/api/events/:id', requireAuth, requireRole('super', 'owner', 'manager')
     res.status(404).json({ error: 'Not found' });
 });
 // Enrich branch objects with calculated telemetry, subscription, and last activity metrics
-const enrichBranches = (branchesList) => {
+const enrichBranches = (branchesList, requesterUser = null) => {
     const bookings = localDb.bookings || [];
     const chains = localDb.chains || [];
     const staff = localDb.staff || [];
     const services = localDb.services || [];
+
+    const isSuperAdmin = Boolean(
+        requesterUser && (
+            requesterUser.role === 'super' || 
+            (typeof requesterUser.tier === 'number' && requesterUser.tier <= 3)
+        )
+    );
+    const requesterBranchId = requesterUser && requesterUser.branchId 
+        ? String(requesterUser.branchId).toLowerCase() 
+        : null;
+
     return branchesList.map(b => {
         // Calculate last activity dynamically from bookings
         const branchBookings = bookings.filter(bk => bk.branchId === b.id);
@@ -2862,12 +2891,28 @@ const enrichBranches = (branchesList) => {
 
         const safeBranchData = Object.assign({}, b);
         delete safeBranchData.password;
-        if (!isSuperAdmin) {
-            delete safeBranchData.displayPasscode;
-        } else {
+
+        const isRespectiveSalon = Boolean(
+            requesterBranchId && b.id && String(b.id).trim().toLowerCase() === requesterBranchId
+        );
+
+        if (isSuperAdmin) {
             safeBranchData.passcode = b.displayPasscode || 'Branch@123';
             safeBranchData.displayPasscode = b.displayPasscode || 'Branch@123';
+        } else if (isRespectiveSalon) {
+            safeBranchData.passcode = b.displayPasscode || 'Branch@123';
+            safeBranchData.displayPasscode = b.displayPasscode || 'Branch@123';
+        } else {
+            // Strip confidential onboarding KYC documents and secret credentials from public / other tenants
+            delete safeBranchData.aadhaarDoc;
+            delete safeBranchData.panDoc;
+            delete safeBranchData.addressProofDoc;
+            delete safeBranchData.ownerPhoto;
+            delete safeBranchData.displayPasscode;
+            delete safeBranchData.passcode;
+            delete safeBranchData.accessKey;
         }
+
         return {
             ...safeBranchData,
             status: b.status || 'Active',
@@ -2893,16 +2938,16 @@ app.get('/api/branches', async (req, res) => {
     if (isConnected) { try { branches = await Branch.find().lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     else { branches = JSON.parse(JSON.stringify(localDb.branches || [])); }
 
-    let isSuperAdmin = false;
+    let requesterUser = null;
     const token = req.cookies?.authToken || req.headers['authorization'] || req.query.token;
     if (token) {
         const decoded = verifyToken(token);
-        if (decoded && (decoded.role === 'super' || decoded.tier <= 2)) {
-            isSuperAdmin = true;
+        if (decoded) {
+            requesterUser = decoded;
         }
     }
 
-    res.json(enrichBranches(branches, isSuperAdmin));
+    res.json(enrichBranches(branches, requesterUser));
 });
 
 app.get('/api/salons/search', async (req, res) => {
@@ -2911,8 +2956,14 @@ app.get('/api/salons/search', async (req, res) => {
     if (isConnected) { try { branches = await Branch.find().lean(); } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); } }
     else { branches = JSON.parse(JSON.stringify(localDb.branches || [])); }
 
-    let enriched = enrichBranches(branches);
+    let requesterUser = null;
+    const token = req.cookies?.authToken || req.headers['authorization'] || req.query.token;
+    if (token) {
+        const decoded = verifyToken(token);
+        if (decoded) requesterUser = decoded;
+    }
 
+    let enriched = enrichBranches(branches, requesterUser);
     if (query) {
         const q = String(query).toLowerCase().trim();
         enriched = enriched.filter(b => {
@@ -2933,7 +2984,9 @@ app.post('/api/branches', requireAuth, authMiddleware(3), async (req, res) => {
     const data = req.body || {};
     if (!data.id) data.id = 'b' + Date.now();
     data.verificationStatus = data.verificationStatus || 'Pending';
-    data.status = 'Active';
+    if (!data.status) {
+        data.status = (data.verificationStatus === 'Approved') ? 'Active' : 'Pending Review';
+    }
     if (!data.accessKey) {
         data.accessKey = (data.name ? data.name.toLowerCase().replace(/[^a-z0-9]/g, '') : 'salon') + '_admin';
     }
@@ -2953,7 +3006,7 @@ app.post('/api/branches', requireAuth, authMiddleware(3), async (req, res) => {
             tier: 2,
             branchId: data.id,
             password: data.password,
-            status: 'Active'
+            status: data.status === 'Active' ? 'Active' : 'Pending'
         });
     }
     if (isConnected) { 

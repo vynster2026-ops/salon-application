@@ -3260,9 +3260,11 @@
 
             if (typeof showToast === 'function') showToast('Connecting to backend API & syncing database...', 'info');
 
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Sync timeout')), 6000));
+
             try {
                 if (typeof fetchRealTimeData === 'function') {
-                    await fetchRealTimeData();
+                    await Promise.race([fetchRealTimeData(), timeoutPromise]);
                 }
                 if (typeof renderVendorTable === 'function') renderVendorTable();
                 if (typeof renderExtendedTables === 'function') renderExtendedTables();
@@ -3271,12 +3273,14 @@
                 if (typeof showToast === 'function') showToast('Real-time platform data synchronized successfully! ✓', 'success');
             } catch (err) {
                 console.error("Sync error:", err);
-                if (typeof showToast === 'function') showToast('Platform data updated locally.', 'success');
+                if (typeof renderVendorTable === 'function') renderVendorTable();
+                if (typeof renderExtendedTables === 'function') renderExtendedTables();
+                if (typeof showToast === 'function') showToast('Platform data synchronized locally.', 'success');
             } finally {
                 setTimeout(() => {
                     if (icon) icon.classList.remove('spin');
                     btn.disabled = false;
-                }, 800);
+                }, 400);
             }
         }
 
@@ -3508,6 +3512,12 @@
 
             if (target === 'business-analysis' && typeof renderBusinessAnalysis === 'function') {
                 setTimeout(renderBusinessAnalysis, 50);
+            }
+            if (target === 'verification' && typeof renderExtendedTables === 'function') {
+                renderExtendedTables();
+            }
+            if (target === 'salons' && typeof renderVendorTable === 'function') {
+                renderVendorTable();
             }
         };
 
@@ -4515,6 +4525,7 @@
                 phone: phone,
                 location: location,
                 verificationStatus: 'Pending',
+                status: 'Pending Review',
                 aadhaarDoc: aadhaarCaptured || (aadhaar ? aadhaar.name : 'aadhaar_mock.pdf'),
                 panDoc: panCaptured || (pan ? pan.name : 'pan_mock.pdf'),
                 addressProofDoc: licenseCaptured || (license ? license.name : 'license_mock.pdf'),
@@ -4633,7 +4644,14 @@
 
             // Re-fetch to populate the Verification queue immediately
             await fetchRealTimeData();
-            switchSection('verification');
+            if (typeof renderExtendedTables === 'function') renderExtendedTables();
+            let currentAdmin = {};
+            try { currentAdmin = JSON.parse(localStorage.getItem('adminUser') || '{}'); } catch(e) {}
+            if (Number(currentAdmin.tier) === 3) {
+                showToast(`Salon '${name}' submitted to Super Admin (Tier 1/2) for KYC review and approval.`, 'success');
+            } else {
+                switchSection('verification');
+            }
         }
 
         function renderMarketingTables() {
@@ -4744,13 +4762,17 @@
             try {
                 const res = await fetch(`${API_URL}/api/settings`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({ fee, tax, maint, razorpay, autoApprove, billAds: globalBillAds })
                 });
                 if (res.ok) {
                     showToast('System Configuration saved and applied globally!', 'success');
                 } else {
-                    showToast('Failed to save settings to server', 'error');
+                    const err = await res.json().catch(() => ({}));
+                    showToast(err.error || 'Failed to save settings to server', 'error');
                 }
             } catch (e) {
                 console.error(e);
@@ -5445,13 +5467,17 @@
             try {
                 const res = await fetch(`${API_URL}/api/marketing/booking-ad`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify(payload)
                 });
                 if (res.ok) {
                     showToast('Booking Confirmation Ad Settings saved successfully!', 'success');
                 } else {
-                    showToast('Failed to save settings to server.', 'error');
+                    const err = await res.json().catch(() => ({}));
+                    showToast(err.error || 'Failed to save settings to server.', 'error');
                 }
             } catch (e) {
                 showToast('Error saving booking ad settings.', 'error');

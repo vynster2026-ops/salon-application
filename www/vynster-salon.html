@@ -8088,13 +8088,14 @@
         let storedAdmin = {};
         try { storedAdmin = JSON.parse(localStorage.getItem('adminUser') || '{}'); } catch(e){}
 
-        if (urlBranchParam) {
+        if (storedAdmin && storedAdmin.role !== 'super' && (storedAdmin.branchId || storedAdmin.branchName)) {
+            // Salon managers are strictly isolated and pinned to their assigned salon; URL manipulation cannot hijack tenant
+            window.currentBranchId = storedAdmin.branchId || 'b1';
+            window.currentBranch = storedAdmin.branchName || storedAdmin.name?.replace(' Manager', '').trim() || storedAdmin.branchId;
+            localStorage.setItem("selectedBranch", window.currentBranch);
+        } else if (urlBranchParam) {
             window.currentBranch = decodeURIComponent(urlBranchParam);
             window.currentBranchId = urlParams.get('branchId') || window.currentBranch;
-            localStorage.setItem("selectedBranch", window.currentBranch);
-        } else if (storedAdmin && storedAdmin.role !== 'super' && (storedAdmin.branchId || storedAdmin.branchName || storedAdmin.name)) {
-            window.currentBranch = storedAdmin.branchName || storedAdmin.name?.replace(' Manager', '').trim() || storedAdmin.branchId;
-            window.currentBranchId = storedAdmin.branchId;
             localStorage.setItem("selectedBranch", window.currentBranch);
         } else {
             window.currentBranch = localStorage.getItem("selectedBranch") || "Main Branch";

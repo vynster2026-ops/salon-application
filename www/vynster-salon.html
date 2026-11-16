@@ -1817,6 +1817,28 @@
         <div id="mobile-sidebar-overlay" onclick="toggleMobileSidebar()"></div>
 
         <main class="main-content">
+            <!-- SuperAdmin QA Sandbox Indicator Banner -->
+            <div id="sandbox-banner-strip" style="display: none; background: linear-gradient(135deg, #581c87 0%, #7e22ce 50%, #9333ea 100%); color: white; padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(126, 34, 206, 0.25); align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="background: rgba(255, 255, 255, 0.2); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-flask" style="color: #facc15;"></i> SuperAdmin QA Sandbox
+                    </span>
+                    <span style="font-size: 13px; font-weight: 500;">
+                        Reference Testing Lab Active · Use this isolated salon to test targeted ad campaigns, receipt bill ads, and client appointments safely.
+                    </span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <button type="button" onclick="previewSandboxReceiptAd()" class="btn" style="background: white; color: #7e22ce; font-weight: 700; font-size: 12px; padding: 6px 14px; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="Test Simulated Receipt Ad with Current Config">
+                        <i class="fa-solid fa-receipt"></i> Test Receipt Ad
+                    </button>
+                    <button type="button" onclick="fetchAndRenderPromotions()" class="btn" style="background: rgba(255,255,255,0.2); color: white; font-weight: 600; font-size: 12px; padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.4); cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" title="Re-sync Promotional Ad Banners">
+                        <i class="fa-solid fa-arrows-rotate"></i> Sync Ads
+                    </button>
+                    <a href="matrix.html#ad-manager" class="btn" style="background: rgba(255,255,255,0.15); color: white; font-weight: 600; font-size: 12px; padding: 6px 12px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;" title="Return to Super Admin Ad Manager">
+                        <i class="fa-solid fa-arrow-left"></i> SuperAdmin Ad Center
+                    </a>
+                </div>
+            </div>
             <header>
                 <div class="header-title" style="display:flex; align-items:center; gap:16px;">
                     <button class="btn mobile-menu-btn" onclick="toggleMobileSidebar()"
@@ -7587,7 +7609,13 @@
                 const activeAds = ads.filter(ad => {
                     if (!ad.targets || ad.targets.length === 0) return false;
                     const adTargets = Array.isArray(ad.targets) ? ad.targets : [ad.targets];
-                    return adTargets.includes('Global') || adTargets.includes('all') || adTargets.includes(window.currentBranch || 'Main Branch');
+                    return adTargets.some(t => {
+                        if (!t) return false;
+                        const s = String(t).trim().toLowerCase();
+                        return s === 'global' || s === 'all' ||
+                            (window.currentBranch && s === String(window.currentBranch).trim().toLowerCase()) ||
+                            (window.currentBranchId && s === String(window.currentBranchId).trim().toLowerCase());
+                    });
                 });
 
                 const container = document.getElementById('dynamic-ad-container');
@@ -8073,6 +8101,44 @@
             window.currentBranchId = (storedAdmin && storedAdmin.branchId) ? storedAdmin.branchId : (window.currentBranch === 'Main Branch' ? 'b1' : window.currentBranch);
         }
 
+        function checkSandboxMode() {
+            const isSandbox = (window.currentBranchId === 'b_demo_sandbox') ||
+                (String(window.currentBranch || '').toLowerCase().includes('sandbox'));
+            const banner = document.getElementById('sandbox-banner-strip');
+            if (banner) {
+                banner.style.display = isSandbox ? 'flex' : 'none';
+            }
+        }
+        checkSandboxMode();
+
+        window.previewSandboxReceiptAd = async function() {
+            let booking = (window.bookings || []).find(b => b.branchId === 'b_demo_sandbox' || (b.branch && b.branch.includes('Sandbox')));
+            if (!booking) {
+                booking = {
+                    id: 'BK-QA-TEST-' + Math.floor(1000 + Math.random() * 9000),
+                    clientName: 'Demo VIP Client',
+                    clientPhone: '9876500011',
+                    serviceName: 'Signature Haircut & Sculpt',
+                    staffName: 'Alex Carter (Demo Lead Stylist)',
+                    amount: 1200,
+                    date: new Date().toLocaleDateString('en-GB'),
+                    time: '14:00',
+                    paymentMethod: 'UPI',
+                    branchId: 'b_demo_sandbox',
+                    branch: 'Vynster Demo Salon [Sandbox]'
+                };
+            }
+            if (typeof showSimulatedReceipt === 'function') {
+                showSimulatedReceipt(booking);
+            }
+        };
+
+        if (typeof socket !== 'undefined' && socket) {
+            socket.on('ads_updated', () => {
+                if (typeof fetchAndRenderPromotions === 'function') fetchAndRenderPromotions();
+            });
+        }
+
         const API_URL = localStorage.getItem('CUSTOM_API_URL') || (
             (window.location.protocol === 'file:' || (['localhost', '127.0.0.1'].includes(window.location.hostname) && window.location.port !== '5000' && window.location.port !== ''))
                 ? 'http://localhost:5000/api'
@@ -8095,6 +8161,7 @@
                         if (cur) {
                             window.currentBranchId = cur.id || cur._id;
                             localStorage.setItem("branchId", window.currentBranchId);
+                            checkSandboxMode();
                         }
                     }
 
@@ -11422,7 +11489,8 @@
                         if (resSettings.ok) {
                             const settingsData = await resSettings.json();
                             if (settingsData && settingsData.billAds) {
-                                const targetAd = settingsData.billAds['global'] || Object.values(settingsData.billAds)[0];
+                                const bKey = window.currentBranchId || window.currentBranch;
+                                const targetAd = (bKey && settingsData.billAds[bKey]) || settingsData.billAds['global'] || Object.values(settingsData.billAds)[0];
                                 if (targetAd && targetAd.content) {
                                     if (targetAd.type === 'media' || targetAd.content.startsWith('data:image') || targetAd.content.startsWith('http')) {
                                         adImageUrl = targetAd.content;

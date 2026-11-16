@@ -873,6 +873,156 @@ if (fs.existsSync(DB_FILE)) {
         }
     } catch (e) { console.error('Error reading db.json'); }
 }
+
+function ensureSandboxBranch(db) {
+    if (!db) return;
+    if (!db.branches) db.branches = [];
+    if (!db.branches.some(b => b.id === 'b_demo_sandbox')) {
+        db.branches.push({
+            id: 'b_demo_sandbox',
+            name: 'Vynster Demo Salon [Sandbox]',
+            ownerName: 'SuperAdmin QA Team',
+            location: 'Cyber Towers, Hitec City, Hyderabad (Sandbox Lab)',
+            phone: '9876500000',
+            email: 'sandbox@vynster.com',
+            status: 'Active',
+            verificationStatus: 'Approved',
+            isSandbox: true,
+            grossRevenue: 1200,
+            bookingCount: 1,
+            staffCount: 2,
+            servicesCount: 3,
+            lastActivity: 'Just now',
+            subscription: {
+                plan: 'Enterprise QA Sandbox',
+                price: '₹0 (Internal Lab)',
+                expiry: '2099-12-31',
+                status: 'Active'
+            },
+            accessKey: 'BR-SANDBOX-DEMO',
+            displayPasscode: 'Branch@123',
+            password: 'scrypt:8879f9b8e06db5a74e52bacdcf34b7f1:aaa9f0d41eafc08ed65d0c54d07522e4f269a9be8ce3cd2f8f009ef0d30d8281572757224f866d776a408033259ca829e37f2173d474acdca8b716156a997d18'
+        });
+    }
+    if (!db.admins) db.admins = [];
+    if (!db.admins.some(a => a.branchId === 'b_demo_sandbox' || a.email === 'sandbox@vynster.com')) {
+        db.admins.push({
+            email: 'sandbox@vynster.com',
+            name: 'Sandbox Salon Manager',
+            role: 'manager',
+            tier: 2,
+            branchId: 'b_demo_sandbox',
+            displayPasscode: 'Branch@123',
+            password: 'scrypt:8879f9b8e06db5a74e52bacdcf34b7f1:aaa9f0d41eafc08ed65d0c54d07522e4f269a9be8ce3cd2f8f009ef0d30d8281572757224f866d776a408033259ca829e37f2173d474acdca8b716156a997d18',
+            status: 'Active'
+        });
+    }
+    if (!db.staff) db.staff = [];
+    if (!db.staff.some(s => s.branchId === 'b_demo_sandbox')) {
+        db.staff.push(
+            {
+                id: 'st_demo_1',
+                name: 'Alex Carter (Demo Lead Stylist)',
+                role: 'Master Stylist',
+                phone: '9876500001',
+                email: 'alex.demo@vynster.com',
+                branch: 'Vynster Demo Salon [Sandbox]',
+                branchId: 'b_demo_sandbox',
+                status: 'Active',
+                rating: 4.9,
+                commission: 15
+            },
+            {
+                id: 'st_demo_2',
+                name: 'Zara Khan (Demo Color Specialist)',
+                role: 'Senior Colorist',
+                phone: '9876500002',
+                email: 'zara.demo@vynster.com',
+                branch: 'Vynster Demo Salon [Sandbox]',
+                branchId: 'b_demo_sandbox',
+                status: 'Active',
+                rating: 4.8,
+                commission: 12
+            }
+        );
+    }
+    if (!db.services) db.services = [];
+    if (!db.services.some(s => s.branchId === 'b_demo_sandbox')) {
+        db.services.push(
+            {
+                id: 'srv_demo_1',
+                name: 'Signature Haircut & Sculpt',
+                category: 'Hair',
+                price: 1200,
+                duration: 45,
+                branch: 'Vynster Demo Salon [Sandbox]',
+                branchId: 'b_demo_sandbox'
+            },
+            {
+                id: 'srv_demo_2',
+                name: 'Hydra-Glow Facial Therapy',
+                category: 'Skin',
+                price: 2500,
+                duration: 60,
+                branch: 'Vynster Demo Salon [Sandbox]',
+                branchId: 'b_demo_sandbox'
+            },
+            {
+                id: 'srv_demo_3',
+                name: 'Keratin Infusion Treatment',
+                category: 'Hair Spa',
+                price: 4500,
+                duration: 90,
+                branch: 'Vynster Demo Salon [Sandbox]',
+                branchId: 'b_demo_sandbox'
+            }
+        );
+    }
+    if (!db.clients) db.clients = [];
+    if (!db.clients.some(c => c.branchId === 'b_demo_sandbox')) {
+        db.clients.push({
+            id: 'cli_demo_1',
+            name: 'Demo VIP Client',
+            phone: '9876500011',
+            email: 'client.demo@vynster.com',
+            gender: 'Female',
+            branch: 'Vynster Demo Salon [Sandbox]',
+            branchId: 'b_demo_sandbox',
+            loyaltyPoints: 120,
+            totalVisits: 3
+        });
+    }
+    if (!db.bookings) db.bookings = [];
+    if (!db.bookings.some(b => b.branchId === 'b_demo_sandbox')) {
+        db.bookings.push({
+            id: 'bk_demo_1',
+            clientName: 'Demo VIP Client',
+            clientPhone: '9876500011',
+            serviceName: 'Signature Haircut & Sculpt',
+            staffName: 'Alex Carter (Demo Lead Stylist)',
+            date: new Date().toISOString().split('T')[0],
+            time: '14:00',
+            status: 'Confirmed',
+            amount: 1200,
+            paymentMethod: 'UPI',
+            branch: 'Vynster Demo Salon [Sandbox]',
+            branchId: 'b_demo_sandbox'
+        });
+    }
+    if (!db.ads) db.ads = [];
+    if (!db.ads.some(a => a.id === 'ad_sandbox_demo')) {
+        db.ads.push({
+            id: 'ad_sandbox_demo',
+            emoji: '🧪',
+            title: 'SuperAdmin QA Test Ad · Sandbox Only',
+            description: 'This targeted promotional banner is served exclusively to Vynster Demo Salon [Sandbox] to verify targeted campaign delivery.',
+            buttonText: 'Verify Target Delivery',
+            targets: ['b_demo_sandbox', 'Vynster Demo Salon [Sandbox]'],
+            dateCreated: new Date().toISOString()
+        });
+    }
+}
+ensureSandboxBranch(localDb);
 let isSavingLocal = false;
 let queuedSaveLocal = false;
 const saveLocal = () => {
@@ -1902,7 +2052,7 @@ app.get('/api/inventory', requireAuth, requireRole('super', 'admin', 'owner', 'm
     }
 });
 
-app.get('/api/ads', requireAuth, requireRole('super', 'owner', 'manager'), (req, res) => {
+app.get('/api/ads', (req, res) => {
     res.json(localDb.ads || []);
 });
 
@@ -1911,6 +2061,9 @@ app.post('/api/ads', requireAuth, requireRole('super', 'owner', 'manager'), (req
     const newAd = { id: 'ad_' + Date.now(), ...req.body, dateCreated: new Date().toISOString() };
     localDb.ads.push(newAd);
     saveLocal();
+    if (typeof io !== 'undefined' && io) {
+        io.emit('ads_updated', localDb.ads);
+    }
     res.json(newAd);
 });
 
@@ -1920,6 +2073,9 @@ app.delete('/api/ads/:id', requireAuth, requireRole('super', 'owner', 'manager')
     if (idx !== -1) {
         localDb.ads.splice(idx, 1);
         saveLocal();
+        if (typeof io !== 'undefined' && io) {
+            io.emit('ads_updated', localDb.ads);
+        }
         return res.json({ success: true });
     }
     res.status(404).json({ error: 'Ad not found' });
@@ -2935,6 +3091,9 @@ app.put('/api/branches/:id/verify', authMiddleware(3), async (req, res) => {
 
 app.delete('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res) => {
     const branchId = req.params.id;
+    if (branchId === 'b1' || branchId === 'b_demo_sandbox') {
+        return res.status(403).json({ error: 'System protected branches (Main Branch & SuperAdmin Sandbox) cannot be deleted.' });
+    }
     if (isConnected) { 
         try { 
             await Branch.deleteOne({ $or: [{ id: branchId }, { _id: branchId }] }); 
@@ -2975,8 +3134,8 @@ app.post('/api/admin/reset-portal-data', requireAuth, authMiddleware(1), async (
 
         if (isConnected) {
             try {
-                // Keep only default Main Branch (b1) with 0 revenue
-                await Branch.deleteMany({ id: { $ne: 'b1' } });
+                // Keep default Main Branch (b1) and QA Sandbox (b_demo_sandbox)
+                await Branch.deleteMany({ id: { $nin: ['b1', 'b_demo_sandbox'] } });
                 await Branch.updateOne({ id: 'b1' }, { $set: mainBranch }, { upsert: true });
 
                 // Zero/wipe all clients
@@ -2997,7 +3156,7 @@ app.post('/api/admin/reset-portal-data', requireAuth, authMiddleware(1), async (
             }
         }
 
-        // Reset localDb collections
+        // Reset localDb collections, preserving Main Branch and Sandbox
         localDb.branches = [mainBranch];
         localDb.clients = [];
         localDb.bookings = [];
@@ -3012,6 +3171,8 @@ app.post('/api/admin/reset-portal-data', requireAuth, authMiddleware(1), async (
         if (localDb.revenue !== undefined) localDb.revenue = 0;
         if (localDb.transactions) localDb.transactions = [];
         if (localDb.payouts) localDb.payouts = [];
+        ensureSandboxBranch(localDb);
+        saveLocal();
         saveLocal();
 
         console.log(`[TIER 1 RESET] Executed by ${req.user.email} (Tier ${req.user.tier}). All records and revenues reset to 0.`);

@@ -2062,6 +2062,70 @@
 
         <div id="section-ad-manager" class="content-section" style="display: none;">
             <div class="dashboard-grid">
+                <!-- SuperAdmin QA Sandbox Reference Testing Lab -->
+                <div class="glass-panel" style="grid-column: span 12; padding: 1.8rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, rgba(147, 51, 234, 0.08) 0%, rgba(79, 70, 229, 0.05) 100%); border: 1px solid rgba(147, 51, 234, 0.35); border-radius: 16px; position: relative; overflow: hidden;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.2rem;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(147, 51, 234, 0.15); color: #9333ea; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                                <i class="fa-solid fa-flask-vial"></i>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                                    SuperAdmin QA Sandbox Testing Lab
+                                    <span style="background: rgba(147, 51, 234, 0.15); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.3); padding: 2px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">Reference Test Mode</span>
+                                </h3>
+                                <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: var(--text-muted);">
+                                    Pre-configured isolated test salon: <strong style="color: var(--text-main);">Vynster Demo Salon [Sandbox]</strong> (ID: <code>b_demo_sandbox</code>). Safely simulate ad campaigns and receipt billing ads without affecting live customer-facing salons.
+                                </p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <a href="vynster-salon.html?branch=Vynster%20Demo%20Salon%20%5BSandbox%5D&branchId=b_demo_sandbox" target="_blank" class="ai-assistant-btn" style="background: linear-gradient(135deg, #7c3aed, #9333ea); text-decoration: none; padding: 0.7rem 1.2rem; font-size: 0.9rem; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);" title="Open Live Sandbox Salon Portal in a new tab">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Sandbox Portal ↗
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Sandbox Quick Testing Actions Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+                        <div style="background: rgba(255, 255, 255, 0.6); dark:background: rgba(30, 41, 59, 0.5); padding: 1.1rem; border-radius: 12px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                                    <span>🎯</span> 1-Click Push Targeted Test Ad
+                                </div>
+                                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 10px 0;">Deploys a targeted promotional banner strictly to the Sandbox Salon.</p>
+                            </div>
+                            <button type="button" onclick="pushSandboxTestAd()" class="action-btn" style="width: 100%; justify-content: center; background: rgba(147, 51, 234, 0.12); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.35); font-weight: 700; padding: 0.6rem;">
+                                <i class="fa-solid fa-paper-plane"></i> Deploy Targeted Test Ad
+                            </button>
+                        </div>
+
+                        <div style="background: rgba(255, 255, 255, 0.6); dark:background: rgba(30, 41, 59, 0.5); padding: 1.1rem; border-radius: 12px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                                    <span>📢</span> 1-Click Push Global Test Ad
+                                </div>
+                                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 10px 0;">Deploys a broadcast ad banner served across all connected salon networks.</p>
+                            </div>
+                            <button type="button" onclick="pushGlobalTestAd()" class="action-btn" style="width: 100%; justify-content: center; background: rgba(26, 107, 138, 0.12); color: var(--accent-primary); border: 1px solid rgba(26, 107, 138, 0.35); font-weight: 700; padding: 0.6rem;">
+                                <i class="fa-solid fa-bullhorn"></i> Deploy Global Network Ad
+                            </button>
+                        </div>
+
+                        <div style="background: rgba(255, 255, 255, 0.6); dark:background: rgba(30, 41, 59, 0.5); padding: 1.1rem; border-radius: 12px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                                    <span>🧾</span> Test Bill & Receipt Ad Targeting
+                                </div>
+                                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 10px 0;">Configures sample receipt footer promotion for the Sandbox salon.</p>
+                            </div>
+                            <button type="button" onclick="setupSandboxReceiptAdTest()" class="action-btn" style="width: 100%; justify-content: center; background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); font-weight: 700; padding: 0.6rem;">
+                                <i class="fa-solid fa-receipt"></i> Configure Sandbox Receipt Ad
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Create Ad Form -->
                 <div class="glass-panel" style="grid-column: span 5; padding: 2rem;">
                     <h3 style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem;">
@@ -2731,6 +2795,10 @@
         let globalExpenses = [];
 
         window.deleteVendor = async function (id) {
+            if (id === 'b1' || id === 'b_demo_sandbox') {
+                showToast('Protected system branches (Main Branch & QA Sandbox) cannot be deleted.', 'error');
+                return;
+            }
             const v = vendors.find(x => String(x.id) === String(id));
             const salonName = v ? v.name : 'this branch';
             if (!confirm(`Are you sure you want to completely delete "${salonName}"? This action cannot be undone.`)) {
@@ -2800,7 +2868,7 @@
                             <div class="vendor-profile">
                                 <div class="vendor-avatar">${vendor.initials}</div>
                                 <div class="vendor-info">
-                                    <h4>${vendor.name}</h4>
+                                    <h4>${vendor.name}${vendor.isSandbox || vendor.id === 'b_demo_sandbox' ? ' <span style="font-size:0.72rem; background:rgba(147, 51, 234, 0.15); color:#9333ea; border:1px solid rgba(147, 51, 234, 0.35); padding:2px 8px; border-radius:10px; font-weight:700;"><i class="fa-solid fa-flask"></i> QA Sandbox</span>' : ''}</h4>
                                     <p>Joined ${vendor.joined}</p>
                                 </div>
                             </div>
@@ -2818,11 +2886,19 @@
                         <td><span class="status-badge ${statusClass}">${vendor.status}</span></td>
                         <td style="white-space: nowrap;">
                             <div class="actions-btn-group">
-                                <a href="vynster-salon.html?branch=${encodeURIComponent(vendor.name)}&branchId=${encodeURIComponent(vendor.id)}" target="_blank" class="action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(26, 107, 138, 0.15); color: var(--accent-primary); border: 1px solid var(--accent-secondary);" title="Open ${vendor.name} Branch Portal">
-                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Salon Portal
-                                </a>
-                                ${actionButton}
-                                <button type="button" class="action-btn" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid rgba(229, 62, 62, 0.3);" onclick="deleteVendor('${vendor.id}')" title="Delete Vendor"><i class="fa-solid fa-trash"></i></button>
+                                ${vendor.isSandbox || vendor.id === 'b_demo_sandbox' ? `
+                                    <a href="vynster-salon.html?branch=${encodeURIComponent(vendor.name)}&branchId=${encodeURIComponent(vendor.id)}" target="_blank" class="action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(147, 51, 234, 0.15); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.4); font-weight: 700;" title="Launch QA Sandbox Lab Portal">
+                                        <i class="fa-solid fa-flask-vial"></i> Launch Sandbox
+                                    </a>
+                                    ${actionButton}
+                                    <span class="action-btn" style="background: rgba(100, 116, 139, 0.1); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.2); cursor: not-allowed; display: inline-flex; align-items: center;" title="System QA Sandbox Protected"><i class="fa-solid fa-shield"></i></span>
+                                ` : `
+                                    <a href="vynster-salon.html?branch=${encodeURIComponent(vendor.name)}&branchId=${encodeURIComponent(vendor.id)}" target="_blank" class="action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(26, 107, 138, 0.15); color: var(--accent-primary); border: 1px solid var(--accent-secondary);" title="Open ${vendor.name} Branch Portal">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Salon Portal
+                                    </a>
+                                    ${actionButton}
+                                    <button type="button" class="action-btn" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid rgba(229, 62, 62, 0.3);" onclick="deleteVendor('${vendor.id}')" title="Delete Vendor"><i class="fa-solid fa-trash"></i></button>
+                                `}
                             </div>
                         </td>
                     </tr>
@@ -3643,6 +3719,7 @@
                             vendors.push({
                                 id: branch.id,
                                 name: branch.name,
+                                isSandbox: Boolean(branch.isSandbox || branch.id === 'b_demo_sandbox'),
                                 joined: branch.date ? new Date(branch.date).toLocaleDateString() : 'Active',
                                 initials: (branch.name || 'NA').substring(0, 2).toUpperCase(),
                                 location: branch.location || 'N/A',
@@ -3659,7 +3736,10 @@
                             });
 
                             if (targetSelect) {
-                                targetSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+                                const targetLabel = (branch.id === 'b_demo_sandbox' || branch.isSandbox)
+                                    ? `${branch.name} 🧪 [Test Receipt Ads]`
+                                    : branch.name;
+                                targetSelect.innerHTML += `<option value="${branch.id}">${targetLabel}</option>`;
                             }
                         } else if (vStatus === 'pending' || vStatus === 'under_review' || branch.status === 'Pending Review' || !branch.status) {
                             pendingSalons.push({
@@ -5043,7 +5123,7 @@
 
                 fullTbody.innerHTML += `
                     <tr>
-                        <td><strong>${vendor.name}</strong></td>
+                        <td><strong>${vendor.name}</strong>${vendor.isSandbox || vendor.id === 'b_demo_sandbox' ? ' <span style="font-size:0.72rem; background:rgba(147, 51, 234, 0.15); color:#9333ea; border:1px solid rgba(147, 51, 234, 0.35); padding:2px 8px; border-radius:10px; font-weight:700;"><i class="fa-solid fa-flask"></i> QA Sandbox</span>' : ''}</td>
                         <td><span style="font-size: 0.85rem; color: var(--accent-secondary); border: 1px solid var(--accent-secondary); padding: 0.2rem 0.5rem; border-radius: 6px;">${vendor.type}</span></td>
                         <td>${vendor.location}</td>
                         <td>
@@ -5056,13 +5136,22 @@
                         <td><span class="status-badge ${vendor.status === 'Suspended' ? 'status-suspended' : 'status-active'}">${vendor.status}</span></td>
                         <td style="white-space: nowrap;">
                             <div class="actions-btn-group">
-                                <a href="vynster-salon.html?branch=${encodeURIComponent(vendor.name)}&branchId=${encodeURIComponent(vendor.id)}" target="_blank" class="action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(26, 107, 138, 0.15); color: var(--accent-primary); border: 1px solid var(--accent-secondary);" title="Open ${vendor.name} Branch Portal">
-                                    <i class="fa-solid fa-arrow-up-right-from-square"></i> Salon Portal
-                                </a>
-                                ${actionBtn}
-                                <button type="button" class="action-btn" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);" onclick="viewCredentials('${vendor.id}')" title="View Branch Credentials"><i class="fa-solid fa-eye"></i> View Credentials</button>
-                                <button type="button" class="action-btn" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);" onclick="generateAndSetCredentials('${vendor.id}')" title="Generate New Branch Credentials"><i class="fa-solid fa-key"></i> Generate</button>
-                                <button type="button" class="action-btn" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid rgba(229, 62, 62, 0.3);" onclick="deleteVendor('${vendor.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                                ${vendor.isSandbox || vendor.id === 'b_demo_sandbox' ? `
+                                    <a href="vynster-salon.html?branch=${encodeURIComponent(vendor.name)}&branchId=${encodeURIComponent(vendor.id)}" target="_blank" class="action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(147, 51, 234, 0.15); color: #9333ea; border: 1px solid rgba(147, 51, 234, 0.4); font-weight: 700;" title="Launch QA Sandbox Lab Portal">
+                                        <i class="fa-solid fa-flask-vial"></i> Launch Sandbox
+                                    </a>
+                                    ${actionBtn}
+                                    <button type="button" class="action-btn" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);" onclick="viewCredentials('${vendor.id}')" title="View Branch Credentials"><i class="fa-solid fa-eye"></i> View Credentials</button>
+                                    <span class="action-btn" style="background: rgba(100, 116, 139, 0.1); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.2); cursor: not-allowed; display: inline-flex; align-items: center;" title="System QA Sandbox Protected"><i class="fa-solid fa-shield"></i></span>
+                                ` : `
+                                    <a href="vynster-salon.html?branch=${encodeURIComponent(vendor.name)}&branchId=${encodeURIComponent(vendor.id)}" target="_blank" class="action-btn" style="text-decoration: none; display: inline-flex; align-items: center; gap: 4px; background: rgba(26, 107, 138, 0.15); color: var(--accent-primary); border: 1px solid var(--accent-secondary);" title="Open ${vendor.name} Branch Portal">
+                                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Salon Portal
+                                    </a>
+                                    ${actionBtn}
+                                    <button type="button" class="action-btn" style="background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);" onclick="viewCredentials('${vendor.id}')" title="View Branch Credentials"><i class="fa-solid fa-eye"></i> View Credentials</button>
+                                    <button type="button" class="action-btn" style="background: rgba(0, 255, 136, 0.1); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);" onclick="generateAndSetCredentials('${vendor.id}')" title="Generate New Branch Credentials"><i class="fa-solid fa-key"></i> Generate</button>
+                                    <button type="button" class="action-btn" style="background: rgba(229, 62, 62, 0.1); color: #e53e3e; border: 1px solid rgba(229, 62, 62, 0.3);" onclick="deleteVendor('${vendor.id}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                                `}
                             </div>
                         </td>
                     </tr>
@@ -5374,7 +5463,9 @@
             vendors.forEach(v => {
                 const opt = document.createElement('option');
                 opt.value = v.id;
-                opt.innerText = v.name;
+                opt.innerText = (v.id === 'b_demo_sandbox' || v.isSandbox) 
+                    ? `${v.name} 🧪 [QA Sandbox Testing]` 
+                    : v.name;
                 selector.appendChild(opt);
             });
 
@@ -5398,13 +5489,17 @@
                 }
 
                 ads.forEach(ad => {
+                    const isSandboxTargeted = Array.isArray(ad.targets) && (ad.targets.includes('b_demo_sandbox') || ad.targets.includes('Vynster Demo Salon [Sandbox]'));
                     tbody.innerHTML += `
                         <tr>
                             <td>
                                 <div style="display: flex; gap: 1rem; align-items: center;">
                                     <div style="font-size: 2rem; background: var(--bg-panel); width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">${ad.emoji || '📢'}</div>
                                     <div>
-                                        <div style="font-weight: 700; font-size: 1rem;">${ad.title}</div>
+                                        <div style="font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 6px;">
+                                            ${ad.title}
+                                            ${isSandboxTargeted ? '<span style="font-size:0.7rem; background:rgba(147, 51, 234, 0.15); color:#9333ea; border:1px solid rgba(147, 51, 234, 0.35); padding:1px 6px; border-radius:8px;">Sandbox Only</span>' : ''}
+                                        </div>
                                         <div style="font-size: 0.8rem; color: var(--text-muted); max-width: 300px; white-space: normal;">${ad.description}</div>
                                     </div>
                                 </div>
@@ -5418,6 +5513,76 @@
                 });
             } catch (e) {
                 console.error('Failed to fetch ads:', e);
+            }
+        }
+
+        async function pushSandboxTestAd() {
+            try {
+                const res = await fetch(`${API_URL}/api/ads`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        emoji: '🧪',
+                        title: 'SuperAdmin QA Test Ad · Sandbox Only',
+                        description: 'Targeted promotion served exclusively to Vynster Demo Salon [Sandbox] to verify targeted campaign delivery.',
+                        buttonText: 'Verify Sandbox',
+                        targets: ['b_demo_sandbox', 'Vynster Demo Salon [Sandbox]']
+                    })
+                });
+                if (res.ok) {
+                    showToast('Targeted test ad pushed to Vynster Demo Salon [Sandbox]!', 'success');
+                    fetchAndRenderAds();
+                } else {
+                    showToast('Failed to deploy test ad.', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Network error while deploying test ad.', 'error');
+            }
+        }
+
+        async function pushGlobalTestAd() {
+            try {
+                const res = await fetch(`${API_URL}/api/ads`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({
+                        emoji: '📢',
+                        title: 'Network Broadcast Test Ad',
+                        description: 'Global promotional banner broadcast across all connected salon portals.',
+                        buttonText: 'Claim Offer',
+                        targets: ['Global']
+                    })
+                });
+                if (res.ok) {
+                    showToast('Global test ad pushed across all salons!', 'success');
+                    fetchAndRenderAds();
+                } else {
+                    showToast('Failed to deploy global ad.', 'error');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast('Network error while deploying global ad.', 'error');
+            }
+        }
+
+        async function setupSandboxReceiptAdTest() {
+            try {
+                const targetSelect = document.getElementById('setting-bill-ad-target');
+                if (targetSelect) {
+                    targetSelect.value = 'b_demo_sandbox';
+                    populateBillAdForm('b_demo_sandbox');
+                }
+                document.getElementById('setting-bill-ad-type').value = 'text';
+                document.getElementById('bill-ad-text-container').style.display = 'block';
+                document.getElementById('bill-ad-media-container').style.display = 'none';
+                document.getElementById('setting-bill-ad').value = '🧪 Sandbox QA Bill Promotion: Reference receipt promo verified exclusively for Vynster Demo Salon [Sandbox].';
+                
+                showToast('Sandbox target selected! Click "Save Configuration" or test live in Sandbox Portal.', 'info');
+                const billElem = document.getElementById('setting-bill-ad-target');
+                if (billElem) billElem.scrollIntoView({ behavior: 'smooth' });
+            } catch (e) {
+                console.error(e);
             }
         }
 
@@ -5439,7 +5604,7 @@
             try {
                 const res = await fetch(`${API_URL}/api/ads`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ emoji, title, description, buttonText, targets })
                 });
 
@@ -5459,7 +5624,10 @@
         async function deleteAd(id) {
             if (!confirm('Are you sure you want to pull this ad from the network?')) return;
             try {
-                const res = await fetch(`${API_URL}/api/ads/${id}`, { method: 'DELETE' });
+                const res = await fetch(`${API_URL}/api/ads/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
                 if (res.ok) {
                     showToast('Ad revoked successfully.', 'success');
                     fetchAndRenderAds();

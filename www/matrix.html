@@ -5193,9 +5193,9 @@
                         </div>
 
                         <!-- Preview Box -->
-                        <div style="height: 75px; border-radius: 10px; border: 2px dashed ${hasLogo ? 'rgba(0,255,136,0.3)' : 'var(--glass-border)'}; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 6px;">
+                        <div id="partner-preview-box-${i}" style="height: 75px; border-radius: 10px; border: 2px dashed ${hasLogo ? 'rgba(0,255,136,0.3)' : 'var(--glass-border)'}; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; overflow: hidden; padding: 6px;">
                             ${hasLogo ? `
-                                <img src="${slot.logoUrl}" alt="${slot.name || 'Salon Logo'}" style="max-height: 60px; max-width: 90%; object-fit: contain;">
+                                <img src="${slot.logoUrl}" alt="${slot.name || 'Salon Logo'}" style="max-height: 60px; max-width: 90%; object-fit: contain;" onerror="this.onerror=null; this.src='vynster-logo.png'">
                             ` : `
                                 <span style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace;">+ Logo Slot ${i + 1}</span>
                             `}
@@ -5247,7 +5247,14 @@
             if (!partnerLogosState[index]) partnerLogosState[index] = {};
             partnerLogosState[index][field] = value;
             if (field === 'logoUrl') {
-                renderPartnerLogoSlots();
+                const prev = document.getElementById(`partner-preview-box-${index}`);
+                if (prev) {
+                    if (value && value.trim()) {
+                        prev.innerHTML = `<img src="${value.trim()}" alt="Preview" style="max-height: 60px; max-width: 90%; object-fit: contain;" onerror="this.onerror=null; this.src='vynster-logo.png'">`;
+                    } else {
+                        prev.innerHTML = `<span style="font-size: 0.75rem; color: var(--text-muted); font-family: monospace;">+ Logo Slot ${index + 1}</span>`;
+                    }
+                }
             }
         }
 
@@ -5348,6 +5355,10 @@
                 logoUrl, brandName, tagline, heroSubtitle, primaryCtaText, primaryCtaLink, adminCtaText, adminCtaLink,
                 brandsHeading, brandsCopy, partnerLogos
             };
+
+            try {
+                localStorage.setItem('vynster_landing_config', JSON.stringify(payload));
+            } catch (e) {}
 
             try {
                 const res = await fetch(`${API_URL}/api/admin/landing-config`, {

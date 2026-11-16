@@ -817,12 +817,12 @@
                 </div>
 
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4" id="landing-brand-logos-grid">
-                    <div class="reveal"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
-                    <div class="reveal"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
-                    <div class="reveal"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
-                    <div class="reveal"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
-                    <div class="reveal"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
-                    <div class="reveal"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
+                    <div class="reveal in" style="opacity: 1 !important; transform: none !important;"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
+                    <div class="reveal in" style="opacity: 1 !important; transform: none !important;"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
+                    <div class="reveal in" style="opacity: 1 !important; transform: none !important;"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
+                    <div class="reveal in" style="opacity: 1 !important; transform: none !important;"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
+                    <div class="reveal in" style="opacity: 1 !important; transform: none !important;"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
+                    <div class="reveal in" style="opacity: 1 !important; transform: none !important;"><div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">+ Logo</div></div>
                 </div>
             </div>
         </section>
@@ -1048,15 +1048,15 @@
         // Scroll Reveal Animations
         const revealEls = document.querySelectorAll('.reveal');
         if ('IntersectionObserver' in window) {
-            const io = new IntersectionObserver((entries) => {
+            window.landingRevealObserver = new IntersectionObserver((entries) => {
                 entries.forEach(e => {
                     if (e.isIntersecting) {
                         e.target.classList.add('in');
-                        io.unobserve(e.target);
+                        window.landingRevealObserver.unobserve(e.target);
                     }
                 });
             }, { threshold: 0.12 });
-            revealEls.forEach(el => io.observe(el));
+            revealEls.forEach(el => window.landingRevealObserver.observe(el));
         } else {
             revealEls.forEach(el => el.classList.add('in'));
         }
@@ -1181,11 +1181,21 @@
     <!-- Real-Time Super Admin Landing Page Customization Sync -->
     <script>
         (async function initLandingConfig() {
+            // 1. Instant Cache Render from localStorage
+            try {
+                const cached = localStorage.getItem('vynster_landing_config');
+                if (cached) {
+                    applyLandingConfig(JSON.parse(cached));
+                }
+            } catch(e) {}
+
+            // 2. Network Fetch from Server
             try {
                 const res = await fetch('/api/admin/landing-config').catch(() => null);
                 if (res && res.ok) {
                     const cfg = await res.json();
                     applyLandingConfig(cfg);
+                    try { localStorage.setItem('vynster_landing_config', JSON.stringify(cfg)); } catch(e){}
                 }
             } catch (e) {}
 
@@ -1240,19 +1250,20 @@
                         if (item && item.logoUrl) {
                             const linkStart = item.link ? `<a href="${item.link}" target="_blank" class="block w-full h-full">` : '';
                             const linkEnd = item.link ? `</a>` : '';
+                            const fallbackName = item.name || 'Partner Salon';
                             html += `
-                                <div class="reveal">
+                                <div class="reveal in" style="opacity: 1 !important; transform: none !important;">
                                     ${linkStart}
-                                    <div class="aspect-[1.6/1] border border-white/20 rounded-2xl flex flex-col items-center justify-center p-3 bg-white/5 backdrop-blur-sm hover:border-[#F40606] hover:bg-white/10 transition-all duration-300 group shadow-lg cursor-pointer">
-                                        <img src="${item.logoUrl}" alt="${item.name || 'Partner Salon'}" class="max-h-12 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow">
-                                        ${item.name ? `<span class="mt-1 text-[11px] font-mono tracking-wider font-semibold text-[#D7E2EA]/70 group-hover:text-white truncate max-w-[95%]">${item.name}</span>` : ''}
+                                    <div class="aspect-[1.6/1] border border-white/20 rounded-2xl flex flex-col items-center justify-center p-3 bg-white/10 backdrop-blur-md hover:border-[#F40606] hover:bg-white/15 hover:scale-[1.02] transition-all duration-300 group shadow-lg cursor-pointer">
+                                        <img src="${item.logoUrl}" alt="${fallbackName}" class="max-h-12 max-w-[85%] object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow" onerror="this.style.display='none'; const fb = this.nextElementSibling; if(fb){ fb.style.display='block'; fb.classList.add('text-xs','font-bold'); }">
+                                        <span class="mt-1 text-[11px] font-mono tracking-wider font-semibold text-[#D7E2EA] group-hover:text-white truncate max-w-[95%] text-center">${fallbackName}</span>
                                     </div>
                                     ${linkEnd}
                                 </div>
                             `;
                         } else {
                             html += `
-                                <div class="reveal">
+                                <div class="reveal in" style="opacity: 1 !important; transform: none !important;">
                                     <div class="aspect-[1.6/1] border-2 border-dashed border-white/20 rounded-2xl flex items-center justify-center font-mono font-bold text-sm text-[#D7E2EA]/60 hover:text-white hover:border-[#F40606] hover:bg-[#F40606]/5 transition-all cursor-pointer select-none">
                                         + Logo
                                     </div>
@@ -1261,6 +1272,12 @@
                         }
                     }
                     grid.innerHTML = html;
+
+                    // Ensure all newly created slots are guaranteed visible
+                    grid.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+                    if (window.landingRevealObserver) {
+                        grid.querySelectorAll('.reveal').forEach(el => window.landingRevealObserver.observe(el));
+                    }
                 }
             }
 
@@ -1268,7 +1285,10 @@
             if (typeof io !== 'undefined') {
                 try {
                     const s = io();
-                    s.on('landing_config_updated', applyLandingConfig);
+                    s.on('landing_config_updated', (newCfg) => {
+                        applyLandingConfig(newCfg);
+                        try { localStorage.setItem('vynster_landing_config', JSON.stringify(newCfg)); } catch(e){}
+                    });
                 } catch(e) {}
             }
         })();

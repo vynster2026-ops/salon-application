@@ -208,6 +208,7 @@ const authLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 20, messa
 const otpLimiter = createRateLimiter({ windowMs: 10 * 60 * 1000, max: 5, message: 'Too many OTP attempts. Please wait 10 minutes.' });
 const campaignLimiter = createRateLimiter({ windowMs: 60 * 60 * 1000, max: 10, message: 'Bulk campaign limit reached. Please try again later.' });
 const apiLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 1000, message: 'Rate limit exceeded. Please slow down your requests.' });
+const bookingLimiter = createRateLimiter({ windowMs: 15 * 60 * 1000, max: 100, message: 'Too many booking attempts. Please try again later.' });
 
 const http = require('http');
 const server = http.createServer(app);

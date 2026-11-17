@@ -153,6 +153,33 @@ const requireRole = (...allowedRoles) => {
     };
 };
 
+function escapeRegex(text) {
+    return String(text || '').replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+}
+
+function buildBranchMongoQuery(identifier, accessKey = null, email = null) {
+    if (!identifier) return { id: '__non_existent_placeholder__' };
+    const raw = String(identifier).trim();
+    const orClauses = [
+        { id: raw },
+        { id: new RegExp('^' + escapeRegex(raw) + '$', 'i') },
+        { name: raw },
+        { name: new RegExp('^' + escapeRegex(raw) + '$', 'i') }
+    ];
+    if (typeof mongoose !== 'undefined' && mongoose.Types && mongoose.Types.ObjectId.isValid(raw) && String(new mongoose.Types.ObjectId(raw)) === raw) {
+        orClauses.push({ _id: new mongoose.Types.ObjectId(raw) });
+    }
+    if (accessKey) {
+        orClauses.push({ accessKey: String(accessKey).trim() });
+        orClauses.push({ accessKey: new RegExp('^' + escapeRegex(String(accessKey).trim()) + '$', 'i') });
+    }
+    if (email) {
+        orClauses.push({ email: String(email).trim() });
+        orClauses.push({ email: new RegExp('^' + escapeRegex(String(email).trim()) + '$', 'i') });
+    }
+    return { $or: orClauses };
+}
+
 const authMiddleware = (requiredTier = null) => {
     return (req, res, next) => {
         let token = req.cookies?.authToken || req.headers['authorization'] || req.query.token;
@@ -165,10 +192,11 @@ const authMiddleware = (requiredTier = null) => {
         }
         req.user = decoded;
         if (requiredTier !== null) {
-            if (decoded.role !== 'super') {
+            const isSuperOrOwner = decoded.role === 'super' || decoded.role === 'owner' || decoded.role === 'admin';
+            if (!isSuperOrOwner) {
                 return res.status(403).json({ error: 'Access denied: Super Admin role required.' });
             }
-            if (decoded.tier > requiredTier) {
+            if (typeof decoded.tier === 'number' && decoded.tier > requiredTier) {
                 return res.status(403).json({ error: 'Access denied: Requires Tier ' + requiredTier + ' or higher (current: Tier ' + decoded.tier + ').' });
             }
         }
@@ -301,7 +329,8 @@ app.use((req, res, next) => {
 });
 
 // 5. Body Parsers with safe payload limits
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // --- ROUTE ALIASES FOR EXTENDED COMPATIBILITY ---
 app.use((req, res, next) => {
     const p = req.path;
@@ -3049,12 +3078,15 @@ app.put('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res) =>
     }
     if (isConnected) {
         try {
+            const mongoFilter = buildBranchMongoQuery(branchId);
             await Branch.findOneAndUpdate(
-                { $or: [{ id: branchId }, { _id: branchId }, { name: branchId }] },
+                mongoFilter,
                 updateData,
                 { new: true }
             );
-        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
+        } catch (e) {
+            console.error('[UPDATE BRANCH MONGO ERROR]', e.message || e);
+        }
     }
     if (!localDb.branches) localDb.branches = [];
     const idx = localDb.branches.findIndex(b => 
@@ -3077,25 +3109,42 @@ app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authM
     const { status } = req.body || {}; // 'Active', 'Suspended'
     const newStatus = status || 'Suspended';
 
-    if (isConnected) {
-        try {
-            await Branch.updateMany(
-                { $or: [{ id: branchId }, { _id: branchId }, { name: branchId }] },
-                { $set: { status: newStatus, 'subscription.status': newStatus } }
-            );
-            await Admin.updateMany(
-                { $or: [{ branchId: branchId }, { email: branchId }] },
-                { $set: { status: newStatus } }
-            );
-        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
-    }
-
     if (!localDb.branches) localDb.branches = [];
     const idx = localDb.branches.findIndex(b => 
         String(b.id || '').trim().toLowerCase() === searchId || 
         String(b._id || '').trim().toLowerCase() === searchId ||
         String(b.name || '').trim().toLowerCase() === searchId
     );
+
+    let targetBranchObj = idx !== -1 ? localDb.branches[idx] : null;
+    const effectiveId = targetBranchObj ? targetBranchObj.id : branchId;
+    const effectiveName = targetBranchObj ? targetBranchObj.name : branchId;
+    const effectiveAccessKey = targetBranchObj ? targetBranchObj.accessKey : null;
+
+    if (isConnected) {
+        try {
+            const mongoFilter = buildBranchMongoQuery(effectiveId, effectiveAccessKey);
+            mongoFilter.$or.push({ name: effectiveName });
+            mongoFilter.$or.push({ name: new RegExp('^' + escapeRegex(effectiveName) + '$', 'i') });
+
+            await Branch.updateMany(
+                mongoFilter,
+                { $set: { status: newStatus, 'subscription.status': newStatus } }
+            );
+            await Admin.updateMany(
+                { 
+                    $or: [
+                        { branchId: effectiveId }, 
+                        { branchId: new RegExp('^' + escapeRegex(effectiveId) + '$', 'i') },
+                        ...(effectiveAccessKey ? [{ email: effectiveAccessKey }] : [])
+                    ] 
+                },
+                { $set: { status: newStatus } }
+            );
+        } catch (e) {
+            console.error('[STATUS UPDATE MONGO ERROR]', e.message || e);
+        }
+    }
 
     let updatedBranch = null;
     if (idx !== -1) {
@@ -3107,8 +3156,8 @@ app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authM
         if (localDb.admins) {
             localDb.admins.forEach(a => {
                 if (
-                    String(a.branchId || '').toLowerCase() === String(localDb.branches[idx].id || '').toLowerCase() ||
-                    (localDb.branches[idx].accessKey && String(a.email || '').toLowerCase() === String(localDb.branches[idx].accessKey || '').toLowerCase())
+                    String(a.branchId || '').toLowerCase() === String(effectiveId).toLowerCase() ||
+                    (effectiveAccessKey && String(a.email || '').toLowerCase() === String(effectiveAccessKey).toLowerCase())
                 ) {
                     a.status = newStatus;
                 }
@@ -3150,6 +3199,7 @@ app.put(['/api/branches/:id/status', '/branches/:id/status'], requireAuth, authM
 
 app.put('/api/branches/:id/verify', authMiddleware(3), async (req, res) => {
     const { id } = req.params;
+    const branchId = decodeURIComponent(String(id || '').trim());
     const { verificationStatus, verificationNotes } = req.body;
     const status = verificationStatus === 'Approved' ? 'Active' : (verificationStatus === 'Rejected' ? 'Suspended' : 'Pending Review');
 
@@ -3163,11 +3213,18 @@ app.put('/api/branches/:id/verify', authMiddleware(3), async (req, res) => {
 
     if (isConnected) {
         try {
-            await Branch.updateOne({ id }, updateData);
-        } catch (e) { /* Handled error fallback */ if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); }
+            const mongoFilter = buildBranchMongoQuery(branchId);
+            await Branch.updateOne(mongoFilter, updateData);
+        } catch (e) {
+            console.error('[VERIFY BRANCH MONGO ERROR]', e.message || e);
+        }
     }
 
-    const idx = localDb.branches.findIndex(b => b.id === id);
+    const idx = (localDb.branches || []).findIndex(b => 
+        String(b.id || '').trim().toLowerCase() === branchId.toLowerCase() ||
+        String(b._id || '').trim().toLowerCase() === branchId.toLowerCase() ||
+        String(b.name || '').trim().toLowerCase() === branchId.toLowerCase()
+    );
     if (idx !== -1) {
         localDb.branches[idx] = { ...localDb.branches[idx], ...updateData };
         saveLocal();
@@ -3211,17 +3268,15 @@ app.delete('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res)
 
     if (isConnected) { 
         try { 
-            await Branch.deleteMany({ 
-                $or: [
-                    { id: targetBranchId }, 
-                    { _id: targetBranchId }, 
-                    { name: targetBranchName },
-                    ...(targetAccessKey ? [{ accessKey: targetAccessKey }] : [])
-                ] 
-            });
+            const mongoFilter = buildBranchMongoQuery(targetBranchId, targetAccessKey);
+            mongoFilter.$or.push({ name: targetBranchName });
+            mongoFilter.$or.push({ name: new RegExp('^' + escapeRegex(targetBranchName) + '$', 'i') });
+
+            await Branch.deleteMany(mongoFilter);
             await Admin.deleteMany({ 
                 $or: [
                     { branchId: targetBranchId },
+                    { branchId: new RegExp('^' + escapeRegex(targetBranchId) + '$', 'i') },
                     ...(targetAccessKey ? [{ email: targetAccessKey }] : [])
                 ] 
             });
@@ -3229,7 +3284,7 @@ app.delete('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res)
             await Service.deleteMany({ branchId: targetBranchId });
             await Client.deleteMany({ branchId: targetBranchId });
         } catch (e) { 
-            if (process.env.VERBOSE_LOGS) console.warn('[FALLBACK RECOVERED]', e.message || e); 
+            console.error('[DELETE BRANCH MONGO ERROR]', e.message || e);
         } 
     }
 
@@ -3265,6 +3320,12 @@ app.delete('/api/branches/:id', requireAuth, authMiddleware(3), async (req, res)
     }
 
     saveLocal();
+
+    try {
+        if (typeof io !== 'undefined' && io) {
+            io.emit('branch_deleted', { id: targetBranchId, name: targetBranchName });
+        }
+    } catch(e) {}
 
     if (deleted || isConnected) {
         return res.json({ success: true, message: `Branch ${targetBranchName} permanently deleted.`, deletedId: targetBranchId });
@@ -4865,6 +4926,11 @@ app.use((err, req, res, next) => {
 // LANDING PAGE CUSTOMIZATION CMS API (Tier 1-3)
 // ==========================================
 app.get('/api/admin/landing-config', (req, res) => {
+    res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+    });
     const config = (localDb.settings && localDb.settings.landingConfig) || {
         brandName: 'VYNSTER',
         tagline: 'WHERE ELEGANCE MEETS INTELLIGENCE',

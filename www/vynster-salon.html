@@ -1692,12 +1692,12 @@
             </div>
 
             <!-- Prominent Blinking CONTACT ADMIN Banner -->
-            <div style="animation:blinkContactAdmin 1s infinite ease-in-out; color:#ffffff; font-size:18px; font-weight:900; letter-spacing:2px; padding:12px 20px; border-radius:12px; margin-bottom:18px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.3);">
-                ⚠️ CONTACT ADMIN IMMEDIATELY ⚠️
+            <div style="animation:blinkContactAdmin 1s infinite ease-in-out; color:#ffffff; font-size:18px; font-weight:900; letter-spacing:1px; padding:12px 20px; border-radius:12px; margin-bottom:18px; text-transform:uppercase; border:1px solid rgba(255,255,255,0.3);">
+                ⚠️ NO SERVICES - CONTACT ADMIN OR VYNSTER FOR OPERATIONS ⚠️
             </div>
 
             <h1 style="color:#ffffff; font-size:24px; font-weight:800; margin-bottom:10px; letter-spacing:-0.5px;">Salon Operations Suspended</h1>
-            <p style="color:#cbd5e1; font-size:14px; line-height:1.6; margin-bottom:22px;">This salon portal has been suspended by Super Admin. All booking, staff, billing, and operational privileges have been locked immediately.</p>
+            <p style="color:#cbd5e1; font-size:14px; line-height:1.6; margin-bottom:22px;">No services available. This salon portal has been suspended. All booking, staff, billing, and operational privileges have been locked. Please contact Admin or Vynster for operations.</p>
 
             <div style="background:rgba(255,255,255,0.06); border-radius:14px; padding:18px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.12); text-align:left;">
                 <p style="color:#f87171; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px; text-align:center;">Contact Super Admin for Reactivation</p>
@@ -7786,7 +7786,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadSettings();
-            checkOpeningAmount();
+            // checkOpeningAmount(); // Opening cash amount auto-popup removed as requested
             renderQuickTasks();
 
             // Recover pending receipt if Live Server reloaded the page
@@ -8012,23 +8012,8 @@
         }
 
         async function checkOpeningAmount() {
-            const key = getRegisterKey('daily');
-            let hasSetAmount = false;
-            try {
-                const res = await fetch(`${API_URL}/settings`);
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data[key] !== undefined && data[key] !== null) hasSetAmount = true;
-                }
-            } catch (e) { }
-
-            if (!hasSetAmount) {
-                currentRegisterMode = 'daily';
-                const descEl = document.getElementById('edit-opening-desc');
-                if (descEl) descEl.innerText = 'Please enter the opening cash amount in the register for today.';
-                document.getElementById('opening-amount-modal').style.display = 'flex';
-                document.getElementById('opening-amount-input').focus();
-            }
+            // Auto-popup disabled as per user instruction. Register can be opened manually via settings/register button.
+            return;
         }
 
         async function submitOpeningAmount() {

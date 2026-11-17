@@ -2235,7 +2235,18 @@
       }
     },
     "openingAmount_2026-08-09": "100",
-    "openingAmount_2026-10-19": "0"
+    "openingAmount_2026-10-19": "0",
+    "landingConfig": {
+      "logoUrl": "vynster-logo.png",
+      "brandName": "VYNSTER",
+      "partnerLogos": [
+        {
+          "name": "Test Salon",
+          "logoUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+          "link": "https://test.com"
+        }
+      ]
+    }
   },
   "ads": [
     {

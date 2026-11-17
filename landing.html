@@ -1187,6 +1187,7 @@
     </script>
 
     <!-- Real-Time Super Admin Landing Page Customization Sync -->
+    <script src="/socket.io/socket.io.js"></script>
     <script>
         (async function initLandingConfig() {
             // 1. Instant Cache Render from localStorage
@@ -1197,9 +1198,9 @@
                 }
             } catch(e) {}
 
-            // 2. Network Fetch from Server
+            // 2. Network Fetch from Server with cache-busting query
             try {
-                const res = await fetch('/api/admin/landing-config').catch(() => null);
+                const res = await fetch('/api/admin/landing-config?_t=' + Date.now()).catch(() => null);
                 if (res && res.ok) {
                     const cfg = await res.json();
                     applyLandingConfig(cfg);
